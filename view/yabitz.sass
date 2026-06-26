@@ -1189,3 +1189,257 @@ span.tagsummary
     :width auto
   .inline_filter input
     :width 45%
+
+// Modern visual refresh. Kept as an override layer so legacy templates remain stable.
+body
+  :font-family -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif
+  :font-size 14px
+  :line-height 1.5
+  :color #17212b
+  :background #eef2f5
+
+a
+  :color #176b87
+  :text-decoration none
+a:hover
+  :color #0f4f64
+  :text-decoration underline
+
+#content
+  :max-width 1180px
+  :padding 0 18px
+
+#appheader
+  :height auto
+  :min-height 86px
+  :padding 18px 0 14px
+  :margin-bottom 14px
+  :border-bottom 1px solid #d6dee5
+
+#appheaderlogo
+  :position relative
+  :float left
+  :height 56px
+  :width 166px
+  :background-color #ffffff
+  :background-position center center
+  :border 1px solid #dce4ea
+  :border-radius 8px
+  :box-shadow 0 1px 2px rgba(21, 35, 45, 0.08)
+
+#nav
+  :float right
+  :margin-top 8px
+
+.droppy
+  :height auto
+.droppy a
+  :border-right none
+  :color #26323d
+  :padding 9px 11px
+  :line-height 1.1
+  :border-radius 6px
+.droppy li.hover a, .droppy a:hover
+  :background-color #176b87
+  :color #ffffff
+  :text-decoration none
+.droppy ul
+  :top 34px
+  :width 168px
+  :padding 6px
+  :background #ffffff
+  :border 1px solid #d8e0e7
+  :border-radius 8px
+  :box-shadow 0 12px 28px rgba(20, 32, 42, 0.16)
+  :z-index 20
+.droppy ul li a
+  :background-color #ffffff
+  :color #26323d
+  :border-bottom none
+  :padding 9px 10px
+  :opacity 1
+.droppy ul a.hover, .droppy ul li a:hover
+  :background-color #e8f3f6
+  :color #0f4f64
+
+#datetime
+  :color #6b7785
+  :font-size 12px
+
+#searchbox
+  :padding-top 10px
+#searchboxwrap table
+  :background #ffffff
+  :border 1px solid #cbd7df
+  :border-radius 8px
+  :box-shadow 0 1px 2px rgba(21, 35, 45, 0.06)
+#searchicon
+  :background transparent url('/images/icon_search.png') no-repeat 7px 7px
+  :height 28px
+  :width 28px
+input#searchinput
+  :height 28px
+  :width 220px
+  :padding 0 8px
+  :color #17212b
+  :background transparent
+#searchlinkwrap
+  :font-size 12px
+  :padding-top 3px
+
+button, input[type=submit], input[type=button]
+  :min-height 30px
+  :padding 5px 11px
+  :border 1px solid #b7c5cf
+  :border-radius 6px
+  :background #ffffff
+  :color #17212b
+  :cursor pointer
+  :box-shadow 0 1px 1px rgba(21, 35, 45, 0.04)
+button:hover, input[type=submit]:hover, input[type=button]:hover
+  :background #e8f3f6
+  :border-color #6ea6b8
+
+input.simple, input.smartinput, input.datainput, textarea.simple, textarea.datainput, select
+  :border 1px solid #b9c8d2
+  :border-radius 6px
+  :background #ffffff
+  :color #17212b
+  :padding 5px 8px
+  :box-sizing border-box
+input.simple:focus, input.smartinput:focus, input.datainput:focus, textarea.simple:focus, textarea.datainput:focus, select:focus
+  :outline none
+  :border-color #176b87
+  :box-shadow 0 0 0 3px rgba(23, 107, 135, 0.14)
+
+#toolbox_spacer_top, #toolbox_spacer_bottom
+  :display none
+#toolbox
+  :margin 0 0 12px
+  :padding 12px 14px
+  :border 1px solid #d6dee5
+  :border-radius 8px
+  :background #ffffff
+  :box-shadow 0 1px 3px rgba(21, 35, 45, 0.08)
+#toolbox h3
+  :font-size 22px
+  :font-weight 700
+  :color #17212b
+  :border-bottom 1px solid #e4ebf0
+  :padding-bottom 7px
+  :margin-bottom 12px
+
+.inline_filter
+  :margin 0 0 12px
+  :padding 10px 12px
+  :border 1px solid #d6dee5
+  :border-radius 8px
+  :background #ffffff
+  :box-shadow 0 1px 3px rgba(21, 35, 45, 0.08)
+.inline_filter label
+  :color #43515f
+.inline_filter input
+  :border 1px solid #b9c8d2
+  :border-radius 6px
+.inline_filter_count
+  :color #176b87
+
+#mainview, #mainview_full
+  :background transparent
+#detailview
+  :color #17212b
+
+.mainviewboxouter
+  :border 1px solid #d6dee5
+  :border-radius 8px
+  :background #ffffff
+  :box-shadow 0 1px 3px rgba(21, 35, 45, 0.08)
+  :overflow hidden
+.mainviewbox
+  :background #ffffff
+  :padding 14px
+
+.maintable, #hostlist, #servicelist, #bricklist, #contactlist, #contactmemberlist, #contentlist, #deptlist, #iplist, #racklist, #authinfolist, #hwinfolist, #osinfolist
+  :border-collapse separate
+  :border-spacing 0
+  :background #ffffff
+  :border 1px solid #d6dee5
+  :border-radius 8px
+  :overflow hidden
+  :box-shadow 0 1px 3px rgba(21, 35, 45, 0.08)
+
+=modern_row
+  :background-color #ffffff
+  :transition background-color 0.12s ease
+.host_outline, .service_item, .hwinfo_item, .osinfo_item, .content_item, .dept_item, .ipaddress_item, .ipsegment_item, .rack_item, .contact_item, .contactmember_item, .brick_item, .authinfo_item, .machine_item, .opetag_item, .charge_item
+  +modern_row
+
+=modern_cell
+  :border-bottom 1px solid #e6edf2
+  :padding 8px 9px
+.td_base, .td_base_narrow, .td_padding, .td_padding_narrow, .td_padding_ex, .td_line_head, .td_line_term, .td_selector
+  +modern_cell
+.host_displayname, .host_dnsnames_multi, .host_ipaddresses, .host_ipaddresses_multi, .host_service, .host_hwid, .host_rackunit, .host_alert, .service_name, .service_content, .content_name, .dept_name, .ipaddress_address, .rack_label, .contact_label, .contact_services, .contact_members, .brick_hwid, .brick_productname, .brick_serial, .brick_heap, .brick_delivered, .authinfo_name, .authinfo_fullname, .authinfo_priv, .authinfo_valid
+  +modern_cell
+
+tr.selectable:hover, tr.unselectable:hover
+  :background-color #eef7f9
+tr.selected_item
+  :background-color #dff1f4
+
+.host_category_summary, .brick_category_summary
+  :background-color #f4f7f9
+.host_category_summary_total, .brick_category_summary_total
+  :background-color #e7eef3
+  :font-weight bold
+
+tr.sortbar th
+  :background-color #f3f7f9
+  :border-bottom 1px solid #d6dee5
+  :color #43515f
+  :font-size 11px
+  :padding 5px
+th.sortbtn:hover
+  :background-color #e8f3f6
+  :color #0f4f64
+
+#selectionbox, #detailbox, #notesbox
+  :border 1px solid #d6dee5
+  :border-radius 8px
+  :background-color #ffffff
+  :box-shadow 0 1px 3px rgba(21, 35, 45, 0.08)
+#detailbox
+  :background-color #ffffff
+#notesbox
+  :background-color #f6f9fb
+div.dataviewhighlighted
+  :background-color #fff4d8
+
+span.status_in_service, span.status_under_dev, span.status_no_count, span.status_standby, span.status_suspended, span.status_removing, span.status_removed, span.status_missing, span.status_other, span.content_charging_normal, span.content_charging_shared, span.content_charging_no_count
+  :border none
+  :border-radius 5px
+  :padding 2px 6px
+  :font-size 12px
+
+#appfooter
+  :color #7a8793
+  :font-size 12px
+  :text-align center
+  :padding 18px 0
+
+@media screen and (max-width: 1040px)
+  #content
+    :padding 0 10px
+  #appheaderlogo
+    :float none
+    :display block
+    :margin-bottom 10px
+  #nav
+    :float none
+    :display block
+    :clear both
+  #searchbox
+    :float none
+    :clear both
+  input#searchinput
+    :width 180px
