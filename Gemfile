@@ -9,6 +9,7 @@ gem 'rack', '~> 2.2'
 gem 'haml', '~> 5.2'
 gem 'sass', '~> 3.7'
 gem 'net-ldap', '~> 0.19'
+gem 'csv', '~> 3.3'
 
 group :development, :test do
   gem 'rspec', '~> 3.13'

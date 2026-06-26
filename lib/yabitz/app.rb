@@ -109,13 +109,19 @@ class Yabitz::Application < Sinatra::Base
     redirect '/ybz'
   end
 
-  get %r!\A/ybz/?\Z! do 
+  get '/ybz' do
     authorized?
     @hide_detailview = true
     haml :toppage
   end
 
-  get %r!\A/\Z! do
+  get '/ybz/' do
+    authorized?
+    @hide_detailview = true
+    haml :toppage
+  end
+
+  get '/' do
     redirect '/ybz'
   end
 
