@@ -1,0 +1,133 @@
+-# coding: utf-8
+
+%div.hidden.resultbox
+  %select
+
+%div#toolbox_spacer_top
+%div#toolbox
+  %div ホスト追加
+  %p
+    %b キーボードショートカット
+    Alt+A=フォーム追加
+  (
+  %span.hostadd_item_count 1
+  ホスト
+  )
+  %div{:style => "margin-left: 2em;"}
+    %img{:src => "/images/1x1.gif"}
+%div#toolbox_spacer_bottom
+%div#maincontents
+  %table.mainviewboxouter
+    %tr
+      %td
+        %div.mainviewbox.cloneablebox
+          %form.mainform{:name => "host_create", :action => "/ybz/host/create", :method => "POST", :onsubmit => "return false;"}
+            %table.inputitems
+              %tr
+                %td.namefield サービス
+                %td :
+                %td.inputfield
+                  %div.hidden.suggested_items
+                  %select{:name => "service"}
+                    - unless target
+                      %option{:value => -1, :selected => true} サービスを選択してください
+                    - Yabitz::Model::Service.all.sort.each do |service|
+                      - if target and target.oid == service.oid
+                        %option{:value => service.oid, :selected => true}&= service.name + ' [' + service.content.to_s + ']'
+                      - else
+                        %option{:value => service.oid}&= service.name + ' [' + service.content.to_s + ']'
+              %tr
+                %td.namefield 状態
+                %td :
+                %td.inputfield
+                  %select{:name => "status"}
+                    - Yabitz::Model::Host::STATUS_LIST.each do |state|
+                      - if state == "UNDER_DEV"        
+                        %option{:value => state, :selected => true }= Yabitz::Model::Host.status_title(state)
+                      - else
+                        %option{:value => state}= Yabitz::Model::Host.status_title(state)
+            %div.cloneable
+            %div.hostadd_item.cloneable
+              %input.cloneable_number{:type => "hidden", :name => "adding0", :value => 0}
+              %table.inputitems.newhost
+                %tr
+                  %th.namefield タイプ
+                  %td.inputfield.left
+                    %select.host_type{:name => "type0" }
+                      - Yabitz::HostType.names.each do |type|
+                        %option{:value => h(type)}&= type
+                  %th.namefield ハイパーバイザ
+                  %td.inputfield.right
+                    %span.loading.hypervisor
+                      %img{:src => '/images/load_s.gif'}
+                    %input.host_hypervisor{:name => "hypervisor0", :onkeyup => "find_from_suggested(this);", :disabled => true}
+                    %select.host_hypervisor{:name => "hypervisor0", :onchange => "select_hypervisor(this);" }
+                      %option{:value => ""} （選択なし）
+                %tr
+                  %th.namefield ラック位置
+                  %td.inputfield.left
+                    %input.simple.optional{:type => "text", :name => "rackunit0", :size => 17}
+                  %th.namefield HWID
+                  %td.inputfield.right
+                    %input.simple.optional{:type => "text", :name => "hwid0", :size => 17}
+                %tr
+                  %th.namefield DNSName
+                  %td.inputfield.left
+                    %input.simple.blank_onclone{:type => "text", :name => "dnsnames0", :size => 17} 
+                  %th.namefield Local IP
+                  %td.inputfield.right
+                    %input.simple.blank_onclone{:type => "text", :name => "localips0", :size => 17}
+                    %span.loading
+                      %img{:src => '/images/load_s.gif'}
+                %tr
+                  %th.namefield HW
+                  %td.inputfield.left
+                    %select{:name => "hwinfo0"}
+                      - Yabitz::Model::HwInformation.all.sort.each do |hwinfo|
+                        - if hwinfo.prior
+                          %option{:value => hwinfo.oid, :selected => true}&= hwinfo.to_s
+                        - else
+                          %option{:value => hwinfo.oid}&= hwinfo.to_s
+                  %th.namefield OS
+                  %td.inputfield.right
+                    %select{:name => "os0"}
+                      - Yabitz::Model::OSInformation.all.sort.each do |osinfo|
+                        - if osinfo.prior
+                          %option.optional{:value => osinfo.oid, :selected => true}&= osinfo.name
+                        - else
+                          %option.optional{:value => osinfo.oid}&= osinfo.name
+                %tr
+                  %th.namefield メモリ
+                  %td.inputfield.left
+                    %input.simple{:type => "text", :name => "memory0", :size => 17}
+                  %th.namefield ディスク
+                  %td.inputfield.right
+                    %input.simple{:type => "text", :name => "disk0", :size => 17}
+                %tr
+                  %th.namefield CPU
+                  %td.inputfield.left
+                    %input.simple.optional{:type => "text", :name => "cpu0", :size => 17}
+                  %td{:colspan => 2} &nbsp;
+                %tr
+                  %th.namefield Global IP
+                  %td.inputfield.left
+                    %input.simple.optional{:type => "text", :name => "globalips0", :size => 17}
+                  %th.namefield Virtual IP
+                  %td.inputfield.right
+                    %input.simple.optional{:type => "text", :name => "virtualips0", :size => 17}
+                %tr
+                  %th.namefield タグ
+                  %td.inputfield.left
+                    %input.simple.optional{:type => "text", :name => "tagchain0", :size => 17}
+                  %td{:colspan => 2}
+                    %div.listclone{:style => "text-align: right;"}
+                      %img.button{:src => "/images/adding.png", :title => "さらにホストを追加" }
+            %div{:style => "padding-right: 3em; text-align: right;"}
+              %button{:onclick => "window.location.reload(); return false;"}
+                %div{:style => "padding: 0.5em;"} キャンセル
+              %button.mainform_commit{:onclick => "return false;"}
+                %div{:style => "padding: 0.5em 3em 0.5em 3em;"} 作成
+- Yabitz::Plugin.get(:host_create_assistant).each do |plugin|
+  - if plugin.respond_to?(:javascript_parts)
+    :javascript
+      #{plugin.javascript_parts}

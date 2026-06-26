@@ -1,0 +1,54 @@
+-# coding: utf-8
+
+%div#toolbox_spacer_top
+%div#toolbox
+  %p
+    表示：
+    &= cond
+  %div
+    ホストのステータス:
+    %select#os_host_selection_list
+      %option{:selected => (selected.nil? or selected == 'all'), :value => 'all'} すべて
+      %option{:selected => (selected == 'remaining'), :value => 'remaining'} 未撤去すべて
+      %option{:selected => (selected == 'tobe_remain'), :value => 'tobe_remain'} 撤去済・撤去依頼済以外すべて
+      - Yabitz::Model::Host::STATUS_LIST.each do |status|
+        - s = status.downcase
+        %option{:selected => (selected == s), :value => s}&= Yabitz::Model::Host.status_title(status)
+%div#toolbox_spacer_bottom
+%div#maincontents
+  %table#machinesummary
+    %tr.machine_item
+      %td.td_line_head
+        %div{:style => "padding-top: 3em; padding-left: 0; padding-right: 0;"}
+      %td.machine_name{:style => 'font-weight: bold;'} OS名
+      %td.td_padding
+        %img{:src => "/images/1x1.gif"}
+      %td.machine_hosts{:style => 'font-weight: bold;'} 台数
+      %td.td_padding
+        %img{:src => "/images/1x1.gif"}
+      %td.td_line_term
+        %img{:src => "/images/1x1.gif"}
+    - @osnames.each do |os|
+      %tr.machine_item.os.selectable{:id => h(escape(os))}
+        %td.td_line_head
+          %div{:style => "padding-top: 3em; padding-left: 0; padding-right: 0;"}
+        %td.machine_name&= os
+        - count = Yabitz::Model::OSInformation.count_hosts(os, *status_list)
+        %td.td_padding
+          %img{:src => "/images/1x1.gif"}
+        %td.machine_hosts&= count
+        %td.td_padding
+          %img{:src => "/images/1x1.gif"}
+        %td.td_line_term
+          %img{:src => "/images/1x1.gif"}
+    %tr.machine_item.os.selectable{:id => 'NULL'}
+      %td.td_line_head
+        %div{:style => "padding-top: 3em; padding-left: 0; padding-right: 0;"}
+      %td.machine_name 未指定ホスト
+      %td.td_padding
+        %img{:src => "/images/1x1.gif"}
+      %td.machine_hosts&= Yabitz::Model::OSInformation.count_hosts_without_os(*status_list)
+      %td.td_padding
+        %img{:src => "/images/1x1.gif"}
+      %td.td_line_term
+        %img{:src => "/images/1x1.gif"}

@@ -1,0 +1,123 @@
+-# coding: utf-8
+- @service_single ||= false
+
+%div#toolbox_spacer_top
+%div#toolbox
+  %div&= "表示：" + @page_title
+  - if enable_grep_form
+    - if in_detail.keys.size > 0
+      - grepsimple_style = 'display: none;'
+      - grepdetail_style = 'display: block;'
+    - else
+      - grepsimple_style = 'display: block;'
+      - grepdetail_style = 'display: none;'
+    %div#grepbox{:style => 'width:100%; padding:4px;'}
+      %form#grepsimple{:name => "grepsimple", :action => '/ybz/services', :method => 'GET', :style => grepsimple_style}
+        %span キーワード
+        %input{:type => 'text', :name => 'q', :value => in_q}
+        %input{:type => 'submit', :value => '絞り込み'}
+        %button{:onclick => '$("#grepdetail").show();$("#grepsimple").hide();return false;'} 詳細条件指定
+      %form#grepdetail{:name => "grepdetail", :action => '/ybz/service/search', :method => 'GET', :style => grepdetail_style}
+        %div#grepdisp
+          %span 絞り込み条件
+          - if in_q and in_q.length > 0
+            %dl.grepstat
+              %dt.grepkey キーワード
+              %dd.grepval&= in_q
+          - Yabitz::ServiceSearch::SEARCH_KEY_LIST.each do |key|
+            - if in_detail[key] and in_detail[key].length > 0
+              %dl.grepstat
+                %dt.grepkey&= Yabitz::ServiceSearch.searchkey_title(key)
+                - if key == 'charging'
+                  %dd.grepval&= Yabitz::Model::Content.charging_title(in_detail[key])
+                - else
+                  %dd.grepval&= in_detail[key]
+        %p{:style => 'clear: both;'}
+        %table#greptable
+          %tr
+            %th&= Yabitz::ServiceSearch.searchkey_title('name')
+            %td
+              %input{:type => 'text', :name => 'name', :value => in_detail['name'] || '' } 
+            %th&= Yabitz::ServiceSearch.searchkey_title('content')
+            %td
+              %input{:type => 'text', :name => 'content', :value => in_detail['content'] || ''}
+          %tr
+            %th&= Yabitz::ServiceSearch.searchkey_title('contact')
+            %td
+              %input{:type => 'text', :name => 'contact', :value => in_detail['contact'] || ''}
+            %th&= Yabitz::ServiceSearch.searchkey_title('mladdress')
+            %td
+              %input{:type => 'text', :name => 'mladdress', :value => in_detail['mladdress'] || ''}
+          %tr
+            %th&= Yabitz::ServiceSearch.searchkey_title('urls')
+            %td
+              %input{:type => 'text', :name => 'urls', :value => in_detail['urls'] || ''}
+            %th&= Yabitz::ServiceSearch.searchkey_title('notes')
+            %td
+              %input{:type => 'text', :name => 'notes', :value => in_detail['notes'] || ''}
+          %tr
+            %th&= Yabitz::ServiceSearch.searchkey_title('charging')
+            %td
+              %select{:name => 'charging'}
+                %option{:value => ''} 全て
+                - Yabitz::Model::Content::CHARGING_LABELS.each do |stat|
+                  - if in_detail['charging']
+                    - selected = (stat == in_detail['charging'])
+                  - else 
+                    - selected = false
+                  %option{:value => stat, :selected => selected}&= Yabitz::Model::Content.charging_title(stat)
+            %th&= Yabitz::ServiceSearch.searchkey_title('hypervisors')
+            %td
+              %select{:name => 'hypervisors'}
+                %option{:value => ''} 全て
+                - if in_detail['hypervisors']
+                  %option{:value => 'true', :selected => (in_detail['hypervisors'] == 'true')} TRUE
+                  %option{:value => 'false', :selected => (in_detail['hypervisors'] == 'false')} FALSE
+                - else
+                  %option{:value => 'true'} TRUE
+                  %option{:value => 'false'} FALSE
+          %tr
+            %td{:colspan => 4, :align => 'right'}
+              %input{:type => 'submit', :value => '絞り込み'}
+              %button{:onclick => '$("#grepdetail").hide();$("#grepsimple").show();return false;'} 簡易検索
+  - if @isadmin
+    %div
+      選択したサービスへの操作: 
+      %select.admin_operations#service_operation_list
+        %option{:value => 'nonedefault'} 操作を選択してください
+        %option{:value => 'none', :disabled => true} -- ホストの追加 --
+        %option{:value => 'add_host'} 選択したサービスにホストを追加
+        %option{:value => 'none', :disabled => true} -- コンテンツの変更 --
+        %option{:value => 'change_content'} 選択したサービスを他のコンテンツに移動
+        %option{:value => 'none', :disabled => true} -- データ削除 --
+        %option{:value => 'delete_records'} 選択したサービスのデータを消去
+%div#toolbox_spacer_bottom
+%div#maincontents
+  - if @isadmin and not @service_single
+    %form.inline.smartadd{:name => 'create_service', :action => '/ybz/service/create', :method => "POST"}
+      %table#servicecreate
+        %tr.service_item
+          %td.td_line_head
+            %div{:style => "padding-top: 3em; padding-left: 0; padding-right: 0;"}
+          %td.service_name{:style => "padding-left: 1em;"}
+            名称: 
+            %input.smartinput{:type => 'text', :size => 16, :name => 'name'}
+          %td.td_padding_narrow
+            %img{:src => "/images/1x1.gif"}
+          %td.service_content
+            %select{:name => 'content'}
+              - Yabitz::Model::Content.all(:sorted => true).each do |c|
+                %option{:value => c.oid}&= c.to_s
+          %td.td_padding_narrow
+            %img{:src => "/images/1x1.gif"}
+          %td.td_base
+            ML:
+            %input.smartinput{:type => 'text', :size => 16, :name => 'mladdress'}
+          %td.td_padding_narrow
+            %img{:src => "/images/1x1.gif"}
+          %td.td_base
+            %input{:type => 'image', :height => 24, :width => 24, :src => '/images/adding.png'}
+          %td.td_line_term
+            %img{:src => "/images/1x1.gif"}
+  %table#servicelist
+    = partial :service, :collection => @services

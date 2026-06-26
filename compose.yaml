@@ -1,0 +1,43 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      RACK_ENV: production
+      YABITZ_DOCKER_CONFIG: "1"
+      YABITZ_DB_HOST: db
+      YABITZ_DB_PORT: "3306"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:9292:9292"
+    volumes:
+      - ./log:/app/log
+      - ./tmp:/app/tmp
+
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MYSQL_DATABASE: ${YABITZ_DB_NAME}
+      MYSQL_USER: ${YABITZ_DB_USER}
+      MYSQL_PASSWORD: ${YABITZ_DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_0900_ai_ci
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:

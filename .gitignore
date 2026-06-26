@@ -1,0 +1,9 @@
+lib/yabitz/plugin/*_plugins
+.sass-cache
+log
+tmp/pids
+.tester_usernames
+.env
+log/*
+tmp/*
+!tmp/.keep
