@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-ruby '3.3.0'
+ruby '~> 3.3'
 
 gem 'stratum', :path => 'vendor/stratum'
 gem 'mysql2', '~> 0.5.6'

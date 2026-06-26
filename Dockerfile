@@ -17,7 +17,8 @@ WORKDIR $APP_HOME
 
 COPY Gemfile .ruby-version ./
 COPY vendor/stratum ./vendor/stratum
-RUN bundle install --without development test
+RUN bundle config set without 'development test' \
+ && bundle install
 
 COPY . .
 RUN chmod +x docker/entrypoint.sh
