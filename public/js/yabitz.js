@@ -190,7 +190,10 @@ function current_theme_name(){
   } catch(e) {
     theme = 'modern';
   }
-  if (theme != 'modern' && theme != 'soft' && theme != 'contrast') {
+  if (theme == 'soft') {
+    theme = 'modern';
+  }
+  if (theme != 'default' && theme != 'modern' && theme != 'contrast') {
     theme = 'modern';
   }
   return theme;
@@ -198,7 +201,7 @@ function current_theme_name(){
 
 function apply_theme(theme){
   $('body')
-    .removeClass('theme-modern theme-soft theme-contrast')
+    .removeClass('theme-default theme-modern theme-soft theme-contrast')
     .addClass('theme-' + theme);
 }
 
