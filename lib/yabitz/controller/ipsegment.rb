@@ -5,6 +5,71 @@ require 'sinatra/base'
 require 'haml'
 
 class Yabitz::Application < Sinatra::Base
+  def used_ip_values_by_version
+    values_by_version = Hash.new{|hash, key| hash[key] = []}
+    sql = <<~SQL
+      SELECT address, version
+      FROM #{Yabitz::Model::IPAddress.tablename}
+      WHERE head=? AND removed=?
+        AND ((hosts IS NOT NULL AND hosts != '') OR holder=?)
+    SQL
+
+    Stratum.conn do |conn|
+      conn.query(sql, Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE, Stratum::Model::BOOL_TRUE).each do |row|
+        begin
+          values_by_version[row['version']].push(IPAddr.new(row['address']).to_i)
+        rescue ArgumentError
+          next
+        end
+      end
+    end
+    values_by_version.each_value(&:sort!)
+    values_by_version
+  end
+
+  def lower_bound(values, target)
+    left = 0
+    right = values.length
+    while left < right
+      mid = (left + right) / 2
+      if values[mid] < target
+        left = mid + 1
+      else
+        right = mid
+      end
+    end
+    left
+  end
+
+  def upper_bound(values, target)
+    left = 0
+    right = values.length
+    while left < right
+      mid = (left + right) / 2
+      if values[mid] <= target
+        left = mid + 1
+      else
+        right = mid
+      end
+    end
+    left
+  end
+
+  def used_ip_count_in_network(values, network)
+    return 0 if values.empty?
+
+    range = network.to_range
+    upper_bound(values, range.last.to_i) - lower_bound(values, range.first.to_i)
+  end
+
+  def build_segment_used_ip_count_map(ipsegments)
+    values_by_version = used_ip_values_by_version
+    ipsegments.each_with_object({}) do |seg, result|
+      network = seg.to_addr
+      result[seg.to_s] = used_ip_count_in_network(values_by_version[seg.version], network)
+    end
+  end
+
   get %r!/ybz/ipsegment/list/(local|global)(\.json)?! do |net, ctype|
     authorized?
     area = (net == 'local' ? Yabitz::Model::IPSegment::AREA_LOCAL : Yabitz::Model::IPSegment::AREA_GLOBAL)
@@ -14,22 +79,7 @@ class Yabitz::Application < Sinatra::Base
       response['Content-Type'] = 'application/json'
       @ipsegments.to_json
     else
-      @ips = Yabitz::Model::IPAddress.choose(:hosts, :holder, :lowlevel => true){|hosts,holder| (not hosts.nil? and not hosts.empty?) or holder == Stratum::Model::BOOL_TRUE}
-      @segment_network_map = {}
-      @segment_used_ip_map = {}
-      @ipsegments.each do |seg|
-        @segment_network_map[seg.to_s] = seg.to_addr
-        @segment_used_ip_map[seg.to_s] = []
-      end
-      @ips.each do |ip|
-        @ipsegments.each do |seg|
-          if @segment_network_map[seg.to_s].include?(ip.to_addr)
-            @segment_used_ip_map[seg.to_s].push(ip)
-            break
-          end
-        end
-      end
-
+      @segment_used_ip_count_map = build_segment_used_ip_count_map(@ipsegments)
       @page_title = "IPセグメントリスト(#{net} network)"
       @ipsegments.sort!
       haml :ipsegment_list
@@ -45,22 +95,7 @@ class Yabitz::Application < Sinatra::Base
       response['Content-Type'] = 'application/json'
       @ipsegments.to_json
     else
-      @ips = Yabitz::Model::IPAddress.choose(:hosts, :holder, :lowlevel => true){|hosts,holder| (not hosts.nil? and not hosts.empty?) or holder == Stratum::Model::BOOL_TRUE}
-      @segment_network_map = {}
-      @segment_used_ip_map = {}
-      @ipsegments.each do |seg|
-        @segment_network_map[seg.to_s] = seg.to_addr
-        @segment_used_ip_map[seg.to_s] = []
-      end
-      @ips.each do |ip|
-        @ipsegments.each do |seg|
-          if @segment_network_map[seg.to_s].include?(IPAddr.new(ip.address))
-            @segment_used_ip_map[seg.to_s].push(ip)
-            break
-          end
-        end
-      end
-
+      @segment_used_ip_count_map = build_segment_used_ip_count_map(@ipsegments)
       @page_title = "IPセグメント (範囲: #{network_str})"
       @ipsegments.sort!
       haml :ipsegment_list
@@ -80,7 +115,7 @@ class Yabitz::Application < Sinatra::Base
       @ips = Yabitz::Model::IPAddress.choose(:hosts, :holder, :address, :lowlevel => true){|hosts,holder,address|
         ((not hosts.nil? and not hosts.empty?) or holder == Stratum::Model::BOOL_TRUE) and network.include?(IPAddr.new(address))
       }
-      @segment_used_ip_map = {@ipseg.to_s => @ips}
+      @segment_used_ip_count_map = {@ipseg.to_s => @ips.size}
       haml :ipsegment, :layout => false, :locals => {:ipsegment => @ipseg}
     when '.ajax'
       haml :ipsegment_parts, :layout => false
