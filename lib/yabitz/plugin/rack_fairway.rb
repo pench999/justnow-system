@@ -8,8 +8,9 @@ module Yabitz::Plugin
 - style_filled = 'padding-left: 5px; background-color: #DDDDFF; border: 2px solid black;'
 - style_disp = 'font-weight: bold;'
 - style_info = 'font-size: 80%;'
-- def disp(host); host.display_name + (host.parent ? '' : ' / ' + (host.hwid ? host.hwid : '')) ; end
-- def info(host); '(' + host.service.name +  (host.localips.size > 0 ? ', ' + host.localips.first.address : '') + ')'; end
+- def disp(host); host.display_name.to_s + (host.parent || host.hwid.to_s.empty? ? '' : ' / ' + host.hwid.to_s) ; end
+- def info(host); service_name = host.service ? host.service.name.to_s : 'サービス未設定'; ipaddr = (host.localips && host.localips.size > 0) ? host.localips.first.address.to_s : ''; '(' + ([service_name, ipaddr].reject{|v| v.empty?}.join(', ')) + ')'; end
+- def unit_height(host); host.hwinfo ? [host.hwinfo.unit_height.to_i, 1].max : 1; end
 - racktype = Yabitz::RackTypes.search(@rack.label)
 %table{:width => '100%', :style => 'witdh: 100%;'}
   %tr
@@ -22,7 +23,7 @@ module Yabitz::Plugin
       - if @units[full]
         - host = @units[full]
         - if @units[racktype.upper_rackunit_labels(full, 1).first] != host
-          %td{:colspan => 2, :rowspan => (host.hwinfo ? host.hwinfo.unit_height : 1), :style => style_filled}
+          %td{:colspan => 2, :rowspan => unit_height(host), :style => style_filled}
             %div
               %span{:style => style_disp}&= disp(host)
               %span{:style => style_info}&= info(host)
@@ -35,7 +36,7 @@ module Yabitz::Plugin
         - if @units[front]
           - host = @units[front]
           - if @units[racktype.upper_rackunit_labels(front, 1).first] != host
-            %td{:rowspan => (host.hwinfo ? host.hwinfo.unit_height : 1), :style => style_filled}
+            %td{:rowspan => unit_height(host), :style => style_filled}
               %div
                 %span{:style => style_disp}&= disp(host)
                 %span{:style => style_info}&= info(host)
@@ -50,7 +51,7 @@ module Yabitz::Plugin
         - if @units[rear]
           - host = @units[rear]
           - if @units[racktype.upper_rackunit_labels(rear, 1).first] != host
-            %td{:rowspan => (host.hwinfo ? host.hwinfo.unit_height : 1), :style => style_filled}
+            %td{:rowspan => unit_height(host), :style => style_filled}
               %div
                 %span{:style => style_disp}&= disp(host)
                 %span{:style => style_info}&= info(host)
@@ -97,8 +98,28 @@ EOT
       list
     end
 
+    def rackunit_status_list(rack_label, rackunits)
+      used = {}
+      rackunits.each do |rackunit|
+        label = rackunit.rackunit
+        used[label] = true
+        used[label.sub(/[fr]\Z/, '')] = true
+      end
+
+      blank_full = 0
+      used_or_partial = 0
+      rackunit_space_list(rack_label).each do |full, front, rear|
+        if used[full] or used[front] or used[rear]
+          used_or_partial += 1
+        else
+          blank_full += 1
+        end
+      end
+      [blank_full, used_or_partial]
+    end
+
     def upper_rackunit_labels(from, num)
-      from =~ rackunit_label_capture_pattern
+      return [] unless from =~ rackunit_label_capture_pattern
       rack_label = $1
       position = $2.to_i
       form = ($3 || '')

@@ -102,11 +102,17 @@ class Yabitz::Application < Sinatra::Base
       @racktype = racktype
       if racktype
         @hosts.each do |host|
-          next if host.hosttype.virtualmachine? or host.status == Yabitz::Model::Host::STATUS_REMOVED
+          hosttype = begin
+                       host.hosttype
+                     rescue ArgumentError
+                       nil
+                     end
+          next if (hosttype and hosttype.virtualmachine?) or host.status == Yabitz::Model::Host::STATUS_REMOVED
           next unless host.rackunit
           @units[host.rackunit.rackunit] = host
-          if host.hwinfo and host.hwinfo.unit_height > 1
-            racktype.upper_rackunit_labels(host.rackunit.rackunit, host.hwinfo.unit_height - 1).each{|pos| @units[pos] = host}
+          unit_height = host.hwinfo ? host.hwinfo.unit_height.to_i : 1
+          if unit_height > 1
+            racktype.upper_rackunit_labels(host.rackunit.rackunit, unit_height - 1).each{|pos| @units[pos] = host}
           end
         end
       end
