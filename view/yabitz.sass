@@ -1669,6 +1669,24 @@ body.theme-contrast .host_status_missing
 body.theme-contrast .host_status_other
   :background-color #70c7c7
 
+// List tables use horizontal rules only. Vertical rules add noise because
+// yabitz list rows contain spacer cells in addition to data cells.
+#servicelist td, #servicelist th, #servicelist .border_left, #servicelist .border_right,
+#iplist td, #iplist th, #iplist .border_left, #iplist .border_right,
+#racklist td, #racklist th, #racklist .border_left, #racklist .border_right,
+#hostlist td, #hostlist th, #hostlist .border_left, #hostlist .border_right,
+#contentlist td, #contentlist th, #contentlist .border_left, #contentlist .border_right,
+#deptlist td, #deptlist th, #deptlist .border_left, #deptlist .border_right,
+#contactlist td, #contactlist th, #contactlist .border_left, #contactlist .border_right,
+#contactmemberlist td, #contactmemberlist th, #contactmemberlist .border_left, #contactmemberlist .border_right,
+#bricklist td, #bricklist th, #bricklist .border_left, #bricklist .border_right,
+#authinfolist td, #authinfolist th, #authinfolist .border_left, #authinfolist .border_right,
+#hwinfolist td, #hwinfolist th, #hwinfolist .border_left, #hwinfolist .border_right,
+#osinfolist td, #osinfolist th, #osinfolist .border_left, #osinfolist .border_right,
+.maintable td, .maintable th, .maintable .border_left, .maintable .border_right
+  :border-left none !important
+  :border-right none !important
+
 #appfooter
   :color #7a8793
   :font-size 12px
