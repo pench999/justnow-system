@@ -1349,6 +1349,65 @@ input.simple:focus, input.smartinput:focus, input.datainput:focus, textarea.simp
 #detailview
   :color #17212b
 
+#maincontents
+  :max-width 100%
+  :overflow-x auto
+
+form.smartadd
+  :display block
+  :max-width 100%
+
+#servicecreate
+  :table-layout fixed
+  :max-width 100%
+  :margin-bottom 10px
+
+#servicecreate td
+  :box-sizing border-box
+  :vertical-align middle
+
+#servicecreate .td_line_head, #servicecreate .td_line_term
+  :width 16px
+  :padding 0
+
+#servicecreate .td_padding_narrow
+  :width 6px
+  :padding 0
+
+#servicecreate .service_name
+  :width 190px
+  :padding-left 12px
+  :white-space nowrap
+
+#servicecreate .service_content
+  :width 250px
+  :padding-right 8px
+  :text-align left
+
+#servicecreate td:nth-child(6)
+  :width 150px
+  :white-space nowrap
+
+#servicecreate td:nth-child(8)
+  :width 30px
+  :padding 0
+  :text-align center
+
+#servicecreate input.smartinput
+  :width 100%
+  :max-width 130px
+
+#servicecreate .service_name input.smartinput
+  :width 130px
+
+#servicecreate select
+  :width 100%
+  :max-width 100%
+
+#servicecreate input[type=image]
+  :height 24px
+  :width 24px
+
 .mainviewboxouter
   :border 1px solid #d6dee5
   :border-radius 8px
@@ -1359,7 +1418,7 @@ input.simple:focus, input.smartinput:focus, input.datainput:focus, textarea.simp
   :background #ffffff
   :padding 14px
 
-.maintable, #hostlist, #servicelist, #bricklist, #contactlist, #contactmemberlist, #contentlist, #deptlist, #iplist, #racklist, #authinfolist, #hwinfolist, #osinfolist
+.maintable, #hostlist, #servicecreate, #servicelist, #bricklist, #contactlist, #contactmemberlist, #contentlist, #deptlist, #iplist, #racklist, #authinfolist, #hwinfolist, #osinfolist
   :border-collapse separate
   :border-spacing 0
   :background #ffffff
