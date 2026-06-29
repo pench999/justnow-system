@@ -27,7 +27,7 @@ module Yabitz
         if @config.respond_to?(:credit_html)
           @config.credit_html(@env)
         else
-          "Yabitz / 2011 tagomoris at gmail.com / Apache License v2.0"
+          "JustNow System / 2026 imagenzai at fairway-corp.co.jp / Apache License v2.0"
         end
       end
 

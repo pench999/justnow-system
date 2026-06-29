@@ -13,7 +13,7 @@ services:
       db:
         condition: service_healthy
     ports:
-      - "127.0.0.1:9292:9292"
+      - "9292:9292"
     volumes:
       - ./log:/app/log
       - ./tmp:/app/tmp

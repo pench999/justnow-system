@@ -4,6 +4,7 @@ log
 tmp/pids
 .tester_usernames
 .env
+yabitz.sql
 log/*
 tmp/*
 !tmp/.keep

@@ -79,8 +79,9 @@ module Yabitz::Plugin
 - style_filled = 'padding-left: 5px; background-color: #DDDDFF; border: 2px solid black;'
 - style_disp = 'font-weight: bold;'
 - style_info = 'font-size: 80%;'
-- def disp(host); host.display_name + (host.parent ? '' : ' / ' + (host.hwid ? host.hwid : '')) ; end
-- def info(host); '(' + host.service.name +  (host.localips.size > 0 ? ', ' + host.localips.first.address : '') + ')'; end
+- disp = lambda {|host| host.display_name.to_s + (host.parent || host.hwid.to_s.empty? ? '' : ' / ' + host.hwid.to_s) }
+- info = lambda {|host| service_name = host.service ? host.service.name.to_s : 'サービス未設定'; ipaddr = (host.localips && host.localips.size > 0) ? host.localips.first.address.to_s : ''; '(' + ([service_name, ipaddr].reject{|v| v.empty?}.join(', ')) + ')' }
+- unit_height = lambda {|host| host.hwinfo ? [host.hwinfo.unit_height.to_i, 1].max : 1 }
 - racktype = Yabitz::RackTypes.search(@rack.label)
 %table{:width => '100%', :style => 'witdh: 100%;'}
   %tr
@@ -93,43 +94,43 @@ module Yabitz::Plugin
       - if @units[full]
         - host = @units[full]
         - if @units[racktype.upper_rackunit_labels(full, 1).first] != host
-          %td{:colspan => 2, :rowspan => (host.hwinfo ? host.hwinfo.unit_height : 1), :style => style_filled}
+          %td{:colspan => 2, :rowspan => unit_height.call(host), :style => style_filled}
             %div
-              %span{:style => style_disp}&= disp(host)
-              %span{:style => style_info}&= info(host)
+              %span{:style => style_disp}&= disp.call(host)
+              %span{:style => style_info}&= info.call(host)
             - if host.children and host.children.size > 0
               - host.children.each do |c|
                 %li
-                  %span{:style => style_disp}&= disp(c)
-                  %span{:style => style_info}&= info(c)
+                  %span{:style => style_disp}&= disp.call(c)
+                  %span{:style => style_info}&= info.call(c)
       - elsif @units[front] or @units[rear]
         - if @units[front]
           - host = @units[front]
           - if @units[racktype.upper_rackunit_labels(front, 1).first] != host
-            %td{:rowspan => (host.hwinfo ? host.hwinfo.unit_height : 1), :style => style_filled}
+            %td{:rowspan => unit_height.call(host), :style => style_filled}
               %div
-                %span{:style => style_disp}&= disp(host)
-                %span{:style => style_info}&= info(host)
+                %span{:style => style_disp}&= disp.call(host)
+                %span{:style => style_info}&= info.call(host)
               - if host.children and host.children.size > 0
                 - host.children.each do |c|
                   %li
-                    %span{:style => style_disp}&= disp(c)
-                    %span{:style => style_info}&= info(c)
+                    %span{:style => style_disp}&= disp.call(c)
+                    %span{:style => style_info}&= info.call(c)
         - else
           %td{:style => style_blank}
             %div&= '-'
         - if @units[rear]
           - host = @units[rear]
           - if @units[racktype.upper_rackunit_labels(rear, 1).first] != host
-            %td{:rowspan => (host.hwinfo ? host.hwinfo.unit_height : 1), :style => style_filled}
+            %td{:rowspan => unit_height.call(host), :style => style_filled}
               %div
-                %span{:style => style_disp}&= disp(host)
-                %span{:style => style_info}&= info(host)
+                %span{:style => style_disp}&= disp.call(host)
+                %span{:style => style_info}&= info.call(host)
               - if host.children and host.children.size > 0
                 - host.children.each do |c|
                   %li
-                    %span{:style => style_disp}&= disp(c)
-                    %span{:style => style_info}&= info(c)
+                    %span{:style => style_disp}&= disp.call(c)
+                    %span{:style => style_info}&= info.call(c)
         - else
           %td{:style => style_blank}
             %div&= '-'
