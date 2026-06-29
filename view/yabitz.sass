@@ -1441,7 +1441,7 @@ form.smartadd
   :border-right none
   :border-top none
   :padding 8px 9px
-.td_base, .td_base_narrow, .td_padding, .td_padding_narrow, .td_padding_ex, .td_line_head, .td_line_term, .td_selector, .charging_normal, .charging_no_count, .charging_shared, .rack_normal, .rack_notgoing, .rack_desc, .rack_units, .rack_state, .ipaddress_normal, .ipaddress_holder, .ipaddress_blank, .ipaddress_version, .ipaddress_area, .ipaddress_used, .ipaddress_memo
+.td_base, .td_base_narrow, .td_padding, .td_padding_narrow, .td_padding_ex, .td_line_head, .td_line_term, .td_selector, .host_status_in_service, .host_status_under_dev, .host_status_no_count, .host_status_suspended, .host_status_standby, .host_status_removing, .host_status_removed, .host_status_missing, .host_status_other, .charging_normal, .charging_no_count, .charging_shared, .rack_normal, .rack_notgoing, .rack_desc, .rack_units, .rack_state, .ipaddress_normal, .ipaddress_holder, .ipaddress_blank, .ipaddress_version, .ipaddress_area, .ipaddress_used, .ipaddress_memo
   +modern_cell
 .host_displayname, .host_dnsnames_multi, .host_ipaddresses, .host_ipaddresses_multi, .host_service, .host_hwid, .host_rackunit, .host_alert, .service_name, .service_content, .content_name, .dept_name, .ipaddress_address, .rack_label, .contact_label, .contact_services, .contact_members, .brick_hwid, .brick_productname, .brick_serial, .brick_heap, .brick_delivered, .authinfo_name, .authinfo_fullname, .authinfo_priv, .authinfo_valid
   +modern_cell
@@ -1462,12 +1462,34 @@ form.smartadd
   :background-color #f1c5cb
 .charging_shared
   :background-color #c9ddf2
+.host_status_in_service
+  :background-color #edf3f7
+.host_status_under_dev
+  :background-color #c9ddf2
+.host_status_no_count
+  :background-color #f1c5cb
+.host_status_suspended
+  :background-color #cfe6c8
+.host_status_standby
+  :background-color #d7c5f0
+.host_status_removing
+  :background-color #d9e1e7
+.host_status_removed
+  :background-color #9da9b3
+.host_status_missing
+  :background-color #f0b7bf
+.host_status_other
+  :background-color #c4e4e4
 
 .td_padding, .td_padding_narrow, .td_padding_ex
   :background transparent
 
 #iplist tr:last-child td, #servicelist tr:last-child td, #hostlist tr:last-child td, #racklist tr:last-child td, #contentlist tr:last-child td, .maintable tr:last-child td
   :border-bottom none
+
+#hostlist table.ipaddrs, #hostlist table.ipaddrs td
+  :border none
+  :box-shadow none
 
 tr.selectable:hover, tr.unselectable:hover
   :background-color #eef7f9
