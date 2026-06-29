@@ -13,4 +13,28 @@
       %a{:href => "/ybz/rack/#{next_rack.oid}"} (=> #{next_rack.label})次のラック
 %div#toolbox_spacer_bottom
 %div#maincontents
-  = haml Yabitz::RackTypes.search(@rack.label).rack_display_template
+  - if @racktype
+    = haml @racktype.rack_display_template
+  - else
+    %div.mainviewboxouter
+      %div.mainviewbox
+        %h3 未対応のラック形式
+        %p
+          &= "#{@rack.label} に一致するラックタイププラグインがありません。簡易表示に切り替えています。"
+        %table.maintable
+          %tr
+            %th.td_base ラック位置
+            %th.td_base ホスト
+            %th.td_base 状態
+          - @rackunits_for_show.each do |ru|
+            - hosts = ru.hosts.select{|h| h.status != Yabitz::Model::Host::STATUS_REMOVED}
+            %tr
+              %td.td_base&= ru.rackunit
+              %td.td_base
+                - if hosts.empty?
+                  = '-'
+                - else
+                  - hosts.each do |host|
+                    %div
+                      %a{:href => "/ybz/host/#{host.oid}"}&= host.display_name
+              %td.td_base&= hosts.map(&:status).uniq.join(', ')

@@ -94,15 +94,20 @@ class Yabitz::Application < Sinatra::Base
     when '.ajax'
       haml :rack_parts, :layout => false
     else
-      @hosts = Yabitz::Model::RackUnit.query(:rack => @rack).map(&:hosts).flatten
+      @rackunits_for_show = Yabitz::Model::RackUnit.query(:rack => @rack).sort
+      @hosts = @rackunits_for_show.map(&:hosts).flatten
       Stratum.preload(@hosts, Yabitz::Model::Host)
       @units = {}
       racktype = Yabitz::RackTypes.search(@rack.label)
-      @hosts.each do |host|
-        next if host.hosttype.virtualmachine? or host.status == Yabitz::Model::Host::STATUS_REMOVED
-        @units[host.rackunit.rackunit] = host
-        if host.hwinfo and host.hwinfo.unit_height > 1
-          racktype.upper_rackunit_labels(host.rackunit.rackunit, host.hwinfo.unit_height - 1).each{|pos| @units[pos] = host}
+      @racktype = racktype
+      if racktype
+        @hosts.each do |host|
+          next if host.hosttype.virtualmachine? or host.status == Yabitz::Model::Host::STATUS_REMOVED
+          next unless host.rackunit
+          @units[host.rackunit.rackunit] = host
+          if host.hwinfo and host.hwinfo.unit_height > 1
+            racktype.upper_rackunit_labels(host.rackunit.rackunit, host.hwinfo.unit_height - 1).each{|pos| @units[pos] = host}
+          end
         end
       end
 
