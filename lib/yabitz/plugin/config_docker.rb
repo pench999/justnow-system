@@ -17,6 +17,10 @@ module Yabitz::Plugin
       []
     end
 
+    def self.credit_html(env)
+      "JustNow System / 2026 imagenzai at fairway-corp.co.jp / Apache License v2.0"
+    end
+
     def self.dbparams(env)
       values = {
         :server => ENV.fetch('YABITZ_DB_HOST', 'db'),

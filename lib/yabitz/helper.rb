@@ -10,7 +10,7 @@ require 'cgi'
 module Sinatra
   module AuthenticateHelper
     def unauthorized!
-      response['WWW-Authenticate'] = %(Basic realm="Yabitz Authentication")
+      response['WWW-Authenticate'] = %(Basic realm="JustNow System Authentication")
       session[:username] = ""
       throw(:halt, [401, "Not Authorized\n"])
     end
