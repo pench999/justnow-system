@@ -1441,14 +1441,21 @@ form.smartadd
   :border-right none
   :border-top none
   :padding 8px 9px
-.td_base, .td_base_narrow, .td_padding, .td_padding_narrow, .td_padding_ex, .td_line_head, .td_line_term, .td_selector
+.td_base, .td_base_narrow, .td_padding, .td_padding_narrow, .td_padding_ex, .td_line_head, .td_line_term, .td_selector, .ipaddress_normal, .ipaddress_holder, .ipaddress_blank, .ipaddress_version, .ipaddress_area, .ipaddress_used, .ipaddress_memo
   +modern_cell
 .host_displayname, .host_dnsnames_multi, .host_ipaddresses, .host_ipaddresses_multi, .host_service, .host_hwid, .host_rackunit, .host_alert, .service_name, .service_content, .content_name, .dept_name, .ipaddress_address, .rack_label, .contact_label, .contact_services, .contact_members, .brick_hwid, .brick_productname, .brick_serial, .brick_heap, .brick_delivered, .authinfo_name, .authinfo_fullname, .authinfo_priv, .authinfo_valid
   +modern_cell
 
-.td_line_head, .td_line_term
+.td_line_head, .td_line_term, .border_left, .border_right
   :border-left none
   :border-right none
+
+.ipaddress_normal
+  :background-color #f2eaff
+.ipaddress_holder
+  :background-color #eef5ff
+.ipaddress_blank
+  :background-color #f7fafc
 
 .td_padding, .td_padding_narrow, .td_padding_ex
   :background transparent
