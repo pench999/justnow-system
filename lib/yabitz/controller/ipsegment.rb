@@ -97,6 +97,37 @@ class Yabitz::Application < Sinatra::Base
     end
   end
 
+  def meaningful_ipaddresses_in_network(network)
+    oids = []
+    seen = {}
+    queries = [
+      ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND hosts > ''",
+       [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE]],
+      ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND holder=?",
+       [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE, Stratum::Model::BOOL_TRUE]],
+      ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND notes > ''",
+       [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE]]
+    ]
+
+    Stratum.conn do |conn|
+      queries.each do |sql, args|
+        conn.query(sql, args).each do |row|
+          next if seen[row['oid']]
+
+          begin
+            next unless network.include?(IPAddr.new(row['address']))
+          rescue ArgumentError
+            next
+          end
+          seen[row['oid']] = true
+          oids.push(row['oid'])
+        end
+      end
+    end
+
+    Yabitz::Model::IPAddress.get(oids)
+  end
+
   get %r!/ybz/ipsegment/list/(local|global)(\.json)?! do |net, ctype|
     authorized?
     area = (net == 'local' ? Yabitz::Model::IPSegment::AREA_LOCAL : Yabitz::Model::IPSegment::AREA_GLOBAL)
@@ -138,17 +169,13 @@ class Yabitz::Application < Sinatra::Base
       response['Content-Type'] = 'application/json'
       @ipseg.to_json
     when '.tr.ajax'
-      network = IPAddr.new(@ipseg.address + '/' + @ipseg.netmask)
-      @ips = Yabitz::Model::IPAddress.choose(:hosts, :holder, :address, :lowlevel => true){|hosts,holder,address|
-        ((not hosts.nil? and not hosts.empty?) or holder == Stratum::Model::BOOL_TRUE) and network.include?(IPAddr.new(address))
-      }
-      @segment_used_ip_count_map = {@ipseg.to_s => @ips.size}
+      @segment_used_ip_count_map = build_segment_used_ip_count_map([@ipseg])
       haml :ipsegment, :layout => false, :locals => {:ipsegment => @ipseg}
     when '.ajax'
       haml :ipsegment_parts, :layout => false
     else
       @network = @ipseg.to_addr
-      @ips = Yabitz::Model::IPAddress.choose(:address){|v| @network.include?(IPAddr.new(v))}
+      @ips = meaningful_ipaddresses_in_network(@network)
       iptable = Hash[*(@ips.map{|ip| [ip.address, ip]}.flatten)]
       @network.to_range.each{|ip| @ips.push(Yabitz::Model::DummyIPAddress.new(ip.to_s)) unless iptable[ip.to_s]}
       
