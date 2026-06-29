@@ -1,4 +1,6 @@
 $(function(){
+  setup_theme_selector();
+
   var h = $('#mainview').height();
   $('#detailview').height(h);
   $('#detailboxarea').height(h);
@@ -180,6 +182,38 @@ $(function(){
     });
   }
 });
+
+function current_theme_name(){
+  var theme = 'modern';
+  try {
+    theme = localStorage.getItem('justnow.theme') || 'modern';
+  } catch(e) {
+    theme = 'modern';
+  }
+  if (theme != 'modern' && theme != 'soft' && theme != 'contrast') {
+    theme = 'modern';
+  }
+  return theme;
+}
+
+function apply_theme(theme){
+  $('body')
+    .removeClass('theme-modern theme-soft theme-contrast')
+    .addClass('theme-' + theme);
+}
+
+function setup_theme_selector(){
+  var theme = current_theme_name();
+  apply_theme(theme);
+  $('#theme_selector').val(theme).change(function(){
+    var selected = $(this).val();
+    apply_theme(selected);
+    try {
+      localStorage.setItem('justnow.theme', selected);
+    } catch(e) {
+    }
+  });
+}
 
 $.fn.hoverClass = function(c) {
   return this.each(function(){

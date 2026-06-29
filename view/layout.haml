@@ -38,7 +38,7 @@
           #{plugin.javascript_parts}
     %title
       &= (@page_title ? @page_title + " - " : "") + "JustNow System"
-  %body
+  %body.theme-modern
     %div{:id => 'confirm_dialog', :title => "確認", :style => "display: none;"}
       %div{:id => 'dialogmessage', :style => "vertical-align: middle; text-align: center;"}
         message

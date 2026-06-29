@@ -1268,6 +1268,21 @@ a:hover
 
 #searchbox
   :padding-top 10px
+#themebox
+  :float right
+  :clear right
+  :margin-top 7px
+  :font-size 12px
+  :color #43515f
+#themebox label
+  :margin-right 4px
+#theme_selector
+  :height 26px
+  :min-height 26px
+  :padding 2px 24px 2px 8px
+  :font-size 12px
+  :border-radius 6px
+  :background #ffffff
 #searchboxwrap table
   :background #ffffff
   :border 1px solid #cbd7df
@@ -1531,6 +1546,52 @@ span.status_in_service, span.status_under_dev, span.status_no_count, span.status
   :border-radius 5px
   :padding 2px 6px
   :font-size 12px
+
+body.theme-soft
+  :background #f3f7fa
+body.theme-soft .mainviewboxouter, body.theme-soft .inline_filter, body.theme-soft #selectionbox, body.theme-soft #detailbox, body.theme-soft #notesbox
+  :border-color #edf2f5
+  :box-shadow 0 1px 2px rgba(21, 35, 45, 0.04)
+body.theme-soft .maintable, body.theme-soft #hostlist, body.theme-soft #servicecreate, body.theme-soft #servicelist, body.theme-soft #bricklist, body.theme-soft #contactlist, body.theme-soft #contactmemberlist, body.theme-soft #contentlist, body.theme-soft #deptlist, body.theme-soft #iplist, body.theme-soft #racklist, body.theme-soft #authinfolist, body.theme-soft #hwinfolist, body.theme-soft #osinfolist
+  :border-color #edf2f5
+body.theme-soft .td_base, body.theme-soft .td_base_narrow, body.theme-soft .td_padding, body.theme-soft .td_padding_narrow, body.theme-soft .td_padding_ex, body.theme-soft .td_line_head, body.theme-soft .td_line_term, body.theme-soft .td_selector, body.theme-soft .host_displayname, body.theme-soft .host_dnsnames_multi, body.theme-soft .host_ipaddresses, body.theme-soft .host_ipaddresses_multi, body.theme-soft .host_service, body.theme-soft .host_hwid, body.theme-soft .host_rackunit, body.theme-soft .host_alert, body.theme-soft .service_name, body.theme-soft .service_content, body.theme-soft .content_name, body.theme-soft .dept_name, body.theme-soft .ipaddress_address, body.theme-soft .rack_label, body.theme-soft .contact_label, body.theme-soft .contact_services, body.theme-soft .contact_members, body.theme-soft .brick_hwid, body.theme-soft .brick_productname, body.theme-soft .brick_serial, body.theme-soft .brick_heap, body.theme-soft .brick_delivered, body.theme-soft .authinfo_name, body.theme-soft .authinfo_fullname, body.theme-soft .authinfo_priv, body.theme-soft .authinfo_valid
+  :border-bottom-color #eef3f6
+body.theme-soft .host_status_in_service, body.theme-soft .charging_normal, body.theme-soft .rack_normal, body.theme-soft .ipaddress_blank
+  :background-color #f7fafc
+body.theme-soft .host_status_under_dev, body.theme-soft .charging_shared, body.theme-soft .ipaddress_holder
+  :background-color #eef5ff
+body.theme-soft .host_status_standby, body.theme-soft .ipaddress_normal
+  :background-color #f2eaff
+
+body.theme-contrast
+  :background #e9eff3
+body.theme-contrast .mainviewboxouter, body.theme-contrast .inline_filter, body.theme-contrast #selectionbox, body.theme-contrast #detailbox, body.theme-contrast #notesbox
+  :border-color #b8c7d2
+  :box-shadow 0 1px 4px rgba(21, 35, 45, 0.12)
+body.theme-contrast .maintable, body.theme-contrast #hostlist, body.theme-contrast #servicecreate, body.theme-contrast #servicelist, body.theme-contrast #bricklist, body.theme-contrast #contactlist, body.theme-contrast #contactmemberlist, body.theme-contrast #contentlist, body.theme-contrast #deptlist, body.theme-contrast #iplist, body.theme-contrast #racklist, body.theme-contrast #authinfolist, body.theme-contrast #hwinfolist, body.theme-contrast #osinfolist
+  :border-color #b8c7d2
+body.theme-contrast .td_base, body.theme-contrast .td_base_narrow, body.theme-contrast .td_padding, body.theme-contrast .td_padding_narrow, body.theme-contrast .td_padding_ex, body.theme-contrast .td_line_head, body.theme-contrast .td_line_term, body.theme-contrast .td_selector, body.theme-contrast .host_displayname, body.theme-contrast .host_dnsnames_multi, body.theme-contrast .host_ipaddresses, body.theme-contrast .host_ipaddresses_multi, body.theme-contrast .host_service, body.theme-contrast .host_hwid, body.theme-contrast .host_rackunit, body.theme-contrast .host_alert, body.theme-contrast .service_name, body.theme-contrast .service_content, body.theme-contrast .content_name, body.theme-contrast .dept_name, body.theme-contrast .ipaddress_address, body.theme-contrast .rack_label, body.theme-contrast .contact_label, body.theme-contrast .contact_services, body.theme-contrast .contact_members, body.theme-contrast .brick_hwid, body.theme-contrast .brick_productname, body.theme-contrast .brick_serial, body.theme-contrast .brick_heap, body.theme-contrast .brick_delivered, body.theme-contrast .authinfo_name, body.theme-contrast .authinfo_fullname, body.theme-contrast .authinfo_priv, body.theme-contrast .authinfo_valid
+  :border-bottom-color #c3d0da
+body.theme-contrast tr.sortbar th
+  :border-bottom-color #aebfcb
+body.theme-contrast .host_status_in_service, body.theme-contrast .charging_normal, body.theme-contrast .rack_normal, body.theme-contrast .ipaddress_blank
+  :background-color #dce7ef
+body.theme-contrast .host_status_under_dev, body.theme-contrast .charging_shared, body.theme-contrast .ipaddress_holder
+  :background-color #aecbe9
+body.theme-contrast .host_status_no_count, body.theme-contrast .charging_no_count, body.theme-contrast .rack_notgoing
+  :background-color #e99da8
+body.theme-contrast .host_status_standby, body.theme-contrast .ipaddress_normal
+  :background-color #bea6df
+body.theme-contrast .host_status_suspended
+  :background-color #b5d9ad
+body.theme-contrast .host_status_removing
+  :background-color #bac7d1
+body.theme-contrast .host_status_removed
+  :background-color #748390
+body.theme-contrast .host_status_missing
+  :background-color #df8996
+body.theme-contrast .host_status_other
+  :background-color #9ed6d6
 
 #appfooter
   :color #7a8793

@@ -102,6 +102,12 @@
   %div{:style => "float: right; clear: right; padding-top: 7px;"}
     - t_now = Time.now
     %span#datetime #{t_now.year}年#{t_now.mon}月#{t_now.day}日 #{sprintf("%02d",t_now.hour)}:#{sprintf("%02d",t_now.min)}
+  %div#themebox
+    %label{:for => "theme_selector"} テーマ
+    %select#theme_selector
+      %option{:value => "modern"} Modern
+      %option{:value => "soft"} Soft
+      %option{:value => "contrast"} Contrast
   %div#searchbox
     %form.inline{:id => "smartsearch", :action => "/ybz/smartsearch"}
       %div#searchboxwrap
