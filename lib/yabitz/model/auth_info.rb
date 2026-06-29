@@ -65,7 +65,7 @@ module Yabitz
                  else
                    "forbidden"
                  end
-        Yabitz::Logging::log_auth(username, result, (user ? user.oid : ""), sourceip)
+        Yabitz::Logging::log_auth(username, result, (user ? user.oid : nil), sourceip)
 
         return nil unless fullname and user.valid?
 
