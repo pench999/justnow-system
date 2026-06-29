@@ -97,12 +97,12 @@ module Yabitz::Plugin
         - if @units[racktype.upper_rackunit_labels(full, 1).first] != host
           %td{:colspan => 2, :rowspan => unit_height.call(host), :style => style_filled}
             %div
-              %a{:href => "/ybz/host/#{host.oid}", :style => style_disp}&= disp.call(host)
+              %a{:href => "/ybz/host/" + host.oid.to_s, :style => style_disp}&= disp.call(host)
               %span{:style => style_info}&= info.call(host)
             - if host.children and host.children.size > 0
               - host.children.each do |c|
                 %li
-                  %a{:href => "/ybz/host/#{c.oid}", :style => style_disp}&= disp.call(c)
+                  %a{:href => "/ybz/host/" + c.oid.to_s, :style => style_disp}&= disp.call(c)
                   %span{:style => style_info}&= info.call(c)
       - elsif @units[front] or @units[rear]
         - if @units[front]
@@ -110,12 +110,12 @@ module Yabitz::Plugin
           - if @units[racktype.upper_rackunit_labels(front, 1).first] != host
             %td{:rowspan => unit_height.call(host), :style => style_filled}
               %div
-                %a{:href => "/ybz/host/#{host.oid}", :style => style_disp}&= disp.call(host)
+                %a{:href => "/ybz/host/" + host.oid.to_s, :style => style_disp}&= disp.call(host)
                 %span{:style => style_info}&= info.call(host)
               - if host.children and host.children.size > 0
                 - host.children.each do |c|
                   %li
-                    %a{:href => "/ybz/host/#{c.oid}", :style => style_disp}&= disp.call(c)
+                    %a{:href => "/ybz/host/" + c.oid.to_s, :style => style_disp}&= disp.call(c)
                     %span{:style => style_info}&= info.call(c)
         - else
           %td{:style => style_blank}
@@ -125,12 +125,12 @@ module Yabitz::Plugin
           - if @units[racktype.upper_rackunit_labels(rear, 1).first] != host
             %td{:rowspan => unit_height.call(host), :style => style_filled}
               %div
-                %a{:href => "/ybz/host/#{host.oid}", :style => style_disp}&= disp.call(host)
+                %a{:href => "/ybz/host/" + host.oid.to_s, :style => style_disp}&= disp.call(host)
                 %span{:style => style_info}&= info.call(host)
               - if host.children and host.children.size > 0
                 - host.children.each do |c|
                   %li
-                    %a{:href => "/ybz/host/#{c.oid}", :style => style_disp}&= disp.call(c)
+                    %a{:href => "/ybz/host/" + c.oid.to_s, :style => style_disp}&= disp.call(c)
                     %span{:style => style_info}&= info.call(c)
         - else
           %td{:style => style_blank}

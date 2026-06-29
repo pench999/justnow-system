@@ -5,26 +5,53 @@ require 'sinatra/base'
 require 'haml'
 
 class Yabitz::Application < Sinatra::Base
+  IPSEGMENT_USAGE_CACHE_TTL = 60 unless const_defined?(:IPSEGMENT_USAGE_CACHE_TTL)
+  @@used_ip_values_cache = nil
+
   def used_ip_values_by_version
+    now = Time.now.to_f
+    if @@used_ip_values_cache and now - @@used_ip_values_cache[:built_at] < IPSEGMENT_USAGE_CACHE_TTL
+      return @@used_ip_values_cache[:values]
+    end
+
     values_by_version = Hash.new{|hash, key| hash[key] = []}
-    sql = <<~SQL
+    seen = {}
+    host_sql = <<~SQL
       SELECT address, version
       FROM #{Yabitz::Model::IPAddress.tablename}
       WHERE head=? AND removed=?
-        AND ((hosts IS NOT NULL AND hosts != '') OR holder=?)
+        AND hosts > ''
+    SQL
+    holder_sql = <<~SQL
+      SELECT address, version
+      FROM #{Yabitz::Model::IPAddress.tablename}
+      WHERE head=? AND removed=?
+        AND holder=?
     SQL
 
     Stratum.conn do |conn|
-      conn.query(sql, Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE, Stratum::Model::BOOL_TRUE).each do |row|
-        begin
-          values_by_version[row['version']].push(IPAddr.new(row['address']).to_i)
-        rescue ArgumentError
-          next
+      [conn.query(host_sql, Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE),
+       conn.query(holder_sql, Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE, Stratum::Model::BOOL_TRUE)].each do |rows|
+        rows.each do |row|
+          key = row['version'].to_s + ':' + row['address'].to_s
+          next if seen[key]
+
+          begin
+            values_by_version[row['version']].push(IPAddr.new(row['address']).to_i)
+            seen[key] = true
+          rescue ArgumentError
+            next
+          end
         end
       end
     end
     values_by_version.each_value(&:sort!)
+    @@used_ip_values_cache = {:built_at => now, :values => values_by_version}
     values_by_version
+  end
+
+  def sort_ipsegments(ipsegments)
+    ipsegments.sort_by!{|seg| [seg.version, seg.to_addr.to_i, seg.netmask.to_i]}
   end
 
   def lower_bound(values, target)
@@ -81,7 +108,7 @@ class Yabitz::Application < Sinatra::Base
     else
       @segment_used_ip_count_map = build_segment_used_ip_count_map(@ipsegments)
       @page_title = "IPセグメントリスト(#{net} network)"
-      @ipsegments.sort!
+      sort_ipsegments(@ipsegments)
       haml :ipsegment_list
     end
   end
@@ -97,7 +124,7 @@ class Yabitz::Application < Sinatra::Base
     else
       @segment_used_ip_count_map = build_segment_used_ip_count_map(@ipsegments)
       @page_title = "IPセグメント (範囲: #{network_str})"
-      @ipsegments.sort!
+      sort_ipsegments(@ipsegments)
       haml :ipsegment_list
     end
   end
@@ -123,7 +150,7 @@ class Yabitz::Application < Sinatra::Base
       @network = @ipseg.to_addr
       @ips = Yabitz::Model::IPAddress.choose(:address){|v| @network.include?(IPAddr.new(v))}
       iptable = Hash[*(@ips.map{|ip| [ip.address, ip]}.flatten)]
-      @network.to_range.each{|ip| @ips.push(Yabitz::Model::IPAddress.query_or_create(:address => ip.to_s)) unless iptable[ip.to_s]}
+      @network.to_range.each{|ip| @ips.push(Yabitz::Model::DummyIPAddress.new(ip.to_s)) unless iptable[ip.to_s]}
       
       @page_title = "IPセグメント: #{@ipseg.to_s}"
       @ips.sort!

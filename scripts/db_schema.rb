@@ -115,7 +115,10 @@ hypervisors ENUM('0','1')   DEFAULT '0',
 inserted_at TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
 operated_by INT             NOT NULL,
 head        ENUM('0','1')   NOT NULL DEFAULT '1',
-removed     ENUM('0','1')   NOT NULL DEFAULT '0'
+removed     ENUM('0','1')   NOT NULL DEFAULT '0',
+KEY ipaddresses_current_idx (head, removed, holder, version, address),
+KEY ipaddresses_hosts_idx (head, removed, hosts(16), version, address),
+KEY ipaddresses_address_idx (address)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 EOSQL
 
@@ -145,7 +148,9 @@ tagchain    INT             ,
 inserted_at TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
 operated_by INT             NOT NULL,
 head        ENUM('0','1')   NOT NULL DEFAULT '1',
-removed     ENUM('0','1')   NOT NULL DEFAULT '0'
+removed     ENUM('0','1')   NOT NULL DEFAULT '0',
+KEY ipsegments_area_idx (head, removed, area, version, address),
+KEY ipsegments_address_idx (address)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 EOSQL
 
