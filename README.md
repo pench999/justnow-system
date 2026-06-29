@@ -1,281 +1,297 @@
-# Yabitz
+# JustNow System
 
-* yabitz - Yet Another Business Information Tracker Z
-* http://github.com/livedoor/yabitz
+JustNow System は、livedoor/NHN Japan が公開していた **yabitz - Yet Another Business Information Tracker Z** をベースに、現在の Ruby/MySQL 環境と Docker Compose 運用に合わせて更新したホスト管理 Web アプリケーションです。
 
-## DESCRIPTION
+オリジナル:
 
-'yabitz'(ヤビツ) は、ユーザ(多くの場合は企業)が保有するホスト、IPアドレス、データセンタラック、サーバハードウェア、OSなどの情報を管理するためのWebアプリケーションです。
+- https://github.com/livedoor/yabitz
+- yabitz は 2011 年頃にライブドア社内で利用されていた、数千台規模のホスト・IP アドレス・ラック・ハードウェア情報を集約するためのアプリケーションです。
 
-どのようなホストがどこに何台あり、どのように変わってきたのかという情報は1000台規模になると把握が極めて困難となります。また互いに矛盾する情報であっても、簡単なスプレッドシートなどでは気付くことすら不可能であったりします。そのような状況に対処するために開発されています。
-また任意のホストに対して任意のタグをつけることが可能なため、アプリケーションの自動デプロイ対象の特定など、他システムとの連携を志向してAPI等が準備されています。
+このリポジトリでは、元の設計やデータモデルを大きく変えずに、以下のような更新を加えています。
 
-だいたいにおいて数千台規模のホスト管理に使用するために作られています。厳密な意味での構成管理や性能監視などの機能は備えていません。情報の集約とチェックにのみ特化したものです。(ライブドアでは2011年2月現在で約3800ホストの情報が登録され、使用されています。)
+- Ruby 3.3 系対応
+- MySQL 8.4 対応
+- Docker Compose による VM 上の検証・運用環境
+- 旧データ移行を想定した互換修正
+- 現行ラック plugin の追加
+- UI のモダン化
+- JustNow System としてのロゴ・favicon・表示名変更
 
-主に以下のような機能を備えています。
+## 概要
 
-* 部署/コンテンツ/サービス という階層によるホストの登録と分類
-* ホストに対する以下の情報の登録
-    * 状態 (稼働中、準備中、撤去依頼済み、撤去済み、……)
-    * dns name
-    * ハードウェアID
-    * ラック位置
-    * ハードウェア種別
-    * メモリ、ディスク容量
-    * OS種別
-    * Local IPアドレス、Global IPアドレス、Virtual IPアドレス
-    * タグ、メモ
-    * 仮想マシンに対するハイパーバイザへの関連付け
-    * 障害時の連絡先情報
-* 各種情報をキーにしたホスト検索と一覧表示
-    * およびそれらのデータの json/csv 出力
-* ホスト情報への変更の追跡や差分表示
-    * 特定ホストに対して、ある期間に行われた変更内容の一覧や差分表示
-    * サービス単位でのある期間に行われた変更の差分表示
-* IPセグメントやラック単位での使用状況の確認
-* ハードウェア種類別やOS別のホスト数の確認
-* 各コンテンツ/サービスやステータスごとの利用状況サマリの計算
-    * ホスト数、使用ユニット数 など
-* 情報の欠損や矛盾する登録情報のチェック
-* プラグインによる拡張
-    * 認証システムの社内システムへの連携 (ActiveDirectory/LDAPなど)
-    * 特有のラック形式の登録と表示
-    * 各ホスト情報からの社内の他システムへのリンクの追加
-    * 独自形式のタグの追加
-* Web API経由でのホスト情報の更新
+yabitz/JustNow System は、ユーザ、主に企業が保有するホスト、IP アドレス、データセンタラック、サーバハードウェア、OS などの情報を管理するための Web アプリケーションです。
 
-動作環境は以下の通りです。
+1000 台を超える規模になると、どのようなホストがどこに何台あり、どのように変わってきたのかをスプレッドシートだけで把握することは難しくなります。また、互いに矛盾する情報や欠損に気付くことも困難です。yabitz は、そのような情報を集約し、検索・確認・チェックするために作られました。
 
-* サーバ環境
-    * Ruby 1.9.2 以降 (1.9.1以前および1.8系では動作しません)
-        * sinatra, haml/sass, ruby-ldap, ruby-mysql, rspec
-    * MySQL 5.1.x
-        * 5.0/5.5/5.6 でも動作はすると思いますが、未確認です
-    * 適当な Linux もしくは Mac OS X (Windowsでは動作しません)
-* クライアント環境
-    * モダンなブラウザ (Chrome, Safari, Firefox ...)
-    * IEでの閲覧はデザインが大変崩れます (動作はする。はず。)
+厳密な意味での構成管理、監視、プロビジョニングツールではありません。情報の集約、履歴確認、矛盾チェック、ラック/IP/ホストの見える化に特化しています。
 
-## Status
+## 主な機能
 
-絶賛開発中です。ライブドアではこのリポジトリのコードをそのまま使用して、実装・改良しながら運用しています。
-情報の種類によっては、登録はできるけど削除ができなかったりします。そのうちできるようになると思います。
+- 部署、コンテンツ、サービスの階層によるホスト分類
+- ホスト情報の登録、検索、一覧表示
+- ホスト状態の管理
+  - 稼働中
+  - 準備中
+  - 非課金
+  - 停止
+  - 待機
+  - 撤去依頼済
+  - 撤去完了
+  - 管理対象外
+- DNS 名、IP アドレス、ラック位置、ハードウェア ID の管理
+- ハードウェア種別、メモリ、ディスク容量、OS 情報の管理
+- Local / Global / Virtual IP アドレス管理
+- 仮想マシンとハイパーバイザの関連付け
+- タグ、メモ、障害時連絡先の管理
+- ホスト変更履歴と差分表示
+- サービス単位での変更履歴確認
+- IP セグメントやラック単位での利用状況確認
+- ハードウェア種別、OS 別の集計
+- ホスト情報の欠損や矛盾チェック
+- JSON/CSV 出力
+- plugin による認証、ラック形式、外部リンク、タグ拡張
 
-ユーザインターフェイスの見た目がいまいち残念なのは今のところどうにかなる予定はありません。
+## 動作環境
 
-## HOW TO RUN
-### 言語、ミドルウェア、ライブラリ
+このリポジトリでの現在の想定環境は以下です。
 
-適当なLinuxサーバで以下のものをインストールします。
+- Debian 12 などの Linux VM
+- Docker / Docker Compose
+- Ruby 3.3
+- MySQL 8.4
+- Rack / Sinatra
+- Haml / Sass
 
-* Ruby 1.9.x or 2.x
-* MySQL 5.x
+アプリケーションは Docker Compose で起動する前提にしています。Windows 端末上で Ruby を直接動かす運用は想定していません。
 
-MySQLにおける認証設定は適宜行ってください。
+## Docker Compose での起動
 
-### yabitzの展開と設定
+### 1. リポジトリを取得
 
-適当な場所に yabitz を git clone し、bundle install で依存ライブラリをインストールします。
+```bash
+git clone https://github.com/pench999/justnow-system.git
+cd justnow-system
+```
 
-    $ cd /path/to/your/app
-    $ git clone git://github.com/livedoor/yabitz.git
-    $ cd yabitz
-    $ bundle install
+### 2. `.env` を作成
 
-yabitz の動作設定を config プラグインとして作成します。とりあえず試す範囲であれば、デフォルトで用意されているものがあります。
+```bash
+cp .env.example .env
+vi .env
+```
 
-    $ cd yabitz
-    $ cat lib/yabitz/plugin/config_instant.rb
-    # -*- coding: utf-8 -*-
-    
-    module Yabitz::Plugin
-      module InstantConfig
-        def self.plugin_type
-          :config
-        end
-        def self.plugin_priority
-          1
-        end
-    
-        def self.extra_load_path(env)
-          if env == :production
-            ['~/Documents/Stratum']
-          else
-            ['~/Documents/Stratum']
-          end
-        end
-    
-        DB_PARAMS = [:server, :user, :pass, :name, :port, :sock]
-    
-        CONFIG_SET = {
-          :database => {
-            :server => 'localhost',
-            :user => 'root',
-            :pass => nil,
-            :name => 'yabitz_instant',
-            :port => nil,
-            :sock => nil,
-          },
-          :test_database => {
-            :server => 'localhost',
-            :user => 'root',
-            :pass => nil,
-            :name => 'yabitztest',
-            :port => nil,
-            :sock => nil,
-          },
-        }
-    
-        def self.dbparams(env)
-          if env == :test
-            DB_PARAMS.map{|sym| CONFIG_SET[:test_database][sym]}
-          else
-            DB_PARAMS.map{|sym| CONFIG_SET[:database][sym]}
-          end
-        end
-      end
-    end
-  
-最低限、以下の点を確認・修正してください。
+例:
 
-* ライブラリのロードバス指定 (`extra_load_path`)
-    * Stratumを展開したディレクトリは必ずここで指定してください
-        * 独自にプラグインを追加する場合には、プラグインが依存する(Ruby管理外の)ライブラリのパスはここで追加する必要があります
-* データベース接続設定
-    * 動作させるだけであれば :database 内の server/user/pass/name を指定してください
-    * ここで指定するユーザには、指定するデータベース名に対するCREATE/DROP権限をMySQL側でつけておく必要があります
- 
-上記設定が正常になっていれば、以下のコマンドでデータベースおよびテーブルが作成されます。
+```env
+YABITZ_DB_NAME=yabitz
+YABITZ_DB_USER=yabitz
+YABITZ_DB_PASSWORD=change-me
+MYSQL_ROOT_PASSWORD=change-root-password
+```
 
-    $ RACK_ENV=production bundle exec ruby scripts/db_schema.rb
+### 3. DB を起動
 
-また yabitz は情報の登録や編集、および連絡先情報の閲覧には必ず認証を要求します。認証情報は以下の方法から参照することができます。
+```bash
+docker compose up -d db
+docker compose ps
+```
 
-* 添付の instant_membersource プラグインを使用する
-    * lib/yabitz/plugin/instant_membersource.rb
-        * def self.plugin_priority の数値が 1 もしくはそれ以上になっていることを確認してください
-    * プラグイン内で指定するデータベースに認証情報マスタとなるテーブルを作成し、参照します
-    * 全ユーザ情報をあらかじめこのテーブルに登録する必要があります
-        * いちおう登録・編集用のコマンドラインインターフェイスを提供するスクリプトを同梱してありますが、機能は貧弱です
-* 任意のファイルや外部システムを参照するプラグインを追加する
-    * ライブドア社内ではActiveDirectoryを参照して認証情報を確認するためのプラグインを作成・使用しています
-    * いちおう auth_dummy プラグイン(認証情報の参照/LDAP) および member_dummy プラグイン(社員名簿マスタの参照/CSV) を例として用意してあります
+DB が `healthy` になるまで待ちます。
 
-とりあえず起動させるだけの場合は instant_membersource を使用することにして、以下のコマンドを実行します。
+### 4. DB スキーマを作成
 
-    $ vi scripts/instant/db_schema_membersource.rb # データベース名およびテーブル名を編集(問題なければデフォルトのままで)
-    $ vi lib/yabitz/plugin/instant_membersource.rb # データベースのホスト名、ユーザ名とパスワード、データベース名およびテーブル名を編集
-    $ bundle exec ruby scripts/instant/db_schema_membersource.rb HOSTNAME USERNAME [PASSWORD]
-       (たとえば ruby scripts/instant/db_schema_membersource.rb localhost root などとして実行)
+初回構築の場合は、app コンテナからスキーマ作成を実行します。
 
-上記コマンド実行後、最低限のユーザ登録を済ませます(データベース名やテーブル名を変更した場合は実行前にこのスクリプトの記述も修正すること。)。データベースへの接続にパスワードが必要な場合は最後に -p を指定すると、プロンプトで確認されます。
+```bash
+docker compose run --rm app bundle exec ruby scripts/db_schema.rb
+```
 
-    $ bundle exec ruby scripts/instant/register_user.rb HOSTNAME USERNAME [-p]
+既存の本番/検証データをインポートする場合は、空スキーマ作成ではなく、既存 DB の dump を MySQL コンテナへ投入してください。
 
-このスクリプトを実行すると、以下の情報の入力を求められます。
+例:
 
-* ユーザ名
-* パスワード
-* メールアドレス (省略可)
-* 社員番号 (省略可)
-* 役職 (省略可)
+```bash
+docker compose exec -T db mysql -uroot -p"${MYSQL_ROOT_PASSWORD}" "${YABITZ_DB_NAME}" < backup.sql
+```
 
-氏名や役職には日本語が使用できます。また既に登録済みのユーザ名を入力した場合は登録内容の変更を実施します。
-これらの登録情報は yabitz における認証や連絡先情報の検索ソースとして使用されます。(yabitz起動中にこれらのスクリプトを実行しても問題ありません。)
+### 5. アプリを起動
 
-上記準備が完了したら yabitz を起動します。sinatraには組込みサーバがあるため、以下のコマンドで localhost:9292 で起動します。
+```bash
+docker compose build app
+docker compose up -d app
+docker compose logs --tail=100 app
+```
 
-    $ RACK_ENV=production bundle exec rackup config.ru
+デフォルトではホスト側の `127.0.0.1:9292` に公開されます。
 
-unicorn で起動する場合は、以下のコマンドで localhost:8080 で起動します。
+```bash
+curl -I http://127.0.0.1:9292/ybz
+```
 
-    $ bundle exec unicorn -E production
+HTTP 200 が返れば起動しています。
 
-また mod_passenger で起動したい場合には以下のようにApacheの設定に追加します。(モジュールやRubyのパスは自分の環境にあわせて適当に。)
+## 認証とユーザー
 
-    LoadModule passenger_module /usr/local/lib/ruby/gems/1.9.1/gems/passenger-3.0.0/ext/apache2/mod_passenger.so
-    PassengerRoot /usr/local/lib/ruby/gems/1.9.1/gems/passenger-3.0.0
-    PassengerRuby /usr/local/bin/ruby
-    PassengerDefaultUser root
-    
-    <VirtualHost *>
-      ServerName yabitz.example.com
-    
-      DocumentRoot /path/to/your/app/yabitz/public
-      RackEnv production
-    
-      <Directory /path/to/your/app/yabitz/public>
-        Options +FollowSymLinks
-        AllowOverride None
-        
-        Order Deny,Allow
-        Deny from All
-        Allow from 10.0.0.0 # your local network
-      </Directory>
-    
-      <Location />
-        Order Deny,Allow
-        Deny from All
-        Allow from 10.0.0.0 # your local network
-      </Location>
-    </VirtualHost>
+yabitz/JustNow System は、ホスト情報の登録・編集などに認証を要求します。
 
-これらの設定を有効にした上で /ybz にアクセスすればトップページが出てきます。
+主な選択肢は以下です。
 
-## WHAT YOU MUST DO
+- LDAP / Active Directory 連携
+- `instant_membersource` による簡易ユーザーマスタ
+- 独自 auth plugin
 
-yabitz ではホスト情報の登録・編集などは原則として「ADMIN」の権限を持っているユーザのみが行えます。(例外として、ADMIN権限が誰にも設定されていない場合に限り、ログインした人は誰でもADMIN権限を保持しているものとして処理されます。またホスト情報のメモやタグ、連絡先情報などは一般権限のユーザでも編集が可能です。)
+ログインに成功したユーザーは `auth_info` に自動登録されます。管理者権限は、画面右上のメニューから「管理項目」→「ユーザリスト」で確認・変更できます。
 
-各ユーザの権限は、画面右上部メニューの「管理項目」から「ユーザリスト」を参照すると確認できます。各行をクリックすると表示される詳細ボックスにおいて、権限や状態のトグルが行えます。このユーザデータは、一度でもログインに成功したユーザ名について自動的に作成されます。
+ADMIN 権限を持つユーザーがまだ存在しない場合、ログイン済みユーザーを管理者として扱う互換動作があります。検証環境ではこの動作を利用できますが、本番運用では明示的に管理者を設定してください。
 
-yabitz でホスト管理を行うには、最低限以下の情報を登録する必要があります。
+## 初期登録が必要なマスタ
 
-* 部署名のリスト
-    * 使用ホスト/ユニット数をカウントする際の最も大きい集計単位
-    * ログイン後、メニューの「各種リスト」から「部署」を開いて入力欄から追加
-* コンテンツのリスト
-    * 使用ホスト/ユニット数をカウントする際の基本的な単位
-        * 集計に必要なコードを登録できる
-    * 部署追加後、メニューの「各種リスト」から「コンテンツ」を開いて入力欄から追加
-* サービスのリスト
-    * ホストをまとめる基本的な単位
-        * 障害時連絡先などはサービスを単位に設定
-    * コンテンツ追加後、メニューの「サービス一覧」を開いて入力欄から追加
-* HW情報のリスト
-    * ハードウェア筐体名ごとにサイズ、計算時の論理サイズ(ハーフ筐体などに対応)を保持
-    * メニューの「各種リスト」から「HW情報」を開いて入力欄から追加
-* OS情報のリスト
-    * ホスト登録時に選択できるOS名のリスト
-    * メニューの「各種リスト」から「OS情報」を開いて入力欄から追加
+ホスト管理を行うには、最低限以下を登録します。
 
-また他に「Local NW」「Global NW」を登録しておけば、各ネットワークセグメントの使用状況などが確認できるようになります。
+- 部署
+  - 使用ホスト数やユニット数を集計する大きな単位
+- コンテンツ
+  - 部署配下でサービスをまとめる単位
+- サービス
+  - ホストを所属させる基本単位
+- HW 情報
+  - サーバ筐体名、U 数、課金/集計用の論理ユニットなど
+- OS 情報
+  - ホスト登録時に選択する OS 名
 
-ホスト自体の登録は、ログイン後に「管理項目」の「ホスト登録」から行います。
+必要に応じて以下も登録します。
 
-## HOW TO WRITE/USE PLUGIN
+- Local NW
+- Global NW
+- ラック
+- 連絡先
+- 連絡先メンバ
 
-データセンタ事業者ごとにラックのサイズなどは異なりますし、またラック/ラック内位置の名付け規則なども異なるものと思います。標準では42Uのラックのみ対応プラグインが同梱されています。
+## ラック plugin
 
-また認証の連携や社員マスタの参照、ホスト表示時の社内連携システムへのリンク追加など、プラグインを追加することで可能なことはそれなりに色々あります。すべてについてドキュメントは現状では書けません(また yabitz 内部仕様への理解がそれなりに必要になってしまいます)。
-何か追加の必要がありそうな場合は lib/yabitz/plugin.rb を読んでみてください。また lib/yabitz/plugin ディレクトリに各種のダミープラグインがありますので、そちらも参考にしてみてください。わからない点については遠慮なく作者までご連絡ください。
+オリジナルの yabitz には 42U 標準ラックの plugin が同梱されていました。
+
+JustNow System では、既存データ移行に合わせて以下のラック形式も追加しています。
+
+- `STANDARD36U`
+- `STANDARD46U`
+- `STANDARD47U`
+- 福岡向けラック形式
+- 越谷向けラック形式
+
+ラック形式は `lib/yabitz/plugin/` 配下の rack plugin で拡張できます。データセンタごとにラック番号・ラックユニット番号の規則が異なる場合は、同様の plugin を追加してください。
+
+## データ移行
+
+既存 yabitz / JustNow 環境からの移行では、MySQL dump を Docker Compose の MySQL 8.4 環境にインポートして検証します。
+
+注意点:
+
+- MySQL 8.4 は strict mode が有効なため、古い MySQL では許容されていた空文字の数値カラム挿入などがエラーになる場合があります。
+- 旧データに未知のホスト type、未設定 service、未対応ラック形式が含まれる場合があります。
+- 既存 plugin のラック形式は移行前に確認してください。
+
+このリポジトリでは、移行中に確認された互換性問題をいくつか修正しています。
+
+- `auth_log.oid` への空文字挿入を避ける修正
+- Rack/Sinatra/Haml 更新に伴う Haml 内 helper 定義の修正
+- 未知の host type や service 未設定ホストを含むラック表示への耐性追加
+
+## 運用メモ
+
+### アプリの再ビルド
+
+```bash
+docker compose build app
+docker compose up -d app
+```
+
+### ログ確認
+
+```bash
+docker compose logs --tail=100 app
+docker compose logs --tail=100 db
+```
+
+### Ruby 構文チェック
+
+```bash
+docker compose exec app ruby -c lib/yabitz/plugin/rack_fairway.rb
+docker compose exec app ruby -c lib/yabitz/controller/rack.rb
+```
+
+### アプリ読み込み確認
+
+```bash
+docker compose exec app bundle exec ruby -e "require './lib/yabitz/app'; puts 'OK'"
+```
+
+## plugin について
+
+yabitz は plugin による拡張を前提にしています。
+
+主な plugin 種別:
+
+- `:config`
+  - DB 接続、LDAP 接続、表示クレジットなど
+- `:auth`
+  - 認証
+- `:member`
+  - 連絡先メンバ情報の参照
+- `:racktype`
+  - ラック番号、ラックユニット番号、ラック表示形式
+- `:hostlinkparts`
+  - ホスト詳細画面への外部システムリンク追加
+- `:customtag`
+  - 独自タグ処理
+
+詳細は `lib/yabitz/plugin.rb` と `lib/yabitz/plugin/` 配下の各 plugin を参照してください。
+
+## オリジナル yabitz からの主な変更
+
+- Ruby 1.9/2.x 前提から Ruby 3.3 前提へ更新
+- MySQL 5.1 前提から MySQL 8.4 前提へ更新
+- `mysql2-cs-bind` 依存を整理
+- LDAP ライブラリを現行環境向けに更新
+- Dockerfile / compose.yaml / Docker 用 config plugin を追加
+- Rack/Sinatra/Haml の現行バージョンに合わせて route / template を修正
+- UI を現代的な見た目へ調整
+- JustNow System としてロゴ、favicon、フッター、タイトル表記を変更
+- 現行運用で使用しているラック plugin を追加
 
 ## FAQ
-* ヤビツってなに
-    * http://ja.wikipedia.org/wiki/%E3%83%A4%E3%83%93%E3%83%84%E5%B3%A0
-* Z ってなに
-    * ドラゴンボールZのZみたいなもの
 
-* * * * *
+### yabitz とは何ですか
+
+Yet Another Business Information Tracker Z の略です。オリジナル README では「ヤビツ」という名前について、ヤビツ峠へのリンクが紹介されていました。
+
+http://ja.wikipedia.org/wiki/%E3%83%A4%E3%83%93%E3%83%84%E5%B3%A0
+
+### JustNow System とは何ですか
+
+このリポジトリにおける、yabitz ベースの現行運用向け名称です。内部の Ruby 名前空間や URL には互換性維持のため `Yabitz` / `/ybz` が残っています。
 
 ## License
 
+This project is based on livedoor/yabitz.
+
+Original copyright:
+
+```text
 Copyright 2011- NHN Japan Corp.
+```
+
+Current customization:
+
+```text
+JustNow System / 2026 imagenzai at fairway-corp.co.jp
+```
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-   http://www.apache.org/licenses/LICENSE-2.0
+http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
