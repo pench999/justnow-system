@@ -39,14 +39,24 @@ module Yabitz
         :product => 'bsd',
       },
       {
-        :name => 'VMware(ESXi)',
+        :name => 'KVM(Host)',
         :type => HV,
-        :product => 'vmware',
+        :product => 'kvm',
       },
       {
-        :name => 'VMware(Guest)',
+        :name => 'KVM(Guest)',
         :type => VM,
-        :product => 'vmware',
+        :product => 'kvm',
+      },
+      {
+        :name => 'ESXi(Host)',
+        :type => HV,
+        :product => 'esxi',
+      },
+      {
+        :name => 'ESXi(Guest)',
+        :type => VM,
+        :product => 'esxi',
       },
     ]
 
