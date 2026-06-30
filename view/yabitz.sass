@@ -1639,22 +1639,46 @@ th.sortbtn:hover
 
 .rack-density-compact .rack_display
   :font-size 12px !important
-.rack-density-compact .rack_host_info, .rack-density-compact .rack_host_children, .rack-density-compact .rack_host_detail
+.rack-density-compact .rack_display td
+  :padding 3px 5px !important
+.rack-density-compact .rack_host_info, .rack-density-compact .rack_host_children, .rack-density-compact .rack_host_detail, .rack-density-compact .rack_host_type_badge
   :display none !important
-.rack-density-compact .rack_host_type_badge
-  :display none !important
+.rack-density-compact .rack_host_badge
+  :font-size 9px
+  :padding 0 5px
+  :margin-left 3px
 .rack-density-compact .rack_host_name
   :font-weight 700
+  :max-width 72%
+  :overflow hidden
+  :text-overflow ellipsis
+  :white-space nowrap
+  :vertical-align middle
 
 .rack-density-standard .rack_host_detail
   :display none !important
+.rack-density-standard .rack_display td
+  :padding 6px 8px !important
+.rack-density-standard .rack_host_children
+  :display none
+.rack-density-standard .rack_host_info
+  :display inline
+.rack-density-standard .rack_host_badge
+  :font-size 10px
 
 .rack-density-detail .rack_display
   :font-size 13px !important
+.rack-density-detail .rack_display td
+  :padding 9px 10px !important
 .rack-density-detail .rack_host_detail
   :display block
 .rack-density-detail .rack_host_children
   :display block
+.rack-density-detail .rack_host_info
+  :display inline
+.rack-density-detail .rack_host_badge
+  :font-size 10px
+  :padding 2px 7px
 
 div.dataviewhighlighted
   :background-color #fff4d8
