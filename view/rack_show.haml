@@ -11,6 +11,12 @@
       = '|'
     - if next_rack
       %a{:href => "/ybz/rack/#{next_rack.oid}"} (=> #{next_rack.label})次のラック
+  %p#rack_density_box
+    %label{:for => "rack_density_selector"} 表示
+    %select#rack_density_selector
+      %option{:value => "compact"} コンパクト
+      %option{:value => "standard"} 標準
+      %option{:value => "detail"} 詳細
 %div#toolbox_spacer_bottom
 %div#maincontents
   - if @racktype
