@@ -173,6 +173,7 @@ class Yabitz::Application < Sinatra::Base
 end
 
 require_relative 'controller/authenticate.rb'
+require_relative 'controller/api_v1.rb'
 require_relative 'controller/auth_info.rb'
 require_relative 'controller/brick.rb'
 require_relative 'controller/charge.rb'

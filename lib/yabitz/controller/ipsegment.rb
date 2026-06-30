@@ -5,6 +5,129 @@ require 'sinatra/base'
 require 'haml'
 
 class Yabitz::Application < Sinatra::Base
+  IPSEGMENT_USAGE_CACHE_TTL = 60 unless const_defined?(:IPSEGMENT_USAGE_CACHE_TTL)
+  @@used_ip_values_cache = nil
+
+  def used_ip_values_by_version
+    now = Time.now.to_f
+    if @@used_ip_values_cache and now - @@used_ip_values_cache[:built_at] < IPSEGMENT_USAGE_CACHE_TTL
+      return @@used_ip_values_cache[:values]
+    end
+
+    values_by_version = Hash.new{|hash, key| hash[key] = []}
+    seen = {}
+    host_sql = <<~SQL
+      SELECT address, version
+      FROM #{Yabitz::Model::IPAddress.tablename}
+      WHERE head=? AND removed=?
+        AND hosts > ''
+    SQL
+    holder_sql = <<~SQL
+      SELECT address, version
+      FROM #{Yabitz::Model::IPAddress.tablename}
+      WHERE head=? AND removed=?
+        AND holder=?
+    SQL
+
+    Stratum.conn do |conn|
+      [conn.query(host_sql, Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE),
+       conn.query(holder_sql, Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE, Stratum::Model::BOOL_TRUE)].each do |rows|
+        rows.each do |row|
+          key = row['version'].to_s + ':' + row['address'].to_s
+          next if seen[key]
+
+          begin
+            values_by_version[row['version']].push(IPAddr.new(row['address']).to_i)
+            seen[key] = true
+          rescue ArgumentError
+            next
+          end
+        end
+      end
+    end
+    values_by_version.each_value(&:sort!)
+    @@used_ip_values_cache = {:built_at => now, :values => values_by_version}
+    values_by_version
+  end
+
+  def sort_ipsegments(ipsegments)
+    ipsegments.sort_by!{|seg| [seg.version, seg.to_addr.to_i, seg.netmask.to_i]}
+  end
+
+  def lower_bound(values, target)
+    left = 0
+    right = values.length
+    while left < right
+      mid = (left + right) / 2
+      if values[mid] < target
+        left = mid + 1
+      else
+        right = mid
+      end
+    end
+    left
+  end
+
+  def upper_bound(values, target)
+    left = 0
+    right = values.length
+    while left < right
+      mid = (left + right) / 2
+      if values[mid] <= target
+        left = mid + 1
+      else
+        right = mid
+      end
+    end
+    left
+  end
+
+  def used_ip_count_in_network(values, network)
+    return 0 if values.empty?
+
+    range = network.to_range
+    upper_bound(values, range.last.to_i) - lower_bound(values, range.first.to_i)
+  end
+
+  def build_segment_used_ip_count_map(ipsegments)
+    values_by_version = used_ip_values_by_version
+    ipsegments.each_with_object({}) do |seg, result|
+      network = seg.to_addr
+      result[seg.to_s] = used_ip_count_in_network(values_by_version[seg.version], network)
+    end
+  end
+
+  def meaningful_ipaddresses_in_network(network)
+    oids = []
+    seen = {}
+    queries = [
+      ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND hosts > ''",
+       [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE]],
+      ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND holder=?",
+       [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE, Stratum::Model::BOOL_TRUE]],
+      ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND notes > ''",
+       [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE]]
+    ]
+
+    Stratum.conn do |conn|
+      queries.each do |sql, args|
+        conn.query(sql, args).each do |row|
+          next if seen[row['oid']]
+
+          begin
+            next unless network.include?(IPAddr.new(row['address']))
+          rescue ArgumentError
+            next
+          end
+          seen[row['oid']] = true
+          oids.push(row['oid'])
+        end
+      end
+    end
+
+    Yabitz::Model::IPAddress.get(oids)
+  end
+
   get %r!/ybz/ipsegment/list/(local|global)(\.json)?! do |net, ctype|
     authorized?
     area = (net == 'local' ? Yabitz::Model::IPSegment::AREA_LOCAL : Yabitz::Model::IPSegment::AREA_GLOBAL)
@@ -14,24 +137,9 @@ class Yabitz::Application < Sinatra::Base
       response['Content-Type'] = 'application/json'
       @ipsegments.to_json
     else
-      @ips = Yabitz::Model::IPAddress.choose(:hosts, :holder, :lowlevel => true){|hosts,holder| (not hosts.nil? and not hosts.empty?) or holder == Stratum::Model::BOOL_TRUE}
-      @segment_network_map = {}
-      @segment_used_ip_map = {}
-      @ipsegments.each do |seg|
-        @segment_network_map[seg.to_s] = seg.to_addr
-        @segment_used_ip_map[seg.to_s] = []
-      end
-      @ips.each do |ip|
-        @ipsegments.each do |seg|
-          if @segment_network_map[seg.to_s].include?(ip.to_addr)
-            @segment_used_ip_map[seg.to_s].push(ip)
-            break
-          end
-        end
-      end
-
+      @segment_used_ip_count_map = build_segment_used_ip_count_map(@ipsegments)
       @page_title = "IPセグメントリスト(#{net} network)"
-      @ipsegments.sort!
+      sort_ipsegments(@ipsegments)
       haml :ipsegment_list
     end
   end
@@ -45,24 +153,9 @@ class Yabitz::Application < Sinatra::Base
       response['Content-Type'] = 'application/json'
       @ipsegments.to_json
     else
-      @ips = Yabitz::Model::IPAddress.choose(:hosts, :holder, :lowlevel => true){|hosts,holder| (not hosts.nil? and not hosts.empty?) or holder == Stratum::Model::BOOL_TRUE}
-      @segment_network_map = {}
-      @segment_used_ip_map = {}
-      @ipsegments.each do |seg|
-        @segment_network_map[seg.to_s] = seg.to_addr
-        @segment_used_ip_map[seg.to_s] = []
-      end
-      @ips.each do |ip|
-        @ipsegments.each do |seg|
-          if @segment_network_map[seg.to_s].include?(IPAddr.new(ip.address))
-            @segment_used_ip_map[seg.to_s].push(ip)
-            break
-          end
-        end
-      end
-
+      @segment_used_ip_count_map = build_segment_used_ip_count_map(@ipsegments)
       @page_title = "IPセグメント (範囲: #{network_str})"
-      @ipsegments.sort!
+      sort_ipsegments(@ipsegments)
       haml :ipsegment_list
     end
   end
@@ -76,19 +169,15 @@ class Yabitz::Application < Sinatra::Base
       response['Content-Type'] = 'application/json'
       @ipseg.to_json
     when '.tr.ajax'
-      network = IPAddr.new(@ipseg.address + '/' + @ipseg.netmask)
-      @ips = Yabitz::Model::IPAddress.choose(:hosts, :holder, :address, :lowlevel => true){|hosts,holder,address|
-        ((not hosts.nil? and not hosts.empty?) or holder == Stratum::Model::BOOL_TRUE) and network.include?(IPAddr.new(address))
-      }
-      @segment_used_ip_map = {@ipseg.to_s => @ips}
+      @segment_used_ip_count_map = build_segment_used_ip_count_map([@ipseg])
       haml :ipsegment, :layout => false, :locals => {:ipsegment => @ipseg}
     when '.ajax'
       haml :ipsegment_parts, :layout => false
     else
       @network = @ipseg.to_addr
-      @ips = Yabitz::Model::IPAddress.choose(:address){|v| @network.include?(IPAddr.new(v))}
+      @ips = meaningful_ipaddresses_in_network(@network)
       iptable = Hash[*(@ips.map{|ip| [ip.address, ip]}.flatten)]
-      @network.to_range.each{|ip| @ips.push(Yabitz::Model::IPAddress.query_or_create(:address => ip.to_s)) unless iptable[ip.to_s]}
+      @network.to_range.each{|ip| @ips.push(Yabitz::Model::DummyIPAddress.new(ip.to_s)) unless iptable[ip.to_s]}
       
       @page_title = "IPセグメント: #{@ipseg.to_s}"
       @ips.sort!

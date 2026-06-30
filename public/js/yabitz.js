@@ -1,4 +1,7 @@
 $(function(){
+  setup_theme_selector();
+  setup_rack_density_selector();
+
   var h = $('#mainview').height();
   $('#detailview').height(h);
   $('#detailboxarea').height(h);
@@ -180,6 +183,65 @@ $(function(){
     });
   }
 });
+
+function current_theme_name(){
+  var theme = 'modern';
+  try {
+    theme = localStorage.getItem('justnow.theme') || 'modern';
+  } catch(e) {
+    theme = 'modern';
+  }
+  if (theme == 'soft') {
+    theme = 'modern';
+  }
+  if (theme != 'default' && theme != 'modern' && theme != 'contrast') {
+    theme = 'modern';
+  }
+  return theme;
+}
+
+function apply_theme(theme){
+  $('body')
+    .removeClass('theme-default theme-modern theme-soft theme-contrast')
+    .addClass('theme-' + theme);
+}
+
+function setup_theme_selector(){
+  var theme = current_theme_name();
+  apply_theme(theme);
+  $('#theme_selector').val(theme).change(function(){
+    var selected = $(this).val();
+    apply_theme(selected);
+    try {
+      localStorage.setItem('justnow.theme', selected);
+    } catch(e) {
+    }
+  });
+}
+
+function current_rack_density_name(){
+  var density = 'standard';
+  try { density = localStorage.getItem('justnow.rackDensity') || 'standard'; } catch(e) { density = 'standard'; }
+  if (density != 'compact' && density != 'standard' && density != 'detail') { density = 'standard'; }
+  return density;
+}
+
+function apply_rack_density(density){
+  $('#maincontents')
+    .removeClass('rack-density-compact rack-density-standard rack-density-detail')
+    .addClass('rack-density-' + density);
+}
+
+function setup_rack_density_selector(){
+  if ($('#rack_density_selector').size() < 1) { return; }
+  var density = current_rack_density_name();
+  apply_rack_density(density);
+  $('#rack_density_selector').val(density).change(function(){
+    var selected = $(this).val();
+    apply_rack_density(selected);
+    try { localStorage.setItem('justnow.rackDensity', selected); } catch(e) {}
+  });
+}
 
 $.fn.hoverClass = function(c) {
   return this.each(function(){

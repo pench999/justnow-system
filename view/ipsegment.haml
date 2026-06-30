@@ -22,7 +22,7 @@
       = "-"
   %td.td_padding_narrow
     %img{:src => "/images/1x1.gif"}
-  %td.ipaddress_used&= @segment_used_ip_map[ipsegment.to_s].size.to_s + " address used"
+  %td.ipaddress_used&= @segment_used_ip_count_map.fetch(ipsegment.to_s, 0).to_s + " address used"
   %td.td_padding_narrow
     %img{:src => "/images/1x1.gif"}
   %td.ipaddress_memo

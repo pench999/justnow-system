@@ -75,47 +75,55 @@ module Yabitz::Plugin
 
     def self.rack_display_template
       <<EOT
-- style_blank = 'text-align: center; background-color: #e0e0e0; border: 2px solid black;'
-- style_filled = 'padding-left: 5px; background-color: #DDDDFF; border: 2px solid black;'
-- style_disp = 'font-weight: bold;'
-- style_info = 'font-size: 80%;'
+- style_blank = 'text-align: center; background-color: #f3f6f8; border: 1px solid #d4dde5; color: #7b8792; padding: 5px 6px;'
+- style_unit = 'text-align: center; background-color: #eef3f6; border: 1px solid #c8d4dd; color: #40505c; padding: 5px 6px; font-family: Consolas, Menlo, monospace; font-weight: 600; white-space: nowrap;'
+- style_filled = 'padding: 7px 9px; background-color: #e8f3f8; border: 1px solid #91bdcf; border-left: 4px solid #176b87; color: #17212b; vertical-align: top;'
+- style_disp = 'font-weight: 700; color: #075f7a; margin-right: 6px;'
+- style_info = 'font-size: 82%; color: #52616d;'
 - disp = lambda {|host| host.display_name.to_s + (host.parent || host.hwid.to_s.empty? ? '' : ' / ' + host.hwid.to_s) }
 - info = lambda {|host| service_name = host.service ? host.service.name.to_s : 'サービス未設定'; ipaddr = (host.localips && host.localips.size > 0) ? host.localips.first.address.to_s : ''; '(' + ([service_name, ipaddr].reject{|v| v.empty?}.join(', ')) + ')' }
+- detail = lambda {|host| ['状態: ' + host.status.to_s, '種別: ' + host.type.to_s, '位置: ' + host.rackunit.to_s, (host.hwinfo ? '機器: ' + host.hwinfo.name.to_s : nil), (host.cpu.to_s.empty? ? nil : 'CPU: ' + host.cpu.to_s), (host.memory.to_s.empty? ? nil : 'メモリ: ' + host.memory.to_s)].compact.join(' / ') }
 - unit_height = lambda {|host| host.hwinfo ? [host.hwinfo.unit_height.to_i, 1].max : 1 }
 - racktype = Yabitz::RackTypes.search(@rack.label)
-%table{:width => '100%', :style => 'witdh: 100%;'}
+%table.rack_display{:width => '100%', :style => 'width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px;'}
   %tr
     %td{:width => '10%', :style => style_blank} unit
     %td{:width => '45%', :align => 'center', :style => style_blank} FRONT
     %td{:width => '45%', :align => 'center', :style => style_blank} REAR
   - racktype.rackunit_space_list(@rack.label).each do |full, front, rear|
     %tr
-      %td{:style => 'border: 2px solid black;'}&= full
+      %td{:style => style_unit}&= full
       - if @units[full]
         - host = @units[full]
         - if @units[racktype.upper_rackunit_labels(full, 1).first] != host
           %td{:colspan => 2, :rowspan => unit_height.call(host), :style => style_filled}
             %div
-              %span{:style => style_disp}&= disp.call(host)
-              %span{:style => style_info}&= info.call(host)
+              %a.rack_host_name{:href => "/ybz/host/" + host.oid.to_s, :style => style_disp}&= disp.call(host)
+              %span.rack_host_info{:style => style_info}&= info.call(host)
+              %div.rack_host_detail&= detail.call(host)
             - if host.children and host.children.size > 0
-              - host.children.each do |c|
-                %li
-                  %span{:style => style_disp}&= disp.call(c)
-                  %span{:style => style_info}&= info.call(c)
+              %ul.rack_host_children
+                - host.children.each do |c|
+                  %li
+                    %a.rack_host_name{:href => "/ybz/host/" + c.oid.to_s, :style => style_disp}&= disp.call(c)
+                    %span.rack_host_info{:style => style_info}&= info.call(c)
+                    %div.rack_host_detail&= detail.call(c)
       - elsif @units[front] or @units[rear]
         - if @units[front]
           - host = @units[front]
           - if @units[racktype.upper_rackunit_labels(front, 1).first] != host
             %td{:rowspan => unit_height.call(host), :style => style_filled}
               %div
-                %span{:style => style_disp}&= disp.call(host)
-                %span{:style => style_info}&= info.call(host)
+                %a.rack_host_name{:href => "/ybz/host/" + host.oid.to_s, :style => style_disp}&= disp.call(host)
+                %span.rack_host_info{:style => style_info}&= info.call(host)
+                %div.rack_host_detail&= detail.call(host)
               - if host.children and host.children.size > 0
-                - host.children.each do |c|
-                  %li
-                    %span{:style => style_disp}&= disp.call(c)
-                    %span{:style => style_info}&= info.call(c)
+                %ul.rack_host_children
+                  - host.children.each do |c|
+                    %li
+                      %a.rack_host_name{:href => "/ybz/host/" + c.oid.to_s, :style => style_disp}&= disp.call(c)
+                      %span.rack_host_info{:style => style_info}&= info.call(c)
+                      %div.rack_host_detail&= detail.call(c)
         - else
           %td{:style => style_blank}
             %div&= '-'
@@ -124,13 +132,16 @@ module Yabitz::Plugin
           - if @units[racktype.upper_rackunit_labels(rear, 1).first] != host
             %td{:rowspan => unit_height.call(host), :style => style_filled}
               %div
-                %span{:style => style_disp}&= disp.call(host)
-                %span{:style => style_info}&= info.call(host)
+                %a.rack_host_name{:href => "/ybz/host/" + host.oid.to_s, :style => style_disp}&= disp.call(host)
+                %span.rack_host_info{:style => style_info}&= info.call(host)
+                %div.rack_host_detail&= detail.call(host)
               - if host.children and host.children.size > 0
-                - host.children.each do |c|
-                  %li
-                    %span{:style => style_disp}&= disp.call(c)
-                    %span{:style => style_info}&= info.call(c)
+                %ul.rack_host_children
+                  - host.children.each do |c|
+                    %li
+                      %a.rack_host_name{:href => "/ybz/host/" + c.oid.to_s, :style => style_disp}&= disp.call(c)
+                      %span.rack_host_info{:style => style_info}&= info.call(c)
+                      %div.rack_host_detail&= detail.call(c)
         - else
           %td{:style => style_blank}
             %div&= '-'

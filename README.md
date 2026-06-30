@@ -51,6 +51,23 @@ yabitz/JustNow System は、ユーザ、主に企業が保有するホスト、I
 - JSON/CSV 出力
 - plugin による認証、ラック形式、外部リンク、タグ拡張
 
+## API
+
+JustNow System には読み取り専用の JSON API v1 があります。
+
+主な用途:
+
+- ホスト、サービス、ラック、IP セグメント、IP アドレスの参照
+- キーワード検索
+- 更新日時を使った差分取得
+- API トークンによる外部システム連携
+- health endpoint による死活監視
+
+詳しくは以下を参照してください。
+
+- [API v1 読み取り専用API 日本語版](docs/api_v1_readonly.ja.md)
+- [API v1 Readonly English version](docs/api_v1_readonly.md)
+
 ## 動作環境
 
 このリポジトリでの現在の想定環境は以下です。

@@ -187,16 +187,16 @@ input#searchinput
 
 #mainview
   :float left
-  :width 700px
+  :width 900px
 
 #mainview_full
   :float left
-  :width 995px
+  :width 1310px
 
 #detailview
   :float right
   :position relative
-  :width 295px
+  :width 320px
 
 .inline_filter
   :margin 0 0 8px 0
@@ -1206,7 +1206,7 @@ a:hover
   :text-decoration underline
 
 #content
-  :max-width 1180px
+  :max-width 1360px
   :padding 0 18px
 
 #appheader
@@ -1268,6 +1268,34 @@ a:hover
 
 #searchbox
   :padding-top 10px
+#themebox
+  :float right
+  :clear right
+  :margin-top 7px
+  :font-size 12px
+  :color #43515f
+#themebox label
+  :margin-right 4px
+#theme_selector
+  :height 26px
+  :min-height 26px
+  :padding 2px 24px 2px 8px
+  :font-size 12px
+  :border-radius 6px
+  :background #ffffff
+#rack_density_box
+  :margin-top 8px
+  :font-size 12px
+  :color #43515f
+#rack_density_box label
+  :margin-right 4px
+#rack_density_selector
+  :height 26px
+  :min-height 26px
+  :padding 2px 24px 2px 8px
+  :font-size 12px
+  :border-radius 6px
+  :background #ffffff
 #searchboxwrap table
   :background #ffffff
   :border 1px solid #cbd7df
@@ -1411,7 +1439,7 @@ form.smartadd
   :width 24px
 
 .mainviewboxouter
-  :border 1px solid #d6dee5
+  :border 1px solid #e8edf1
   :border-radius 8px
   :background #ffffff
   :box-shadow 0 1px 3px rgba(21, 35, 45, 0.08)
@@ -1424,10 +1452,10 @@ form.smartadd
   :border-collapse separate
   :border-spacing 0
   :background #ffffff
-  :border 1px solid #d6dee5
+  :border 1px solid #edf2f5
   :border-radius 8px
   :overflow hidden
-  :box-shadow 0 1px 3px rgba(21, 35, 45, 0.08)
+  :box-shadow 0 1px 2px rgba(21, 35, 45, 0.04)
 
 =modern_row
   :background-color #ffffff
@@ -1436,12 +1464,60 @@ form.smartadd
   +modern_row
 
 =modern_cell
-  :border-bottom 1px solid #e6edf2
+  :border-bottom 1px solid #dde7ee
+  :border-left none
+  :border-right none
+  :border-top none
   :padding 8px 9px
-.td_base, .td_base_narrow, .td_padding, .td_padding_narrow, .td_padding_ex, .td_line_head, .td_line_term, .td_selector
+.td_base, .td_base_narrow, .td_padding, .td_padding_narrow, .td_padding_ex, .td_line_head, .td_line_term, .td_selector, .host_status_in_service, .host_status_under_dev, .host_status_no_count, .host_status_suspended, .host_status_standby, .host_status_removing, .host_status_removed, .host_status_missing, .host_status_other, .charging_normal, .charging_no_count, .charging_shared, .rack_normal, .rack_notgoing, .rack_desc, .rack_units, .rack_state, .ipaddress_normal, .ipaddress_holder, .ipaddress_blank, .ipaddress_version, .ipaddress_area, .ipaddress_used, .ipaddress_memo
   +modern_cell
 .host_displayname, .host_dnsnames_multi, .host_ipaddresses, .host_ipaddresses_multi, .host_service, .host_hwid, .host_rackunit, .host_alert, .service_name, .service_content, .content_name, .dept_name, .ipaddress_address, .rack_label, .contact_label, .contact_services, .contact_members, .brick_hwid, .brick_productname, .brick_serial, .brick_heap, .brick_delivered, .authinfo_name, .authinfo_fullname, .authinfo_priv, .authinfo_valid
   +modern_cell
+
+.td_line_head, .td_line_term, .border_left, .border_right
+  :border-left none
+  :border-right none
+
+.ipaddress_normal
+  :background-color #d7c5f0
+.ipaddress_holder
+  :background-color #c9ddf2
+.ipaddress_blank
+  :background-color #edf3f7
+.charging_normal, .rack_normal
+  :background-color #edf3f7
+.charging_no_count, .rack_notgoing
+  :background-color #f1c5cb
+.charging_shared
+  :background-color #c9ddf2
+.host_status_in_service
+  :background-color #edf3f7
+.host_status_under_dev
+  :background-color #c9ddf2
+.host_status_no_count
+  :background-color #f1c5cb
+.host_status_suspended
+  :background-color #cfe6c8
+.host_status_standby
+  :background-color #d7c5f0
+.host_status_removing
+  :background-color #d9e1e7
+.host_status_removed
+  :background-color #9da9b3
+.host_status_missing
+  :background-color #f0b7bf
+.host_status_other
+  :background-color #c4e4e4
+
+.td_padding, .td_padding_narrow, .td_padding_ex
+  :background transparent
+
+#iplist tr:last-child td, #servicelist tr:last-child td, #hostlist tr:last-child td, #racklist tr:last-child td, #contentlist tr:last-child td, .maintable tr:last-child td
+  :border-bottom none
+
+#hostlist table.ipaddrs, #hostlist table.ipaddrs td
+  :border none
+  :box-shadow none
 
 tr.selectable:hover, tr.unselectable:hover
   :background-color #eef7f9
@@ -1456,7 +1532,9 @@ tr.selected_item
 
 tr.sortbar th
   :background-color #f3f7f9
-  :border-bottom 1px solid #d6dee5
+  :border-bottom 1px solid #d8e3ea
+  :border-left none
+  :border-right none
   :color #43515f
   :font-size 11px
   :padding 5px
@@ -1473,6 +1551,41 @@ th.sortbtn:hover
   :background-color #ffffff
 #notesbox
   :background-color #f6f9fb
+
+.rack_display .rack_host_name
+  :display inline-block
+  :line-height 1.35
+.rack_display .rack_host_info
+  :line-height 1.35
+.rack_display .rack_host_children
+  :margin 5px 0 0 18px
+  :padding 0
+.rack_display .rack_host_children li
+  :margin 2px 0
+.rack_display .rack_host_detail
+  :display none
+  :margin-top 3px
+  :font-size 11px
+  :line-height 1.35
+  :color #52616d
+
+.rack-density-compact .rack_display
+  :font-size 12px !important
+.rack-density-compact .rack_host_info, .rack-density-compact .rack_host_children, .rack-density-compact .rack_host_detail
+  :display none !important
+.rack-density-compact .rack_host_name
+  :font-weight 700
+
+.rack-density-standard .rack_host_detail
+  :display none !important
+
+.rack-density-detail .rack_display
+  :font-size 13px !important
+.rack-density-detail .rack_host_detail
+  :display block
+.rack-density-detail .rack_host_children
+  :display block
+
 div.dataviewhighlighted
   :background-color #fff4d8
 
@@ -1481,6 +1594,146 @@ span.status_in_service, span.status_under_dev, span.status_no_count, span.status
   :border-radius 5px
   :padding 2px 6px
   :font-size 12px
+
+body.theme-default
+  :background #ffffff
+  :color #000000
+body.theme-default #appheader
+  :border-bottom 1px solid #979779
+body.theme-default .mainviewboxouter, body.theme-default .inline_filter, body.theme-default #selectionbox, body.theme-default #detailbox, body.theme-default #notesbox
+  :border-color #979779
+  :border-radius 0
+  :box-shadow none
+body.theme-default .mainviewbox, body.theme-default #detailbox
+  :background #fdfdf0
+body.theme-default .maintable, body.theme-default #hostlist, body.theme-default #servicecreate, body.theme-default #servicelist, body.theme-default #bricklist, body.theme-default #contactlist, body.theme-default #contactmemberlist, body.theme-default #contentlist, body.theme-default #deptlist, body.theme-default #iplist, body.theme-default #racklist, body.theme-default #authinfolist, body.theme-default #hwinfolist, body.theme-default #osinfolist
+  :border-color #7f7f63
+  :border-radius 0
+  :box-shadow none
+body.theme-default .td_base, body.theme-default .td_base_narrow, body.theme-default .td_padding, body.theme-default .td_padding_narrow, body.theme-default .td_padding_ex, body.theme-default .td_line_head, body.theme-default .td_line_term, body.theme-default .td_selector, body.theme-default .host_displayname, body.theme-default .host_dnsnames_multi, body.theme-default .host_ipaddresses, body.theme-default .host_ipaddresses_multi, body.theme-default .host_service, body.theme-default .host_hwid, body.theme-default .host_rackunit, body.theme-default .host_alert, body.theme-default .service_name, body.theme-default .service_content, body.theme-default .content_name, body.theme-default .dept_name, body.theme-default .ipaddress_address, body.theme-default .rack_label, body.theme-default .contact_label, body.theme-default .contact_services, body.theme-default .contact_members, body.theme-default .brick_hwid, body.theme-default .brick_productname, body.theme-default .brick_serial, body.theme-default .brick_heap, body.theme-default .brick_delivered, body.theme-default .authinfo_name, body.theme-default .authinfo_fullname, body.theme-default .authinfo_priv, body.theme-default .authinfo_valid
+  :border-bottom-color #85856a
+  :border-right 1px solid #d0d0b8
+body.theme-default .td_padding, body.theme-default .td_padding_narrow, body.theme-default .td_padding_ex
+  :border-left none
+  :border-right none
+body.theme-default .host_status_in_service, body.theme-default .host_status_under_dev, body.theme-default .host_status_no_count, body.theme-default .host_status_suspended, body.theme-default .host_status_standby, body.theme-default .host_status_removing, body.theme-default .host_status_removed, body.theme-default .host_status_missing, body.theme-default .host_status_other, body.theme-default .charging_normal, body.theme-default .charging_no_count, body.theme-default .charging_shared, body.theme-default .rack_normal, body.theme-default .rack_notgoing, body.theme-default .rack_desc, body.theme-default .rack_units, body.theme-default .rack_state, body.theme-default .ipaddress_normal, body.theme-default .ipaddress_holder, body.theme-default .ipaddress_blank, body.theme-default .ipaddress_version, body.theme-default .ipaddress_area, body.theme-default .ipaddress_used, body.theme-default .ipaddress_memo
+  :border-bottom-color #85856a
+  :border-left 1px solid #d0d0b8
+  :border-right 1px solid #d0d0b8
+body.theme-default tr.sortbar th
+  :border-bottom-color #7f7f63
+  :border-left 1px solid #d0d0b8
+  :border-right 1px solid #d0d0b8
+body.theme-default .td_line_head, body.theme-default .td_line_term
+  :border-left 1px solid #979779
+  :border-right 1px solid #979779
+body.theme-default .host_status_in_service, body.theme-default .charging_normal, body.theme-default .rack_normal, body.theme-default .ipaddress_blank
+  :background-color #fdfdf0
+body.theme-default .host_status_under_dev, body.theme-default .charging_shared, body.theme-default .ipaddress_holder
+  :background-color #4444ff
+body.theme-default .host_status_no_count, body.theme-default .charging_no_count, body.theme-default .rack_notgoing
+  :background-color #ff4444
+body.theme-default .host_status_standby, body.theme-default .ipaddress_normal
+  :background-color #ff44ff
+body.theme-default .host_status_suspended
+  :background-color #44ff44
+body.theme-default .host_status_removing
+  :background-color #bbbbbb
+body.theme-default .host_status_removed
+  :background-color #222222
+body.theme-default .host_status_missing
+  :background-color #ff9999
+body.theme-default .host_status_other
+  :background-color #00ffff
+
+body.theme-modern
+  :background #e9eff3
+body.theme-modern .mainviewboxouter, body.theme-modern .inline_filter, body.theme-modern #selectionbox, body.theme-modern #detailbox, body.theme-modern #notesbox
+  :border-color #b8c7d2
+  :box-shadow 0 1px 4px rgba(21, 35, 45, 0.12)
+body.theme-modern .maintable, body.theme-modern #hostlist, body.theme-modern #servicecreate, body.theme-modern #servicelist, body.theme-modern #bricklist, body.theme-modern #contactlist, body.theme-modern #contactmemberlist, body.theme-modern #contentlist, body.theme-modern #deptlist, body.theme-modern #iplist, body.theme-modern #racklist, body.theme-modern #authinfolist, body.theme-modern #hwinfolist, body.theme-modern #osinfolist
+  :border-color #b8c7d2
+body.theme-modern .td_base, body.theme-modern .td_base_narrow, body.theme-modern .td_padding, body.theme-modern .td_padding_narrow, body.theme-modern .td_padding_ex, body.theme-modern .td_line_head, body.theme-modern .td_line_term, body.theme-modern .td_selector, body.theme-modern .host_displayname, body.theme-modern .host_dnsnames_multi, body.theme-modern .host_ipaddresses, body.theme-modern .host_ipaddresses_multi, body.theme-modern .host_service, body.theme-modern .host_hwid, body.theme-modern .host_rackunit, body.theme-modern .host_alert, body.theme-modern .service_name, body.theme-modern .service_content, body.theme-modern .content_name, body.theme-modern .dept_name, body.theme-modern .ipaddress_address, body.theme-modern .rack_label, body.theme-modern .contact_label, body.theme-modern .contact_services, body.theme-modern .contact_members, body.theme-modern .brick_hwid, body.theme-modern .brick_productname, body.theme-modern .brick_serial, body.theme-modern .brick_heap, body.theme-modern .brick_delivered, body.theme-modern .authinfo_name, body.theme-modern .authinfo_fullname, body.theme-modern .authinfo_priv, body.theme-modern .authinfo_valid
+  :border-bottom-color #c3d0da
+body.theme-modern tr.sortbar th
+  :border-bottom-color #aebfcb
+body.theme-modern .host_status_in_service, body.theme-modern .charging_normal, body.theme-modern .rack_normal, body.theme-modern .ipaddress_blank
+  :background-color #dce7ef
+body.theme-modern .host_status_under_dev, body.theme-modern .charging_shared, body.theme-modern .ipaddress_holder
+  :background-color #aecbe9
+body.theme-modern .host_status_no_count, body.theme-modern .charging_no_count, body.theme-modern .rack_notgoing
+  :background-color #e99da8
+body.theme-modern .host_status_standby, body.theme-modern .ipaddress_normal
+  :background-color #bea6df
+body.theme-modern .host_status_suspended
+  :background-color #b5d9ad
+body.theme-modern .host_status_removing
+  :background-color #bac7d1
+body.theme-modern .host_status_removed
+  :background-color #748390
+body.theme-modern .host_status_missing
+  :background-color #df8996
+body.theme-modern .host_status_other
+  :background-color #9ed6d6
+
+body.theme-contrast
+  :background #dde7ee
+body.theme-contrast .mainviewboxouter, body.theme-contrast .inline_filter, body.theme-contrast #selectionbox, body.theme-contrast #detailbox, body.theme-contrast #notesbox
+  :border-color #7f96a8
+  :box-shadow 0 2px 6px rgba(15, 31, 45, 0.18)
+body.theme-contrast .maintable, body.theme-contrast #hostlist, body.theme-contrast #servicecreate, body.theme-contrast #servicelist, body.theme-contrast #bricklist, body.theme-contrast #contactlist, body.theme-contrast #contactmemberlist, body.theme-contrast #contentlist, body.theme-contrast #deptlist, body.theme-contrast #iplist, body.theme-contrast #racklist, body.theme-contrast #authinfolist, body.theme-contrast #hwinfolist, body.theme-contrast #osinfolist
+  :border-color #4f6a7d
+body.theme-contrast .td_base, body.theme-contrast .td_base_narrow, body.theme-contrast .td_padding, body.theme-contrast .td_padding_narrow, body.theme-contrast .td_padding_ex, body.theme-contrast .td_line_head, body.theme-contrast .td_line_term, body.theme-contrast .td_selector, body.theme-contrast .host_displayname, body.theme-contrast .host_dnsnames_multi, body.theme-contrast .host_ipaddresses, body.theme-contrast .host_ipaddresses_multi, body.theme-contrast .host_service, body.theme-contrast .host_hwid, body.theme-contrast .host_rackunit, body.theme-contrast .host_alert, body.theme-contrast .service_name, body.theme-contrast .service_content, body.theme-contrast .content_name, body.theme-contrast .dept_name, body.theme-contrast .ipaddress_address, body.theme-contrast .rack_label, body.theme-contrast .contact_label, body.theme-contrast .contact_services, body.theme-contrast .contact_members, body.theme-contrast .brick_hwid, body.theme-contrast .brick_productname, body.theme-contrast .brick_serial, body.theme-contrast .brick_heap, body.theme-contrast .brick_delivered, body.theme-contrast .authinfo_name, body.theme-contrast .authinfo_fullname, body.theme-contrast .authinfo_priv, body.theme-contrast .authinfo_valid
+  :border-bottom-color #6f8799
+  :border-right 1px solid #c2d0da
+body.theme-contrast .td_padding, body.theme-contrast .td_padding_narrow, body.theme-contrast .td_padding_ex
+  :border-left none
+  :border-right none
+body.theme-contrast .host_status_in_service, body.theme-contrast .host_status_under_dev, body.theme-contrast .host_status_no_count, body.theme-contrast .host_status_suspended, body.theme-contrast .host_status_standby, body.theme-contrast .host_status_removing, body.theme-contrast .host_status_removed, body.theme-contrast .host_status_missing, body.theme-contrast .host_status_other, body.theme-contrast .charging_normal, body.theme-contrast .charging_no_count, body.theme-contrast .charging_shared, body.theme-contrast .rack_normal, body.theme-contrast .rack_notgoing, body.theme-contrast .rack_desc, body.theme-contrast .rack_units, body.theme-contrast .rack_state, body.theme-contrast .ipaddress_normal, body.theme-contrast .ipaddress_holder, body.theme-contrast .ipaddress_blank, body.theme-contrast .ipaddress_version, body.theme-contrast .ipaddress_area, body.theme-contrast .ipaddress_used, body.theme-contrast .ipaddress_memo
+  :border-bottom-color #6f8799
+  :border-left 1px solid #c2d0da
+  :border-right 1px solid #c2d0da
+body.theme-contrast tr.sortbar th
+  :border-bottom-color #4f6a7d
+  :border-left 1px solid #c2d0da
+  :border-right 1px solid #c2d0da
+  :background-color #d7e2e9
+body.theme-contrast .host_status_in_service, body.theme-contrast .charging_normal, body.theme-contrast .rack_normal, body.theme-contrast .ipaddress_blank
+  :background-color #c8d8e4
+body.theme-contrast .host_status_under_dev, body.theme-contrast .charging_shared, body.theme-contrast .ipaddress_holder
+  :background-color #7fb0de
+body.theme-contrast .host_status_no_count, body.theme-contrast .charging_no_count, body.theme-contrast .rack_notgoing
+  :background-color #df6776
+body.theme-contrast .host_status_standby, body.theme-contrast .ipaddress_normal
+  :background-color #9f76cc
+body.theme-contrast .host_status_suspended
+  :background-color #83c177
+body.theme-contrast .host_status_removing
+  :background-color #94a7b6
+body.theme-contrast .host_status_removed
+  :background-color #566675
+body.theme-contrast .host_status_missing
+  :background-color #d75f6f
+body.theme-contrast .host_status_other
+  :background-color #70c7c7
+
+// List tables use horizontal rules only. Vertical rules add noise because
+// yabitz list rows contain spacer cells in addition to data cells.
+#servicelist td, #servicelist th, #servicelist .border_left, #servicelist .border_right,
+#iplist td, #iplist th, #iplist .border_left, #iplist .border_right,
+#racklist td, #racklist th, #racklist .border_left, #racklist .border_right,
+#hostlist td, #hostlist th, #hostlist .border_left, #hostlist .border_right,
+#contentlist td, #contentlist th, #contentlist .border_left, #contentlist .border_right,
+#deptlist td, #deptlist th, #deptlist .border_left, #deptlist .border_right,
+#contactlist td, #contactlist th, #contactlist .border_left, #contactlist .border_right,
+#contactmemberlist td, #contactmemberlist th, #contactmemberlist .border_left, #contactmemberlist .border_right,
+#bricklist td, #bricklist th, #bricklist .border_left, #bricklist .border_right,
+#authinfolist td, #authinfolist th, #authinfolist .border_left, #authinfolist .border_right,
+#hwinfolist td, #hwinfolist th, #hwinfolist .border_left, #hwinfolist .border_right,
+#osinfolist td, #osinfolist th, #osinfolist .border_left, #osinfolist .border_right,
+.maintable td, .maintable th, .maintable .border_left, .maintable .border_right
+  :border-left none !important
+  :border-right none !important
 
 #appfooter
   :color #7a8793
