@@ -258,9 +258,20 @@ class Yabitz::Application < Sinatra::Base
       :data => {
         :version => 'v1',
         :readonly => true,
-        :resources => ['hosts', 'services', 'racks', 'ipsegments', 'ipaddresses'],
+        :resources => ['health', 'hosts', 'services', 'racks', 'ipsegments', 'ipaddresses'],
         :features => ['search', 'changes'],
         :authentication => ['session', 'basic', 'bearer_token']
+      }
+    })
+  end
+
+  get '/ybz/api/v1/health' do
+    api_v1_json({
+      :data => {
+        :status => 'ok',
+        :version => 'v1',
+        :readonly => true,
+        :time => Time.now.iso8601
       }
     })
   end

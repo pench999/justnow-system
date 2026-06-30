@@ -1,13 +1,14 @@
 # JustNow System API v1 Readonly
 
-JustNow System provides a small readonly JSON API under `/ybz/api/v1`.
-The API accepts the same authentication path as the web UI, including session
-authentication and HTTP Basic authentication. For external integrations,
-readonly API tokens can also be configured with environment variables.
+JustNow System provides a readonly JSON API under `/ybz/api/v1`.
+The API is intended for inventory lookup, synchronization jobs, monitoring,
+and small internal integrations.
+
+All endpoints are read-only. They do not create, update, or delete records.
 
 ## Authentication
 
-Supported methods:
+Supported authentication methods:
 
 - Web session cookie: useful when testing from a browser.
 - HTTP Basic authentication: useful for simple internal scripts.
@@ -35,9 +36,9 @@ X-JustNow-API-Token: long-random-token
 
 Use HTTPS or a private network when sending Basic credentials or API tokens.
 
-## Response Format
+## Base Response Format
 
-List endpoints return:
+List endpoints return `data` and `meta`:
 
 ```json
 {
@@ -52,7 +53,7 @@ List endpoints return:
 }
 ```
 
-Detail endpoints return:
+Detail endpoints return a single object:
 
 ```json
 {
@@ -60,7 +61,7 @@ Detail endpoints return:
 }
 ```
 
-Errors return:
+Errors return a stable JSON object:
 
 ```json
 {
@@ -70,6 +71,13 @@ Errors return:
   }
 }
 ```
+
+Common status codes:
+
+- `200`: success
+- `401`: authentication required or invalid token
+- `404`: endpoint or resource not found
+- `406`: invalid query parameter
 
 ## Common Query Parameters
 
@@ -91,6 +99,7 @@ Timestamp values can be passed in common formats such as:
 
 ```text
 GET /ybz/api/v1
+GET /ybz/api/v1/health
 GET /ybz/api/v1/hosts
 GET /ybz/api/v1/hosts/:oid
 GET /ybz/api/v1/services
@@ -102,6 +111,27 @@ GET /ybz/api/v1/ipsegments/:oid
 GET /ybz/api/v1/ipaddresses
 GET /ybz/api/v1/ipaddresses/:address
 GET /ybz/api/v1/changes/:resource
+```
+
+## Health Check
+
+Use the health endpoint for authenticated monitoring:
+
+```text
+GET /ybz/api/v1/health
+```
+
+Example response:
+
+```json
+{
+  "data": {
+    "status": "ok",
+    "version": "v1",
+    "readonly": true,
+    "time": "2026-06-30T10:00:00+09:00"
+  }
+}
 ```
 
 ## Filters
@@ -166,7 +196,9 @@ sync client also needs removals:
 GET /ybz/api/v1/changes/hosts?since=2026-06-30T10:00:00+09:00&include_removed=true
 ```
 
-## Examples
+## Curl Examples
+
+Basic authentication:
 
 ```bash
 curl -u USERNAME:PASSWORD \
@@ -174,16 +206,61 @@ curl -u USERNAME:PASSWORD \
 
 curl -u USERNAME:PASSWORD \
   'http://localhost:9292/ybz/api/v1/hosts?status=IN_SERVICE&limit=20'
+```
 
-curl -u USERNAME:PASSWORD \
-  'http://localhost:9292/ybz/api/v1/hosts?q=web&limit=20'
+Bearer token:
 
-curl -u USERNAME:PASSWORD \
-  'http://localhost:9292/ybz/api/v1/changes/hosts?since=2026-06-30T10:00:00+09:00'
-
+```bash
 curl -H 'Authorization: Bearer long-random-token' \
   'http://localhost:9292/ybz/api/v1/hosts?limit=10'
 
+curl -H 'Authorization: Bearer long-random-token' \
+  'http://localhost:9292/ybz/api/v1/health'
+```
+
+Token header:
+
+```bash
 curl -H 'X-JustNow-API-Token: long-random-token' \
   'http://localhost:9292/ybz/api/v1/services?limit=10'
 ```
+
+Search and change queries:
+
+```bash
+curl -H 'Authorization: Bearer long-random-token' \
+  'http://localhost:9292/ybz/api/v1/hosts?q=web&limit=20'
+
+curl -H 'Authorization: Bearer long-random-token' \
+  'http://localhost:9292/ybz/api/v1/changes/hosts?since=2026-06-30T10:00:00+09:00'
+```
+
+## PowerShell Examples
+
+Bearer token:
+
+```powershell
+$headers = @{ Authorization = 'Bearer long-random-token' }
+Invoke-RestMethod -Headers $headers -Uri 'http://localhost:9292/ybz/api/v1/hosts?limit=10'
+```
+
+Health check:
+
+```powershell
+$headers = @{ Authorization = 'Bearer long-random-token' }
+Invoke-RestMethod -Headers $headers -Uri 'http://localhost:9292/ybz/api/v1/health'
+```
+
+## Sync Job Pattern
+
+A simple sync job can store the previous successful timestamp and use it as
+`since` on the next run:
+
+```text
+1. Read the last successful sync timestamp from local storage.
+2. Request /ybz/api/v1/changes/hosts?since=<timestamp>.
+3. Apply returned records to the destination system.
+4. Store the current time only after the sync succeeds.
+```
+
+Use `updated_until` or `until` when the client needs a fixed time window.
