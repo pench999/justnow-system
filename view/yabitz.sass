@@ -1283,6 +1283,19 @@ a:hover
   :font-size 12px
   :border-radius 6px
   :background #ffffff
+#rack_density_box
+  :margin-top 8px
+  :font-size 12px
+  :color #43515f
+#rack_density_box label
+  :margin-right 4px
+#rack_density_selector
+  :height 26px
+  :min-height 26px
+  :padding 2px 24px 2px 8px
+  :font-size 12px
+  :border-radius 6px
+  :background #ffffff
 #searchboxwrap table
   :background #ffffff
   :border 1px solid #cbd7df
@@ -1538,6 +1551,41 @@ th.sortbtn:hover
   :background-color #ffffff
 #notesbox
   :background-color #f6f9fb
+
+.rack_display .rack_host_name
+  :display inline-block
+  :line-height 1.35
+.rack_display .rack_host_info
+  :line-height 1.35
+.rack_display .rack_host_children
+  :margin 5px 0 0 18px
+  :padding 0
+.rack_display .rack_host_children li
+  :margin 2px 0
+.rack_display .rack_host_detail
+  :display none
+  :margin-top 3px
+  :font-size 11px
+  :line-height 1.35
+  :color #52616d
+
+.rack-density-compact .rack_display
+  :font-size 12px !important
+.rack-density-compact .rack_host_info, .rack-density-compact .rack_host_children, .rack-density-compact .rack_host_detail
+  :display none !important
+.rack-density-compact .rack_host_name
+  :font-weight 700
+
+.rack-density-standard .rack_host_detail
+  :display none !important
+
+.rack-density-detail .rack_display
+  :font-size 13px !important
+.rack-density-detail .rack_host_detail
+  :display block
+.rack-density-detail .rack_host_children
+  :display block
+
 div.dataviewhighlighted
   :background-color #fff4d8
 
