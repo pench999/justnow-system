@@ -1,5 +1,7 @@
 # JustNow System API v1 Readonly
 
+Japanese version: [api_v1_readonly.ja.md](api_v1_readonly.ja.md)
+
 JustNow System provides a readonly JSON API under `/ybz/api/v1`.
 The API is intended for inventory lookup, synchronization jobs, monitoring,
 and small internal integrations.
