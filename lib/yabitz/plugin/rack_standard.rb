@@ -83,7 +83,7 @@ module Yabitz::Plugin
 - style_info = 'font-size: 82%; color: #52616d;'
 - disp = lambda {|host| host.display_name.to_s + (host.parent || host.hwid.to_s.empty? ? '' : ' / ' + host.hwid.to_s) }
 - info = lambda {|host| service_name = host.service ? host.service.name.to_s : 'サービス未設定'; ipaddr = (host.localips && host.localips.size > 0) ? host.localips.first.address.to_s : ''; '(' + ([service_name, ipaddr].reject{|v| v.empty?}.join(', ')) + ')' }
-- detail = lambda {|host| ['状態: ' + host.status.to_s, '種別: ' + host.type.to_s, '位置: ' + host.rackunit.to_s, (host.hwinfo ? '機器: ' + host.hwinfo.name.to_s : nil), (host.cpu.to_s.empty? ? nil : 'CPU: ' + host.cpu.to_s), (host.memory.to_s.empty? ? nil : 'メモリ: ' + host.memory.to_s)].compact.join(' / ') }
+- detail = lambda {|host| ips = (host.globalips.map{|ip| '(g)' + ip.address.to_s} + host.virtualips.map{|ip| '(v)' + ip.address.to_s}); [(host.hwinfo ? '機器: ' + host.hwinfo.name.to_s : nil), (host.hwid.to_s.empty? ? nil : 'HWID: ' + host.hwid.to_s), (host.os.to_s.empty? ? nil : 'OS: ' + host.os.to_s), (host.cpu.to_s.empty? ? nil : 'CPU: ' + host.cpu.to_s), (host.memory.to_s.empty? ? nil : 'メモリ: ' + host.memory.to_s), (host.disk.to_s.empty? ? nil : 'ディスク: ' + host.disk.to_s), (ips.empty? ? nil : '追加IP: ' + ips.join(', ')), (host.notes.to_s.empty? ? nil : 'メモあり')].compact.join(' / ') }
 - unit_height = lambda {|host| host.hwinfo ? [host.hwinfo.unit_height.to_i, 1].max : 1 }
 - safe_class = lambda {|value| value.to_s.downcase.gsub(/[^a-z0-9]+/, '_').gsub(/\\A_|_\\Z/, '') }
 - host_type_group = lambda {|host| t = host.type.to_s.downcase; t.include?('guest') ? 'guest' : (t.include?('host') ? 'host' : (t.include?('switch') ? 'switch' : (t.empty? ? 'unknown' : safe_class.call(t)))) }
