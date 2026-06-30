@@ -87,7 +87,9 @@ module Yabitz::Plugin
 - unit_height = lambda {|host| host.hwinfo ? [host.hwinfo.unit_height.to_i, 1].max : 1 }
 - safe_class = lambda {|value| value.to_s.downcase.gsub(/[^a-z0-9]+/, '_').gsub(/\\A_|_\\Z/, '') }
 - host_type_group = lambda {|host| t = host.type.to_s.downcase; t.include?('guest') ? 'guest' : (t.include?('host') ? 'host' : (t.include?('switch') ? 'switch' : (t.empty? ? 'unknown' : safe_class.call(t)))) }
-- host_cell_class = lambda {|host| ['rack_host_unit', 'rack_host_status_' + safe_class.call(host.status), 'rack_host_type_' + host_type_group.call(host)].join(' ') }
+- highlighted = lambda {|host| @highlight_host_oids && @highlight_host_oids.include?(host.oid.to_i) }
+- host_or_child_highlighted = lambda {|host| highlighted.call(host) || (host.children && host.children.any?{|c| highlighted.call(c)}) }
+- host_cell_class = lambda {|host| ['rack_host_unit', 'rack_host_status_' + safe_class.call(host.status), 'rack_host_type_' + host_type_group.call(host), (host_or_child_highlighted.call(host) ? 'rack_host_highlight' : nil)].compact.join(' ') }
 - racktype = Yabitz::RackTypes.search(@rack.label)
 %table.rack_display{:width => '100%', :style => 'width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px;'}
   %tr
@@ -110,7 +112,7 @@ module Yabitz::Plugin
             - if host.children and host.children.size > 0
               %ul.rack_host_children
                 - host.children.each do |c|
-                  %li
+                  %li{:class => (highlighted.call(c) ? 'rack_child_highlight' : nil)}
                     %a.rack_host_name{:href => "/ybz/host/" + c.oid.to_s, :style => style_disp}&= disp.call(c)
                     %span.rack_host_info{:style => style_info}&= info.call(c)
                     %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(c.status)
@@ -130,7 +132,7 @@ module Yabitz::Plugin
               - if host.children and host.children.size > 0
                 %ul.rack_host_children
                   - host.children.each do |c|
-                    %li
+                    %li{:class => (highlighted.call(c) ? 'rack_child_highlight' : nil)}
                       %a.rack_host_name{:href => "/ybz/host/" + c.oid.to_s, :style => style_disp}&= disp.call(c)
                       %span.rack_host_info{:style => style_info}&= info.call(c)
                       %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(c.status)
@@ -152,7 +154,7 @@ module Yabitz::Plugin
               - if host.children and host.children.size > 0
                 %ul.rack_host_children
                   - host.children.each do |c|
-                    %li
+                    %li{:class => (highlighted.call(c) ? 'rack_child_highlight' : nil)}
                       %a.rack_host_name{:href => "/ybz/host/" + c.oid.to_s, :style => style_disp}&= disp.call(c)
                       %span.rack_host_info{:style => style_info}&= info.call(c)
                       %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(c.status)
