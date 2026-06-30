@@ -1581,10 +1581,55 @@ th.sortbtn:hover
   :color #6f5000
 .rack_empty_row .td_base
   :background-color #fffdf3
+.rack_display .rack_host_unit
+  :border-left-width 6px !important
+  :border-left-style solid !important
+.rack_display .rack_host_status_in_service
+  :background-color #e8f6ee !important
+.rack_display .rack_host_status_under_dev
+  :background-color #e7f1ff !important
+.rack_display .rack_host_status_no_count
+  :background-color #fff3cd !important
+.rack_display .rack_host_status_standby
+  :background-color #eee8ff !important
+.rack_display .rack_host_status_suspended
+  :background-color #f3f5f7 !important
+.rack_display .rack_host_status_removing
+  :background-color #ffe8d6 !important
+.rack_display .rack_host_status_removed
+  :background-color #d8dee6 !important
+.rack_display .rack_host_status_missing, .rack_display .rack_host_status_other
+  :background-color #ffe2e5 !important
+.rack_display .rack_host_type_real
+  :border-left-color #176b87 !important
+.rack_display .rack_host_type_switch
+  :border-left-color #6f42c1 !important
+.rack_display .rack_host_type_host
+  :border-left-color #0f7b45 !important
+.rack_display .rack_host_type_guest
+  :border-left-color #c56a00 !important
+.rack_display .rack_host_type_unknown
+  :border-left-color #7a8793 !important
+.rack_display .rack_host_badge
+  :display inline-block
+  :margin-left 4px
+  :padding 1px 6px
+  :border-radius 999px
+  :font-size 10px
+  :line-height 1.4
+  :font-weight 700
+  :vertical-align middle
+  :border 1px solid rgba(15, 35, 50, 0.18)
+  :background-color rgba(255, 255, 255, 0.72)
+  :color #20303a
+.rack_display .rack_host_type_badge
+  :color #52616d
 
 .rack-density-compact .rack_display
   :font-size 12px !important
 .rack-density-compact .rack_host_info, .rack-density-compact .rack_host_children, .rack-density-compact .rack_host_detail
+  :display none !important
+.rack-density-compact .rack_host_type_badge
   :display none !important
 .rack-density-compact .rack_host_name
   :font-weight 700
