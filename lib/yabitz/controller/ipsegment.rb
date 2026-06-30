@@ -128,7 +128,7 @@ class Yabitz::Application < Sinatra::Base
     Yabitz::Model::IPAddress.get(oids)
   end
 
-  get %r!/ybz/ipsegment/list/(local|global)(\.json)?! do |net, ctype|
+  get %r!/ybz/ipsegment/list/(local|global)(\.json|\.csv)?! do |net, ctype|
     authorized?
     area = (net == 'local' ? Yabitz::Model::IPSegment::AREA_LOCAL : Yabitz::Model::IPSegment::AREA_GLOBAL)
     @ipsegments = Yabitz::Model::IPSegment.query(:area => area)
@@ -136,6 +136,21 @@ class Yabitz::Application < Sinatra::Base
     when '.json'
       response['Content-Type'] = 'application/json'
       @ipsegments.to_json
+    when '.csv'
+      csv_attachment("justnow-ipsegments-#{net}.csv")
+      segment_used_ip_count_map = build_segment_used_ip_count_map(@ipsegments)
+      sort_ipsegments(@ipsegments)
+      build_csv([
+        ['OID',       Proc.new{|segment| segment.oid }],
+        ['CIDR',      Proc.new{|segment| segment.to_s }],
+        ['ADDRESS',   Proc.new{|segment| segment.address }],
+        ['NETMASK',   Proc.new{|segment| segment.netmask }],
+        ['VERSION',   Proc.new{|segment| segment.version }],
+        ['AREA',      Proc.new{|segment| segment.area }],
+        ['USED_IPS',  Proc.new{|segment| segment_used_ip_count_map[segment.to_s] || 0 }],
+        ['ONGOING',   Proc.new{|segment| segment.ongoing }],
+        ['NOTES',     Proc.new{|segment| segment.notes }]
+      ], @ipsegments)
     else
       @segment_used_ip_count_map = build_segment_used_ip_count_map(@ipsegments)
       @page_title = "IPセグメントリスト(#{net} network)"
@@ -144,7 +159,7 @@ class Yabitz::Application < Sinatra::Base
     end
   end
 
-  get %r!/ybz/ipsegment/list/network/([:.0-9]+\d/\d+)(\.json)?! do |network_str, ctype|
+  get %r!/ybz/ipsegment/list/network/([:.0-9]+\d/\d+)(\.json|\.csv)?! do |network_str, ctype|
     authorized?
     network = IPAddr.new(network_str)
     @ipsegments = Yabitz::Model::IPSegment.choose(:address){|v| network.include?(IPAddr.new(v))}
@@ -152,6 +167,21 @@ class Yabitz::Application < Sinatra::Base
     when '.json'
       response['Content-Type'] = 'application/json'
       @ipsegments.to_json
+    when '.csv'
+      csv_attachment('justnow-ipsegments-network.csv')
+      segment_used_ip_count_map = build_segment_used_ip_count_map(@ipsegments)
+      sort_ipsegments(@ipsegments)
+      build_csv([
+        ['OID',       Proc.new{|segment| segment.oid }],
+        ['CIDR',      Proc.new{|segment| segment.to_s }],
+        ['ADDRESS',   Proc.new{|segment| segment.address }],
+        ['NETMASK',   Proc.new{|segment| segment.netmask }],
+        ['VERSION',   Proc.new{|segment| segment.version }],
+        ['AREA',      Proc.new{|segment| segment.area }],
+        ['USED_IPS',  Proc.new{|segment| segment_used_ip_count_map[segment.to_s] || 0 }],
+        ['ONGOING',   Proc.new{|segment| segment.ongoing }],
+        ['NOTES',     Proc.new{|segment| segment.notes }]
+      ], @ipsegments)
     else
       @segment_used_ip_count_map = build_segment_used_ip_count_map(@ipsegments)
       @page_title = "IPセグメント (範囲: #{network_str})"
@@ -160,7 +190,7 @@ class Yabitz::Application < Sinatra::Base
     end
   end
 
-  get %r!/ybz/ipsegment/(\d+)(\.tr\.ajax|\.ajax|\.json)?! do |oid, ctype|
+  get %r!/ybz/ipsegment/(\d+)(\.tr\.ajax|\.ajax|\.json|\.csv)?! do |oid, ctype|
     authorized?
     @ipseg = Yabitz::Model::IPSegment.get(oid.to_i)
     pass unless @ipseg
@@ -168,6 +198,17 @@ class Yabitz::Application < Sinatra::Base
     when '.json'
       response['Content-Type'] = 'application/json'
       @ipseg.to_json
+    when '.csv'
+      csv_attachment("justnow-ipsegment-#{@ipseg.address}_#{@ipseg.netmask}.csv")
+      network = @ipseg.to_addr
+      ips = meaningful_ipaddresses_in_network(network).sort
+      build_csv([
+        ['ADDRESS',  Proc.new{|ip| ip.address }],
+        ['VERSION',  Proc.new{|ip| ip.version }],
+        ['HOSTS',    Proc.new{|ip| ip.hosts }],
+        ['HOLDER',   Proc.new{|ip| ip.holder }],
+        ['NOTES',    Proc.new{|ip| ip.notes }]
+      ], ips)
     when '.tr.ajax'
       @segment_used_ip_count_map = build_segment_used_ip_count_map([@ipseg])
       haml :ipsegment, :layout => false, :locals => {:ipsegment => @ipseg}

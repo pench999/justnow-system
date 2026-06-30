@@ -22,13 +22,32 @@ class Yabitz::Application < Sinatra::Base
     "ok"
   end
 
-  get %r!/ybz/rack/list(\.json)?! do |ctype|
+  get %r!/ybz/rack/list(\.json|\.csv)?! do |ctype|
     authorized?
     @racks = Yabitz::Model::Rack.all
     case ctype
     when '.json'
       response['Content-Type'] = 'application/json'
       @racks.to_json
+    when '.csv'
+      csv_attachment('justnow-racks.csv')
+      rackunits = Yabitz::Model::RackUnit.all
+      Stratum.preload(rackunits, Yabitz::Model::RackUnit)
+      units_in_racks = {}
+      rackunits.each do |ru|
+        next if ru.hosts.select{|h| h.isnt(:removed, :removing)}.size < 1
+        units_in_racks[ru.rack_by_id] ||= 0
+        units_in_racks[ru.rack_by_id] += 1
+      end
+      build_csv([
+        ['OID',            Proc.new{|rack| rack.oid }],
+        ['LABEL',          Proc.new{|rack| rack.label }],
+        ['DATACENTER',     Proc.new{|rack| rack.datacenter }],
+        ['TYPE',           Proc.new{|rack| rack.type }],
+        ['USED_UNITS',     Proc.new{|rack| units_in_racks[rack.oid] || 0 }],
+        ['ONGOING',        Proc.new{|rack| rack.ongoing }],
+        ['NOTES',          Proc.new{|rack| rack.notes }]
+      ], @racks.sort)
     else
       @units_in_racks = {}
       @rack_blank_scores = nil
@@ -77,7 +96,7 @@ class Yabitz::Application < Sinatra::Base
 
   #TODO add /yabitz/rack/label/LABEL_STRING handler ?
 
-  get %r!/ybz/rack/(\d+)(\.tr\.ajax|\.ajax|\.json)?! do |oid, ctype|
+  get %r!/ybz/rack/(\d+)(\.tr\.ajax|\.ajax|\.json|\.csv)?! do |oid, ctype|
     authorized?
     @rack = Yabitz::Model::Rack.get(oid.to_i)
     pass unless @rack
@@ -86,6 +105,25 @@ class Yabitz::Application < Sinatra::Base
     when '.json'
       response['Content-Type'] = 'application/json'
       @rack.to_json
+    when '.csv'
+      csv_attachment("justnow-rack-#{@rack.label}.csv")
+      rackunits = Yabitz::Model::RackUnit.query(:rack => @rack).sort
+      hosts = rackunits.map(&:hosts).flatten.select{|host| host.isnt(:removed, :removing)}
+      Stratum.preload(hosts, Yabitz::Model::Host)
+      build_csv([
+        ['RACK',       Proc.new{|host| @rack.label }],
+        ['RACKUNIT',   Proc.new{|host| host.rackunit }],
+        ['HOST',       Proc.new{|host| host.display_name }],
+        ['STATUS',     Proc.new{|host| host.status }],
+        ['TYPE',       Proc.new{|host| host.type }],
+        ['SERVICE',    Proc.new{|host| host.service }],
+        ['LOCALIPS',   Proc.new{|host| host.localips }],
+        ['GLOBALIPS',  Proc.new{|host| host.globalips }],
+        ['HWID',       Proc.new{|host| host.hwid }],
+        ['HWINFO',     Proc.new{|host| host.hwinfo }],
+        ['OS',         Proc.new{|host| host.os }],
+        ['NOTES',      Proc.new{|host| host.notes }]
+      ], hosts.sort)
     when '.tr.ajax'
       rackunits = Yabitz::Model::RackUnit.query(:rack => @rack).select{|ru| ru.hosts.select{|h| h.isnt(:removing, :removed)}.size > 0}
       @units_in_racks = {@rack.oid => rackunits.size}

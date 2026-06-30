@@ -6,6 +6,7 @@ require_relative './model'
 require_relative './misc/opetag_generator'
 
 require 'cgi'
+require 'csv'
 
 module Sinatra
   module AuthenticateHelper
@@ -77,6 +78,27 @@ module Sinatra
     end
   end
   helpers EscapeHelper
+
+  module CsvExportHelper
+    def csv_attachment(filename)
+      response['Content-Type'] = 'text/csv; charset=utf-8'
+      response['Content-Disposition'] = %(attachment; filename="#{filename}")
+    end
+
+    def csv_join(value)
+      [value].flatten.compact.map(&:to_s).join(' ')
+    end
+
+    def build_csv(headers, rows)
+      CSV.generate do |csv|
+        csv << headers.map(&:first)
+        rows.each do |row|
+          csv << headers.map{|_, extractor| csv_join(extractor.call(row)) }
+        end
+      end
+    end
+  end
+  helpers CsvExportHelper
 
   module HostCategorize
     def categorize_host(hosts)

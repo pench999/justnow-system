@@ -6,6 +6,10 @@
   %div
     条件：
     &= cond
+  - csv_url = request.path_info + '.csv' + (request.query_string.empty? ? '' : '?' + request.query_string)
+  %div
+    出力：
+    %a{:href => csv_url} CSVダウンロード
   %div
     選択：
     %button#select_on_all すべて選択
@@ -19,4 +23,3 @@
 %div#maincontents
   %table#hostlist
     = haml :host_list, :locals => {:host_list => @hosts}
-

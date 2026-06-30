@@ -4,6 +4,10 @@
   %p&= @page_title
   %p
     %a{:href => '/ybz/host/' + @hosts.sort.map(&:oid).join('-')} ラック内の全ホストを表示
+  - csv_url = request.path_info + '.csv'
+  %p
+    出力：
+    %a{:href => csv_url} CSVダウンロード
   %p 
     - if prev_rack
       %a{:href => "/ybz/rack/#{prev_rack.oid}"} 前のラック(#{prev_rack.label} <=)

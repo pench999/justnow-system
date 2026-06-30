@@ -4,6 +4,10 @@
 %div#toolbox_spacer_top
 %div#toolbox
   %div&= "表示：" + @page_title
+  - csv_url = request.path_info + '.csv' + (request.query_string.empty? ? '' : '?' + request.query_string)
+  %div
+    出力：
+    %a{:href => csv_url} CSVダウンロード
   - if enable_grep_form
     - if in_detail.keys.size > 0
       - grepsimple_style = 'display: none;'

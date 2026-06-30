@@ -43,6 +43,7 @@ class Yabitz::Application < Sinatra::Base
   helpers Sinatra::BrickCategorize
   helpers Sinatra::LinkGenerator
   helpers Sinatra::EscapeHelper
+  helpers Sinatra::CsvExportHelper
   helpers Sinatra::ValueComparator
 
   # configure :production do

@@ -18,6 +18,18 @@ class Yabitz::Application < Sinatra::Base
     when '.json'
       response['Content-Type'] = 'application/json';
       @services.to_json
+    when '.csv'
+      csv_attachment('justnow-services.csv')
+      build_csv([
+        ['OID',          Proc.new{|service| service.oid }],
+        ['NAME',         Proc.new{|service| service.name }],
+        ['CONTENT',      Proc.new{|service| service.content }],
+        ['MLADDRESS',    Proc.new{|service| service.mladdress }],
+        ['URLS',         Proc.new{|service| service.urls.map(&:url) }],
+        ['CONTACT',      Proc.new{|service| service.contact }],
+        ['HYPERVISORS',  Proc.new{|service| service.hypervisors }],
+        ['NOTES',        Proc.new{|service| service.notes }]
+      ], @services)
     else
       @page_title = "サービス"
       haml :services, :locals => {
@@ -37,6 +49,18 @@ class Yabitz::Application < Sinatra::Base
     when '.json'
       response['Content-Type'] = 'application/json';
       @services.to_json
+    when '.csv'
+      csv_attachment('justnow-services.csv')
+      build_csv([
+        ['OID',          Proc.new{|service| service.oid }],
+        ['NAME',         Proc.new{|service| service.name }],
+        ['CONTENT',      Proc.new{|service| service.content }],
+        ['MLADDRESS',    Proc.new{|service| service.mladdress }],
+        ['URLS',         Proc.new{|service| service.urls.map(&:url) }],
+        ['CONTACT',      Proc.new{|service| service.contact }],
+        ['HYPERVISORS',  Proc.new{|service| service.hypervisors }],
+        ['NOTES',        Proc.new{|service| service.notes }]
+      ], @services)
     else
       @page_title = "サービス"
       p request.params
@@ -84,7 +108,7 @@ class Yabitz::Application < Sinatra::Base
     haml :service_diff
   end
 
-  get %r!/ybz/service/list(\.json)?! do |ctype|
+  get %r!/ybz/service/list(\.json|\.csv)?! do |ctype|
     authorized?
     @services = Yabitz::Model::Service.all
     Stratum.preload(@services, Yabitz::Model::Service)
@@ -92,6 +116,18 @@ class Yabitz::Application < Sinatra::Base
     when '.json'
       response['Content-Type'] = 'application/json'
       @services.to_json
+    when '.csv'
+      csv_attachment('justnow-services.csv')
+      build_csv([
+        ['OID',          Proc.new{|service| service.oid }],
+        ['NAME',         Proc.new{|service| service.name }],
+        ['CONTENT',      Proc.new{|service| service.content }],
+        ['MLADDRESS',    Proc.new{|service| service.mladdress }],
+        ['URLS',         Proc.new{|service| service.urls.map(&:url) }],
+        ['CONTACT',      Proc.new{|service| service.contact }],
+        ['HYPERVISORS',  Proc.new{|service| service.hypervisors }],
+        ['NOTES',        Proc.new{|service| service.notes }]
+      ], @services.sort)
     else
       @services.sort!
       @page_title = "サービス"

@@ -5,7 +5,7 @@ require 'sinatra/base'
 require 'haml'
 
 class Yabitz::Application < Sinatra::Base
-  get %r!/ybz/ipaddress/list/network/([:._0-9]+\d/\d+)(\.json)?! do |network_str, ctype|
+  get %r!/ybz/ipaddress/list/network/([:._0-9]+\d/\d+)(\.json|\.csv)?! do |network_str, ctype|
     authorized?
     @network = IPAddr.new(Yabitz::Model::IPAddress.dequote(network_str))
     @ips = Yabitz::Model::IPAddress.choose(:address){|v| @network.include?(IPAddr.new(v))}
@@ -13,6 +13,16 @@ class Yabitz::Application < Sinatra::Base
     when '.json'
       response['Content-Type'] = 'application/json'
       @ips.to_json
+    when '.csv'
+      csv_attachment('justnow-ipaddresses-network.csv')
+      @ips.sort!
+      build_csv([
+        ['ADDRESS',  Proc.new{|ip| ip.address }],
+        ['VERSION',  Proc.new{|ip| ip.version }],
+        ['HOSTS',    Proc.new{|ip| ip.hosts }],
+        ['HOLDER',   Proc.new{|ip| ip.holder }],
+        ['NOTES',    Proc.new{|ip| ip.notes }]
+      ], @ips)
     else
       iptable = Hash[*(@ips.map{|ip| [ip.address, ip]}.flatten)]
       @network.to_range.each{|ip| @ips.push(Yabitz::Model::DummyIPAddress.new(ip.to_s)) unless iptable[ip.to_s]}
@@ -53,13 +63,23 @@ class Yabitz::Application < Sinatra::Base
     end
   end
 
-  get %r!/ybz/ipaddress/holder(\.json)?! do |ctype|
+  get %r!/ybz/ipaddress/holder(\.json|\.csv)?! do |ctype|
     authorized?
     @ips = Yabitz::Model::IPAddress.query(:holder => true)
     case ctype
     when '.json'
       response['Content-Type'] = 'application/json'
       @ips.to_json
+    when '.csv'
+      csv_attachment('justnow-ipaddresses-holder.csv')
+      @ips.sort!
+      build_csv([
+        ['ADDRESS',  Proc.new{|ip| ip.address }],
+        ['VERSION',  Proc.new{|ip| ip.version }],
+        ['HOSTS',    Proc.new{|ip| ip.hosts }],
+        ['HOLDER',   Proc.new{|ip| ip.holder }],
+        ['NOTES',    Proc.new{|ip| ip.notes }]
+      ], @ips)
     else
       @page_title = "予約済みIPアドレス一覧"
       @ips.sort!
@@ -67,7 +87,7 @@ class Yabitz::Application < Sinatra::Base
     end
   end
 
-  get %r!/ybz/ipaddress/global(\.json)?! do |ctype|
+  get %r!/ybz/ipaddress/global(\.json|\.csv)?! do |ctype|
     authorized?
     cls_a = IPAddr.new("10.0.0.0/8")
     cls_b = IPAddr.new("172.16.0.0/12")
@@ -77,6 +97,16 @@ class Yabitz::Application < Sinatra::Base
     when '.json'
       response['Content-Type'] = 'application/json'
       @ips.to_json
+    when '.csv'
+      csv_attachment('justnow-ipaddresses-global.csv')
+      @ips.sort!
+      build_csv([
+        ['ADDRESS',  Proc.new{|ip| ip.address }],
+        ['VERSION',  Proc.new{|ip| ip.version }],
+        ['HOSTS',    Proc.new{|ip| ip.hosts }],
+        ['HOLDER',   Proc.new{|ip| ip.holder }],
+        ['NOTES',    Proc.new{|ip| ip.notes }]
+      ], @ips)
     else
       @page_title = "グローバルIPアドレス一覧"
       @ips.sort!
@@ -84,13 +114,23 @@ class Yabitz::Application < Sinatra::Base
     end
   end
 
-  get %r!/ybz/ipaddress/list(\.json)?! do |ctype|
+  get %r!/ybz/ipaddress/list(\.json|\.csv)?! do |ctype|
     authorized?
     @ips = Yabitz::Model::IPAddress.all
     case ctype
     when '.json'
       response['Content-Type'] = 'application/json'
       @ips.to_json
+    when '.csv'
+      csv_attachment('justnow-ipaddresses.csv')
+      @ips.sort!
+      build_csv([
+        ['ADDRESS',  Proc.new{|ip| ip.address }],
+        ['VERSION',  Proc.new{|ip| ip.version }],
+        ['HOSTS',    Proc.new{|ip| ip.hosts }],
+        ['HOLDER',   Proc.new{|ip| ip.holder }],
+        ['NOTES',    Proc.new{|ip| ip.notes }]
+      ], @ips)
     else
       raise NotImplementedError
     end

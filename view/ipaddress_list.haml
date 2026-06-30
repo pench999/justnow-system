@@ -5,6 +5,10 @@
   %p
     条件：
     &= @page_title
+  - csv_url = request.path_info + '.csv' + (request.query_string.empty? ? '' : '?' + request.query_string)
+  %div
+    出力：
+    %a{:href => csv_url} CSVダウンロード
   -#
     - if @isadmin
       %div
