@@ -3,8 +3,11 @@
 require 'sinatra/base'
 require 'json'
 require 'time'
+require 'ostruct'
+require 'rack/utils'
 
 class Yabitz::Application < Sinatra::Base
+  API_V1_HTTP_STATUS_UNAUTHORIZED = 401
   API_V1_MAX_LIMIT = 1000
   API_V1_DEFAULT_LIMIT = 100
 
@@ -21,6 +24,45 @@ class Yabitz::Application < Sinatra::Base
 
     def api_v1_not_found(resource)
       api_v1_error(HTTP_STATUS_NOT_FOUND, 'not_found', "#{resource} not found")
+    end
+
+    def api_v1_configured_tokens
+      values = [ENV['YABITZ_API_TOKEN'], ENV['YABITZ_API_TOKENS']].compact.join(',')
+      values.split(',').map do |entry|
+        name, token = entry.include?(':') ? entry.split(':', 2) : ['api-token', entry]
+        [name.strip, token.to_s.strip]
+      end.reject {|_, token| token.empty? }
+    end
+
+    def api_v1_request_token
+      authorization = request.env['HTTP_AUTHORIZATION'].to_s
+      bearer = authorization[/\ABearer\s+(.+)\z/i, 1]
+      token = bearer || request.env['HTTP_X_JUSTNOW_API_TOKEN']
+      token.to_s.strip
+    end
+
+    def api_v1_token_authorized?
+      token = api_v1_request_token
+      return false if token.empty?
+      api_v1_configured_tokens.any? do |name, configured_token|
+        next false unless token.bytesize == configured_token.bytesize
+        if Rack::Utils.secure_compare(token, configured_token)
+          @user = OpenStruct.new(:name => name, :fullname => name)
+          def @user.admin?; false; end
+          @isadmin = false
+          true
+        else
+          false
+        end
+      end
+    end
+
+    def api_v1_protected!
+      return if api_v1_token_authorized?
+      return if authorized?
+
+      response['WWW-Authenticate'] = %(Basic realm="JustNow System API")
+      halt api_v1_error(API_V1_HTTP_STATUS_UNAUTHORIZED, 'unauthorized', 'API authentication required')
     end
 
     def api_v1_limit
@@ -208,7 +250,7 @@ class Yabitz::Application < Sinatra::Base
   end
 
   before do
-    protected! if request.path_info.start_with?('/ybz/api/v1')
+    api_v1_protected! if request.path_info.start_with?('/ybz/api/v1')
   end
 
   get '/ybz/api/v1' do
@@ -217,7 +259,8 @@ class Yabitz::Application < Sinatra::Base
         :version => 'v1',
         :readonly => true,
         :resources => ['hosts', 'services', 'racks', 'ipsegments', 'ipaddresses'],
-        :features => ['search', 'changes']
+        :features => ['search', 'changes'],
+        :authentication => ['session', 'basic', 'bearer_token']
       }
     })
   end

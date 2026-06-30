@@ -1,8 +1,39 @@
 # JustNow System API v1 Readonly
 
 JustNow System provides a small readonly JSON API under `/ybz/api/v1`.
-The API uses the same authentication path as the web UI, including session
-authentication and HTTP Basic authentication.
+The API accepts the same authentication path as the web UI, including session
+authentication and HTTP Basic authentication. For external integrations,
+readonly API tokens can also be configured with environment variables.
+
+## Authentication
+
+Supported methods:
+
+- Web session cookie: useful when testing from a browser.
+- HTTP Basic authentication: useful for simple internal scripts.
+- Bearer API token: recommended for external systems and scheduled jobs.
+
+API tokens are disabled by default. Set one of the following environment
+variables to enable them:
+
+```text
+YABITZ_API_TOKEN=long-random-token
+YABITZ_API_TOKENS=sync-job:long-random-token,monitoring:another-long-random-token
+```
+
+`YABITZ_API_TOKEN` is a shorthand for a single unnamed token.
+`YABITZ_API_TOKENS` accepts comma-separated entries. Each entry can be either
+`token` or `name:token`; the optional name is used internally as the request
+operator name.
+
+Send the token with either header:
+
+```text
+Authorization: Bearer long-random-token
+X-JustNow-API-Token: long-random-token
+```
+
+Use HTTPS or a private network when sending Basic credentials or API tokens.
 
 ## Response Format
 
@@ -149,4 +180,10 @@ curl -u USERNAME:PASSWORD \
 
 curl -u USERNAME:PASSWORD \
   'http://localhost:9292/ybz/api/v1/changes/hosts?since=2026-06-30T10:00:00+09:00'
+
+curl -H 'Authorization: Bearer long-random-token' \
+  'http://localhost:9292/ybz/api/v1/hosts?limit=10'
+
+curl -H 'X-JustNow-API-Token: long-random-token' \
+  'http://localhost:9292/ybz/api/v1/services?limit=10'
 ```
