@@ -76,6 +76,7 @@ module Yabitz::Plugin
     def self.rack_display_template
       <<EOT
 - style_blank = 'text-align: center; background-color: #f3f6f8; border: 1px solid #d4dde5; color: #7b8792; padding: 5px 6px;'
+- style_empty = 'text-align: center; background-color: #fff9df; border: 1px dashed #d6a11d; color: #8a6400; padding: 5px 6px; font-weight: 700;'
 - style_unit = 'text-align: center; background-color: #eef3f6; border: 1px solid #c8d4dd; color: #40505c; padding: 5px 6px; font-family: Consolas, Menlo, monospace; font-weight: 600; white-space: nowrap;'
 - style_filled = 'padding: 7px 9px; background-color: #e8f3f8; border: 1px solid #91bdcf; border-left: 4px solid #176b87; color: #17212b; vertical-align: top;'
 - style_disp = 'font-weight: 700; color: #075f7a; margin-right: 6px;'
@@ -125,8 +126,8 @@ module Yabitz::Plugin
                       %span.rack_host_info{:style => style_info}&= info.call(c)
                       %div.rack_host_detail&= detail.call(c)
         - else
-          %td{:style => style_blank}
-            %div&= '-'
+          %td.rack_empty_unit{:style => style_empty, :title => '空きU'}
+            %div 空き
         - if @units[rear]
           - host = @units[rear]
           - if @units[racktype.upper_rackunit_labels(rear, 1).first] != host
@@ -143,11 +144,11 @@ module Yabitz::Plugin
                       %span.rack_host_info{:style => style_info}&= info.call(c)
                       %div.rack_host_detail&= detail.call(c)
         - else
-          %td{:style => style_blank}
-            %div&= '-'
+          %td.rack_empty_unit{:style => style_empty, :title => '空きU'}
+            %div 空き
       - else
-        %td{:colspan => 2, :style => style_blank}
-          %div&= '-'
+        %td.rack_empty_unit{:colspan => 2, :style => style_empty, :title => '空きU'}
+          %div 空き
 EOT
     end
   end
