@@ -23,6 +23,17 @@ module Sinatra
       Yabitz::Model::AuthInfo.authenticate(*(auth.credentials), request.ip)
     end
 
+    def check_trusted_auth
+      Yabitz::Plugin.get(:trusted_auth).each do |handler|
+        identity = handler.authenticate(request.env)
+        next unless identity
+        username, fullname = identity
+        user = Yabitz::Model::AuthInfo.authenticate_trusted(username, fullname, request.ip)
+        return user if user
+      end
+      nil
+    end
+
     def check_session
       return nil unless session[:username] and session[:username] != ""
       user = Yabitz::Model::AuthInfo.query(:name => session[:username], :unique => true)
@@ -32,7 +43,7 @@ module Sinatra
 
     def authorized?
       admin_exists = Yabitz::Model::AuthInfo.has_administrator?
-      @user = (check_session or forcecheck_basic_auth)
+      @user = (check_session or check_trusted_auth or forcecheck_basic_auth)
       @isadmin = false
       if @user
         session[:username] = @user.name

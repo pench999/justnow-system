@@ -73,6 +73,44 @@ module Yabitz
         user
       end
 
+      def self.authenticate_trusted(username, fullname, sourceip='')
+        return nil if username.nil? or username.to_s.empty?
+        return nil if fullname.nil? or fullname.to_s.empty?
+
+        user = nil
+        Stratum.transaction do |conn|
+          user = self.query(:name => username, :unique => true)
+          if user.nil?
+            pre_operator = begin
+                             Stratum.current_operator()
+                           rescue RuntimeError
+                             nil
+                           end
+            Stratum.current_operator(self.get_root)
+            user = self.new
+            user.name = username
+            user.fullname = fullname
+            user.priv = nil
+            user.save
+            Stratum.current_operator(pre_operator) if pre_operator
+            if self.query(:name => username).size != 1
+              raise "Transaction Error: trusted login twice?"
+            end
+          elsif user.fullname.to_s.empty? and not fullname.to_s.empty?
+            user.fullname = fullname
+            user.save
+          end
+        end
+
+        result = (user and user.valid?) ? "trusted" : "forbidden"
+        Yabitz::Logging::log_auth(username, result, (user ? user.oid : nil), sourceip)
+
+        return nil unless user and user.valid?
+
+        Stratum.current_operator(user)
+        user
+      end
+
       def self.get_root
         self.query(:priv => PRIV_ROOT, :unique => true)
       end

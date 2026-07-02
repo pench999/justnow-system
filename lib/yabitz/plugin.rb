@@ -20,6 +20,11 @@ module Yabitz
     # :auth
     #   authenticate(username, password, sourceip) #=> fullname(String), or nil
     #
+    # :trusted_auth
+    #   authenticate(request_env) #=> [username, fullname], or nil
+    #   Use only behind a trusted reverse proxy that strips client-sent
+    #   identity headers and sets its own authenticated user header.
+    #
     # :handler
     #   addhandler(controller)
     #   [+] css #=> css as String
