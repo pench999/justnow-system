@@ -105,7 +105,9 @@ $(function(){
     searchFieldCheckInit( elem );
   });
 
-  ZeroClipboard.setMoviePath( '/zeroclipboard/ZeroClipboard10.swf' );
+  if (typeof ZeroClipboard != 'undefined') {
+    ZeroClipboard.setMoviePath( '/zeroclipboard/ZeroClipboard10.swf' );
+  }
 
   // sort hosts
   if ($('tr.host_outline').size() > 0) {
