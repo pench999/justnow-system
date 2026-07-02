@@ -86,7 +86,11 @@ class Yabitz::Application < Sinatra::Base
     end
     @racks.each do |rack|
       racktype = Yabitz::RackTypes.search(rack.label)
-      @rack_blank_scores[rack.oid] = racktype.rackunit_status_list(rack.label, (rackunits_per_rack[rack.oid] || []))
+      @rack_blank_scores[rack.oid] = if racktype and racktype.respond_to?(:rackunit_status_list)
+                                       racktype.rackunit_status_list(rack.label, (rackunits_per_rack[rack.oid] || []))
+                                     else
+                                       [0, (rackunits_per_rack[rack.oid] || []).size]
+                                     end
     end
 
     @page_title = "ラック一覧"

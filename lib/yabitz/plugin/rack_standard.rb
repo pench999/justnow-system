@@ -73,6 +73,26 @@ module Yabitz::Plugin
       list
     end
 
+    def self.rackunit_status_list(rack_label, rackunits)
+      used = {}
+      rackunits.each do |rackunit|
+        label = rackunit.rackunit
+        used[label] = true
+        used[label.sub(/[fr]\Z/, '')] = true
+      end
+
+      blank_full = 0
+      used_or_partial = 0
+      rackunit_space_list(rack_label).each do |full, front, rear|
+        if used[full] or used[front] or used[rear]
+          used_or_partial += 1
+        else
+          blank_full += 1
+        end
+      end
+      [blank_full, used_or_partial]
+    end
+
     def self.rack_display_template
       <<EOT
 - style_blank = 'text-align: center; background-color: #f3f6f8; border: 1px solid #d4dde5; color: #7b8792; padding: 5px 6px;'
