@@ -1829,6 +1829,70 @@ body.theme-contrast .host_status_other
   :border-left none !important
   :border-right none !important
 
+.basic_auth_panel
+  :max-width 760px
+  :background #fff
+  :border 1px solid #cfdce6
+  :border-radius 6px
+  :box-shadow 0 1px 3px rgba(15, 38, 56, 0.08)
+  :padding 18px 20px
+
+  h2
+    :margin 0 0 10px
+    :font-size 18px
+
+.basic_auth_description
+  :margin 0 0 16px
+  :color #4b6173
+
+.basic_auth_notice
+  :background #e8f6ee
+  :border 1px solid #9ed3b2
+  :border-radius 4px
+  :color #225d38
+  :padding 8px 10px
+
+.basic_auth_error
+  :background #fff0f0
+  :border 1px solid #e2a2a2
+  :border-radius 4px
+  :color #8d2424
+  :padding 8px 10px
+
+.basic_auth_form
+  :display grid
+  :grid-template-columns 140px minmax(220px, 1fr)
+  :gap 10px 14px
+  :align-items center
+  :margin 18px 0
+
+  label
+    :font-weight bold
+    :color #33495c
+
+  input
+    :max-width 340px
+
+  button
+    :grid-column 2
+    :justify-self start
+
+#basic_auth_user_list
+  :width 100%
+  :border-collapse collapse
+  :margin-top 14px
+
+  th, td
+    :border-bottom 1px solid #d7e1e8
+    :padding 10px 8px
+    :text-align left
+
+  th
+    :background #f4f8fb
+
+.basic_auth_delete
+  :margin 0
+
 #appfooter
   :color #7a8793
   :font-size 12px
@@ -1851,3 +1915,8 @@ body.theme-contrast .host_status_other
     :clear both
   input#searchinput
     :width 180px
+  .basic_auth_form
+    :grid-template-columns 1fr
+
+    button
+      :grid-column 1

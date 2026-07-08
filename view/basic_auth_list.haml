@@ -1,0 +1,67 @@
+-# coding: utf-8
+
+%div#toolbox_spacer_top
+%div#toolbox
+  %p
+    表示：
+    &= @page_title
+%div#toolbox_spacer_bottom
+
+%div#maincontents
+  %div.basic_auth_panel
+    %h2 Basic認証ユーザー
+    %p.basic_auth_description
+      ログイン入口で使用するnginx Basic認証ユーザーを管理します。同じユーザー名で登録するとパスワードを更新します。
+
+    - if params[:saved]
+      %p.basic_auth_notice ユーザーを保存しました。
+    - if params[:deleted]
+      %p.basic_auth_notice ユーザーを削除しました。
+    - if params[:error]
+      %p.basic_auth_error
+        - case params[:error]
+        - when 'password_mismatch'
+          パスワードが一致しません。
+        - when 'self_delete'
+          現在ログイン中のユーザーは削除できません。
+        - else
+          &= params[:error]
+
+    - unless @basic_auth_file.exists?
+      %p.basic_auth_error
+        htpasswdファイルが見つかりません:
+        &= @basic_auth_file.path
+    - unless @basic_auth_file.writable?
+      %p.basic_auth_error
+        htpasswdファイルに書き込めません:
+        &= @basic_auth_file.path
+
+    %form.basic_auth_form{:method => "POST", :action => "/ybz/auth_info/basic_auth"}
+      %label{:for => "basic_auth_username"} ユーザー名
+      %input#basic_auth_username{:type => "text", :name => "username", :autocomplete => "username", :required => true}
+
+      %label{:for => "basic_auth_password"} パスワード
+      %input#basic_auth_password{:type => "password", :name => "password", :autocomplete => "new-password", :required => true}
+
+      %label{:for => "basic_auth_password_confirm"} パスワード確認
+      %input#basic_auth_password_confirm{:type => "password", :name => "password_confirm", :autocomplete => "new-password", :required => true}
+
+      %button{:type => "submit"} 追加 / パスワード変更
+
+    %table#basic_auth_user_list
+      %thead
+        %tr
+          %th ユーザー名
+          %th 操作
+      %tbody
+        - if @basic_auth_users.empty?
+          %tr
+            %td{:colspan => 2} ユーザーは登録されていません。
+        - @basic_auth_users.each do |username|
+          %tr
+            %td
+              &= username
+            %td
+              %form.basic_auth_delete{:method => "POST", :action => "/ybz/auth_info/basic_auth/delete"}
+                %input{:type => "hidden", :name => "username", :value => username}
+                %button{:type => "submit", :disabled => (@user && @user.name == username)} 削除
