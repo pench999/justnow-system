@@ -1568,23 +1568,118 @@ th.sortbtn:hover
   :font-size 11px
   :line-height 1.35
   :color #52616d
+.rack_display .rack_empty_unit
+  :background-color #fff9df !important
+  :border 1px dashed #d6a11d !important
+  :color #8a6400 !important
+  :font-weight 700
+.rack_display .rack_empty_unit div, .rack_empty_unit span
+  :display inline-block
+  :padding 2px 8px
+  :border-radius 999px
+  :background-color #fff0b8
+  :color #6f5000
+.rack_empty_row .td_base
+  :background-color #fffdf3
+.rack_display .rack_host_unit
+  :border-left-width 6px !important
+  :border-left-style solid !important
+.rack_display .rack_host_status_in_service
+  :background-color #e8f6ee !important
+.rack_display .rack_host_status_under_dev
+  :background-color #e7f1ff !important
+.rack_display .rack_host_status_no_count
+  :background-color #fff3cd !important
+.rack_display .rack_host_status_standby
+  :background-color #eee8ff !important
+.rack_display .rack_host_status_suspended
+  :background-color #f3f5f7 !important
+.rack_display .rack_host_status_removing
+  :background-color #ffe8d6 !important
+.rack_display .rack_host_status_removed
+  :background-color #d8dee6 !important
+.rack_display .rack_host_status_missing, .rack_display .rack_host_status_other
+  :background-color #ffe2e5 !important
+.rack_display .rack_host_type_real
+  :border-left-color #176b87 !important
+.rack_display .rack_host_type_switch
+  :border-left-color #6f42c1 !important
+.rack_display .rack_host_type_host
+  :border-left-color #0f7b45 !important
+.rack_display .rack_host_type_guest
+  :border-left-color #c56a00 !important
+.rack_display .rack_host_type_unknown
+  :border-left-color #7a8793 !important
+.rack_display .rack_host_badge
+  :display inline-block
+  :margin-left 4px
+  :padding 1px 6px
+  :border-radius 999px
+  :font-size 10px
+  :line-height 1.4
+  :font-weight 700
+  :vertical-align middle
+  :border 1px solid rgba(15, 35, 50, 0.18)
+  :background-color rgba(255, 255, 255, 0.72)
+  :color #20303a
+.rack_display .rack_host_type_badge
+  :color #52616d
+.rack_display .rack_host_highlight
+  :position relative
+  :background-color #fff1a8 !important
+  :outline 4px solid #ffb300 !important
+  :outline-offset -4px
+  :box-shadow inset 0 0 0 2px rgba(255, 255, 255, 0.95), 0 0 0 4px rgba(255, 179, 0, 0.35)
+.rack_display .rack_host_highlight .rack_host_name
+  :color #5f3600 !important
+.rack_display .rack_child_highlight
+  :background-color #fff0b8
+  :border-radius 6px
+  :padding 2px 5px
+  :margin-left -5px
 
 .rack-density-compact .rack_display
   :font-size 12px !important
-.rack-density-compact .rack_host_info, .rack-density-compact .rack_host_children, .rack-density-compact .rack_host_detail
+.rack-density-compact .rack_display td
+  :padding 3px 5px !important
+.rack-density-compact .rack_host_info, .rack-density-compact .rack_host_children, .rack-density-compact .rack_host_detail, .rack-density-compact .rack_host_type_badge
   :display none !important
+.rack-density-compact .rack_host_badge
+  :font-size 9px
+  :padding 0 5px
+  :margin-left 3px
 .rack-density-compact .rack_host_name
   :font-weight 700
+  :max-width 72%
+  :overflow hidden
+  :text-overflow ellipsis
+  :white-space nowrap
+  :vertical-align middle
 
 .rack-density-standard .rack_host_detail
   :display none !important
+.rack-density-standard .rack_display td
+  :padding 6px 8px !important
+.rack-density-standard .rack_host_children
+  :display none
+.rack-density-standard .rack_host_info
+  :display inline
+.rack-density-standard .rack_host_badge
+  :font-size 10px
 
 .rack-density-detail .rack_display
   :font-size 13px !important
+.rack-density-detail .rack_display td
+  :padding 9px 10px !important
 .rack-density-detail .rack_host_detail
   :display block
 .rack-density-detail .rack_host_children
   :display block
+.rack-density-detail .rack_host_info
+  :display inline
+.rack-density-detail .rack_host_badge
+  :font-size 10px
+  :padding 2px 7px
 
 div.dataviewhighlighted
   :background-color #fff4d8
@@ -1735,6 +1830,70 @@ body.theme-contrast .host_status_other
   :border-left none !important
   :border-right none !important
 
+.basic_auth_panel
+  :max-width 760px
+  :background #fff
+  :border 1px solid #cfdce6
+  :border-radius 6px
+  :box-shadow 0 1px 3px rgba(15, 38, 56, 0.08)
+  :padding 18px 20px
+
+  h2
+    :margin 0 0 10px
+    :font-size 18px
+
+.basic_auth_description
+  :margin 0 0 16px
+  :color #4b6173
+
+.basic_auth_notice
+  :background #e8f6ee
+  :border 1px solid #9ed3b2
+  :border-radius 4px
+  :color #225d38
+  :padding 8px 10px
+
+.basic_auth_error
+  :background #fff0f0
+  :border 1px solid #e2a2a2
+  :border-radius 4px
+  :color #8d2424
+  :padding 8px 10px
+
+.basic_auth_form
+  :display grid
+  :grid-template-columns 140px minmax(220px, 1fr)
+  :gap 10px 14px
+  :align-items center
+  :margin 18px 0
+
+  label
+    :font-weight bold
+    :color #33495c
+
+  input
+    :max-width 340px
+
+  button
+    :grid-column 2
+    :justify-self start
+
+#basic_auth_user_list
+  :width 100%
+  :border-collapse collapse
+  :margin-top 14px
+
+  th, td
+    :border-bottom 1px solid #d7e1e8
+    :padding 10px 8px
+    :text-align left
+
+  th
+    :background #f4f8fb
+
+.basic_auth_delete
+  :margin 0
+
 #appfooter
   :color #7a8793
   :font-size 12px
@@ -1757,3 +1916,8 @@ body.theme-contrast .host_status_other
     :clear both
   input#searchinput
     :width 180px
+  .basic_auth_form
+    :grid-template-columns 1fr
+
+    button
+      :grid-column 1

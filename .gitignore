@@ -8,3 +8,5 @@ yabitz.sql
 log/*
 tmp/*
 !tmp/.keep
+.htpasswd
+docker/nginx/.htpasswd

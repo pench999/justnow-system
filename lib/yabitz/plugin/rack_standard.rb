@@ -73,81 +73,131 @@ module Yabitz::Plugin
       list
     end
 
+    def self.rackunit_status_list(rack_label, rackunits)
+      used = {}
+      rackunits.each do |rackunit|
+        label = rackunit.rackunit
+        used[label] = true
+        used[label.sub(/[fr]\Z/, '')] = true
+      end
+
+      blank_full = 0
+      used_or_partial = 0
+      rackunit_space_list(rack_label).each do |full, front, rear|
+        if used[full] or used[front] or used[rear]
+          used_or_partial += 1
+        else
+          blank_full += 1
+        end
+      end
+      [blank_full, used_or_partial]
+    end
+
     def self.rack_display_template
       <<EOT
 - style_blank = 'text-align: center; background-color: #f3f6f8; border: 1px solid #d4dde5; color: #7b8792; padding: 5px 6px;'
+- style_empty = 'text-align: center; background-color: #fff9df; border: 1px dashed #d6a11d; color: #8a6400; padding: 5px 6px; font-weight: 700;'
 - style_unit = 'text-align: center; background-color: #eef3f6; border: 1px solid #c8d4dd; color: #40505c; padding: 5px 6px; font-family: Consolas, Menlo, monospace; font-weight: 600; white-space: nowrap;'
 - style_filled = 'padding: 7px 9px; background-color: #e8f3f8; border: 1px solid #91bdcf; border-left: 4px solid #176b87; color: #17212b; vertical-align: top;'
 - style_disp = 'font-weight: 700; color: #075f7a; margin-right: 6px;'
 - style_info = 'font-size: 82%; color: #52616d;'
 - disp = lambda {|host| host.display_name.to_s + (host.parent || host.hwid.to_s.empty? ? '' : ' / ' + host.hwid.to_s) }
 - info = lambda {|host| service_name = host.service ? host.service.name.to_s : 'サービス未設定'; ipaddr = (host.localips && host.localips.size > 0) ? host.localips.first.address.to_s : ''; '(' + ([service_name, ipaddr].reject{|v| v.empty?}.join(', ')) + ')' }
-- detail = lambda {|host| ['状態: ' + host.status.to_s, '種別: ' + host.type.to_s, '位置: ' + host.rackunit.to_s, (host.hwinfo ? '機器: ' + host.hwinfo.name.to_s : nil), (host.cpu.to_s.empty? ? nil : 'CPU: ' + host.cpu.to_s), (host.memory.to_s.empty? ? nil : 'メモリ: ' + host.memory.to_s)].compact.join(' / ') }
+- detail = lambda {|host| ips = (host.globalips.map{|ip| '(g)' + ip.address.to_s} + host.virtualips.map{|ip| '(v)' + ip.address.to_s}); [(host.hwinfo ? '機器: ' + host.hwinfo.name.to_s : nil), (host.hwid.to_s.empty? ? nil : 'HWID: ' + host.hwid.to_s), (host.os.to_s.empty? ? nil : 'OS: ' + host.os.to_s), (host.cpu.to_s.empty? ? nil : 'CPU: ' + host.cpu.to_s), (host.memory.to_s.empty? ? nil : 'メモリ: ' + host.memory.to_s), (host.disk.to_s.empty? ? nil : 'ディスク: ' + host.disk.to_s), (ips.empty? ? nil : '追加IP: ' + ips.join(', ')), (host.notes.to_s.empty? ? nil : 'メモあり')].compact.join(' / ') }
 - unit_height = lambda {|host| host.hwinfo ? [host.hwinfo.unit_height.to_i, 1].max : 1 }
+- safe_class = lambda {|value| value.to_s.downcase.gsub(/[^a-z0-9]+/, '_').gsub(/\\A_|_\\Z/, '') }
+- host_type_group = lambda {|host| t = host.type.to_s.downcase; t.include?('guest') ? 'guest' : (t.include?('host') ? 'host' : (t.include?('switch') ? 'switch' : (t.empty? ? 'unknown' : safe_class.call(t)))) }
+- highlighted = lambda {|host| @highlight_host_oids && @highlight_host_oids.include?(host.oid.to_i) }
+- host_or_child_highlighted = lambda {|host| highlighted.call(host) || (host.children && host.children.any?{|c| highlighted.call(c)}) }
+- host_cell_class = lambda {|host| ['rack_host_unit', 'rack_host_status_' + safe_class.call(host.status), 'rack_host_type_' + host_type_group.call(host), (host_or_child_highlighted.call(host) ? 'rack_host_highlight' : nil)].compact.join(' ') }
 - racktype = Yabitz::RackTypes.search(@rack.label)
 %table.rack_display{:width => '100%', :style => 'width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px;'}
   %tr
     %td{:width => '10%', :style => style_blank} unit
     %td{:width => '45%', :align => 'center', :style => style_blank} FRONT
     %td{:width => '45%', :align => 'center', :style => style_blank} REAR
+  - full_rowspan_remaining = 0
+  - front_rowspan_remaining = 0
+  - rear_rowspan_remaining = 0
   - racktype.rackunit_space_list(@rack.label).each do |full, front, rear|
     %tr
       %td{:style => style_unit}&= full
-      - if @units[full]
+      - if full_rowspan_remaining > 0
+        - full_rowspan_remaining -= 1
+      - elsif @units[full]
         - host = @units[full]
-        - if @units[racktype.upper_rackunit_labels(full, 1).first] != host
-          %td{:colspan => 2, :rowspan => unit_height.call(host), :style => style_filled}
+        - host_height = unit_height.call(host)
+        - full_rowspan_remaining = host_height - 1
+        %td{:colspan => 2, :rowspan => host_height, :style => style_filled, :class => host_cell_class.call(host)}
+          %div
+            %a.rack_host_name{:href => "/ybz/host/" + host.oid.to_s, :style => style_disp}&= disp.call(host)
+            %span.rack_host_info{:style => style_info}&= info.call(host)
+            %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(host.status)
+            %span.rack_host_badge.rack_host_type_badge&= host.type.to_s
+            %div.rack_host_detail&= detail.call(host)
+          - if host.children and host.children.size > 0
+            %ul.rack_host_children
+              - host.children.each do |c|
+                %li{:class => (highlighted.call(c) ? 'rack_child_highlight' : nil)}
+                  %a.rack_host_name{:href => "/ybz/host/" + c.oid.to_s, :style => style_disp}&= disp.call(c)
+                  %span.rack_host_info{:style => style_info}&= info.call(c)
+                  %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(c.status)
+                  %span.rack_host_badge.rack_host_type_badge&= c.type.to_s
+                  %div.rack_host_detail&= detail.call(c)
+      - elsif @units[front] or @units[rear] or front_rowspan_remaining > 0 or rear_rowspan_remaining > 0
+        - if front_rowspan_remaining > 0
+          - front_rowspan_remaining -= 1
+        - elsif @units[front]
+          - host = @units[front]
+          - host_height = unit_height.call(host)
+          - front_rowspan_remaining = host_height - 1
+          %td{:rowspan => host_height, :style => style_filled, :class => host_cell_class.call(host)}
             %div
               %a.rack_host_name{:href => "/ybz/host/" + host.oid.to_s, :style => style_disp}&= disp.call(host)
               %span.rack_host_info{:style => style_info}&= info.call(host)
+              %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(host.status)
+              %span.rack_host_badge.rack_host_type_badge&= host.type.to_s
               %div.rack_host_detail&= detail.call(host)
             - if host.children and host.children.size > 0
               %ul.rack_host_children
                 - host.children.each do |c|
-                  %li
+                  %li{:class => (highlighted.call(c) ? 'rack_child_highlight' : nil)}
                     %a.rack_host_name{:href => "/ybz/host/" + c.oid.to_s, :style => style_disp}&= disp.call(c)
                     %span.rack_host_info{:style => style_info}&= info.call(c)
+                    %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(c.status)
+                    %span.rack_host_badge.rack_host_type_badge&= c.type.to_s
                     %div.rack_host_detail&= detail.call(c)
-      - elsif @units[front] or @units[rear]
-        - if @units[front]
-          - host = @units[front]
-          - if @units[racktype.upper_rackunit_labels(front, 1).first] != host
-            %td{:rowspan => unit_height.call(host), :style => style_filled}
-              %div
-                %a.rack_host_name{:href => "/ybz/host/" + host.oid.to_s, :style => style_disp}&= disp.call(host)
-                %span.rack_host_info{:style => style_info}&= info.call(host)
-                %div.rack_host_detail&= detail.call(host)
-              - if host.children and host.children.size > 0
-                %ul.rack_host_children
-                  - host.children.each do |c|
-                    %li
-                      %a.rack_host_name{:href => "/ybz/host/" + c.oid.to_s, :style => style_disp}&= disp.call(c)
-                      %span.rack_host_info{:style => style_info}&= info.call(c)
-                      %div.rack_host_detail&= detail.call(c)
         - else
-          %td{:style => style_blank}
-            %div&= '-'
-        - if @units[rear]
+          %td.rack_empty_unit{:style => style_empty, :title => '空きU'}
+            %div 空き
+        - if rear_rowspan_remaining > 0
+          - rear_rowspan_remaining -= 1
+        - elsif @units[rear]
           - host = @units[rear]
-          - if @units[racktype.upper_rackunit_labels(rear, 1).first] != host
-            %td{:rowspan => unit_height.call(host), :style => style_filled}
-              %div
-                %a.rack_host_name{:href => "/ybz/host/" + host.oid.to_s, :style => style_disp}&= disp.call(host)
-                %span.rack_host_info{:style => style_info}&= info.call(host)
-                %div.rack_host_detail&= detail.call(host)
-              - if host.children and host.children.size > 0
-                %ul.rack_host_children
-                  - host.children.each do |c|
-                    %li
-                      %a.rack_host_name{:href => "/ybz/host/" + c.oid.to_s, :style => style_disp}&= disp.call(c)
-                      %span.rack_host_info{:style => style_info}&= info.call(c)
-                      %div.rack_host_detail&= detail.call(c)
+          - host_height = unit_height.call(host)
+          - rear_rowspan_remaining = host_height - 1
+          %td{:rowspan => host_height, :style => style_filled, :class => host_cell_class.call(host)}
+            %div
+              %a.rack_host_name{:href => "/ybz/host/" + host.oid.to_s, :style => style_disp}&= disp.call(host)
+              %span.rack_host_info{:style => style_info}&= info.call(host)
+              %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(host.status)
+              %span.rack_host_badge.rack_host_type_badge&= host.type.to_s
+              %div.rack_host_detail&= detail.call(host)
+            - if host.children and host.children.size > 0
+              %ul.rack_host_children
+                - host.children.each do |c|
+                  %li{:class => (highlighted.call(c) ? 'rack_child_highlight' : nil)}
+                    %a.rack_host_name{:href => "/ybz/host/" + c.oid.to_s, :style => style_disp}&= disp.call(c)
+                    %span.rack_host_info{:style => style_info}&= info.call(c)
+                    %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(c.status)
+                    %span.rack_host_badge.rack_host_type_badge&= c.type.to_s
+                    %div.rack_host_detail&= detail.call(c)
         - else
-          %td{:style => style_blank}
-            %div&= '-'
+          %td.rack_empty_unit{:style => style_empty, :title => '空きU'}
+            %div 空き
       - else
-        %td{:colspan => 2, :style => style_blank}
-          %div&= '-'
+        %td.rack_empty_unit{:colspan => 2, :style => style_empty, :title => '空きU'}
+          %div 空き
 EOT
     end
   end

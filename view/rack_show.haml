@@ -38,13 +38,21 @@
             %th.td_base 状態
           - @rackunits_for_show.each do |ru|
             - hosts = ru.hosts.select{|h| h.status != Yabitz::Model::Host::STATUS_REMOVED}
-            %tr
+            %tr{:class => (hosts.empty? ? 'rack_empty_row' : nil)}
               %td.td_base&= ru.rackunit
-              %td.td_base
+              %td.td_base{:class => (hosts.empty? ? 'rack_empty_unit' : nil)}
                 - if hosts.empty?
-                  = '-'
+                  %span 空き
                 - else
                   - hosts.each do |host|
                     %div
                       %a{:href => "/ybz/host/#{host.oid}"}&= host.display_name
               %td.td_base&= hosts.map(&:status).uniq.join(', ')
+  - if @highlight_host_oids and @highlight_host_oids.size > 0
+    :javascript
+      $(function(){
+        var target = $('.rack_host_highlight:first, .rack_child_highlight:first');
+        if (target.length > 0) {
+          $('html, body').animate({scrollTop: Math.max(target.offset().top - 120, 0)}, 250);
+        }
+      });
