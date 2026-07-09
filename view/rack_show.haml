@@ -48,3 +48,11 @@
                     %div
                       %a{:href => "/ybz/host/#{host.oid}"}&= host.display_name
               %td.td_base&= hosts.map(&:status).uniq.join(', ')
+  - if @highlight_host_oids and @highlight_host_oids.size > 0
+    :javascript
+      $(function(){
+        var target = $('.rack_host_highlight:first, .rack_child_highlight:first');
+        if (target.length > 0) {
+          $('html, body').animate({scrollTop: Math.max(target.offset().top - 120, 0)}, 250);
+        }
+      });
