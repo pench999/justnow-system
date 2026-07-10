@@ -104,7 +104,7 @@ a {
 
 .tabs {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(74px, 1fr));
   gap: 6px;
   margin-top: 9px;
 }

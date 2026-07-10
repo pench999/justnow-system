@@ -27,6 +27,11 @@
       label: 'IPセグメント',
       endpoint: '/ybz/api/v1/ipsegments',
       render: renderIpSegment
+    },
+    ipaddresses: {
+      label: 'IPアドレス',
+      endpoint: '/ybz/api/v1/ipaddresses',
+      render: renderIpAddress
     }
   };
 
@@ -217,9 +222,49 @@
         field('メモ', segment.notes ? 'あり' : '-')
       ],
       actions: [
-        action('IP一覧', '/ybz/ipsegment/' + segment.oid)
+        action('IP一覧', '#ipaddresses?segment_oid=' + segment.oid),
+        action('PC版で開く', '/ybz/ipsegment/' + segment.oid)
       ]
     });
+  }
+
+  function renderIpAddress(ip) {
+    var hosts = (ip.hosts || []).map(function (host) { return host.label; });
+    return card({
+      title: ip.address || 'IPアドレス',
+      badge: ip.holder ? '予約' : (hosts.length > 0 ? '使用中' : ''),
+      classes: [ip.holder ? 'status-standby' : (hosts.length > 0 ? 'status-in_service' : '')],
+      fields: [
+        field('種別', text(ip.version)),
+        field('ホスト', join(hosts)),
+        field('メモ', text(ip.notes))
+      ],
+      actions: [
+        action('詳細', '#ipaddress/' + encodeURIComponent(ip.address)),
+        hosts.length > 0 && ip.hosts[0] ? action('ホスト', '#host/' + ip.hosts[0].oid) : ''
+      ].filter(Boolean)
+    });
+  }
+
+  function renderIpAddressDetail(ip) {
+    var hosts = (ip.hosts || []).map(function (host) { return host.label; });
+    var hostActions = (ip.hosts || []).slice(0, 5).map(function (host) {
+      return action(host.label, '#host/' + host.oid);
+    });
+    return '<div class="detail-nav">' + backAction('← IP一覧', '#ipaddresses') + '</div>' +
+      card({
+        title: ip.address || 'IPアドレス',
+        badge: ip.holder ? '予約' : (hosts.length > 0 ? '使用中' : ''),
+        classes: ['detail-card', ip.holder ? 'status-standby' : (hosts.length > 0 ? 'status-in_service' : '')],
+        fields: [
+          field('ID', text(ip.id)),
+          field('種別', text(ip.version)),
+          field('予約', ip.holder ? 'true' : '-'),
+          field('ホスト', join(hosts)),
+          field('メモ', text(ip.notes))
+        ],
+        actions: hostActions
+      });
   }
 
   function setStatus(message) {
@@ -228,7 +273,7 @@
 
   function setActiveTab() {
     tabs.forEach(function (tab) {
-      var resource = state.detail === 'host' ? 'hosts' : (state.detail === 'service' ? 'services' : state.resource);
+      var resource = state.detail === 'host' ? 'hosts' : (state.detail === 'service' ? 'services' : (state.detail === 'ipaddress' ? 'ipaddresses' : state.resource));
       tab.classList.toggle('active', tab.getAttribute('data-resource') === resource);
     });
   }
@@ -237,7 +282,7 @@
     var raw = location.hash.replace(/^#/, '');
     var parts = raw.split('?');
     var path = parts[0] || '';
-    var detailMatch = path.match(/^(host|service)\/(\d+)$/);
+    var detailMatch = path.match(/^(host|service)\/(\d+)$/) || path.match(/^(ipaddress)\/(.+)$/);
     state.detail = '';
     state.detailOid = '';
     if (detailMatch) {
@@ -250,6 +295,7 @@
     var params = new URLSearchParams(parts[1] || '');
     state.query = params.get('q') || '';
     state.serviceOid = params.get('service_oid') || '';
+    state.segmentOid = params.get('segment_oid') || '';
     searchInput.value = state.query;
   }
 
@@ -257,6 +303,7 @@
     var params = new URLSearchParams();
     if (state.query) params.set('q', state.query);
     if (state.serviceOid) params.set('service_oid', state.serviceOid);
+    if (state.segmentOid) params.set('segment_oid', state.segmentOid);
     var query = params.toString();
     location.hash = state.resource + (query ? '?' + query : '');
   }
@@ -267,12 +314,14 @@
     params.set('limit', state.limit);
     if (state.query) params.set('q', state.query);
     if (state.resource === 'hosts' && state.serviceOid) params.set('service_oid', state.serviceOid);
+    if (state.resource === 'ipaddresses' && state.segmentOid) params.set('segment_oid', state.segmentOid);
     return resource.endpoint + '?' + params.toString();
   }
 
   function buildDetailUrl() {
     if (state.detail === 'host') return '/ybz/api/v1/hosts/' + encodeURIComponent(state.detailOid);
     if (state.detail === 'service') return '/ybz/api/v1/services/' + encodeURIComponent(state.detailOid);
+    if (state.detail === 'ipaddress') return '/ybz/api/v1/ipaddresses/' + encodeURIComponent(state.detailOid);
     return '';
   }
 
@@ -320,7 +369,7 @@
 
   function loadDetail() {
     setActiveTab();
-    var label = state.detail === 'host' ? 'ホスト詳細' : 'サービス詳細';
+    var label = state.detail === 'host' ? 'ホスト詳細' : (state.detail === 'service' ? 'サービス詳細' : 'IP詳細');
     setStatus(label + 'を読み込み中...');
     results.innerHTML = '';
 
@@ -336,7 +385,7 @@
       .then(function (payload) {
         if (!payload) return;
         var data = payload.data;
-        results.innerHTML = state.detail === 'host' ? renderHostDetail(data) : renderServiceDetail(data);
+        results.innerHTML = state.detail === 'host' ? renderHostDetail(data) : (state.detail === 'service' ? renderServiceDetail(data) : renderIpAddressDetail(data));
         setStatus(label);
       })
       .catch(function (error) {
@@ -349,6 +398,7 @@
     tab.addEventListener('click', function () {
       state.resource = tab.getAttribute('data-resource');
       state.serviceOid = '';
+      state.segmentOid = '';
       updateHash();
     });
   });
@@ -357,6 +407,7 @@
     event.preventDefault();
     state.query = searchInput.value.trim();
     state.serviceOid = '';
+    state.segmentOid = '';
     updateHash();
   });
 
