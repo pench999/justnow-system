@@ -140,6 +140,7 @@ class Yabitz::Application < Sinatra::Base
       @hosts = @rackunits_for_show.map(&:hosts).flatten
       Stratum.preload(@hosts, Yabitz::Model::Host)
       @highlight_host_oids = [params[:highlight_host], params[:highlight_hosts].to_s.split(',')].flatten.compact.map(&:to_i).select{|oid| oid > 0}
+      @mobile_view = params[:mobile].to_s == '1'
       @units = {}
       racktype = Yabitz::RackTypes.search(@rack.label)
       @racktype = racktype

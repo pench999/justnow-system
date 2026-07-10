@@ -149,6 +149,37 @@ class Yabitz::Application < Sinatra::Base
       end
     end
 
+    def api_v1_ipaddresses_in_network(network)
+      oids = []
+      seen = {}
+      queries = [
+        ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND hosts > ''",
+         [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE]],
+        ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND holder=?",
+         [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE, Stratum::Model::BOOL_TRUE]],
+        ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND notes > ''",
+         [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE]]
+      ]
+
+      Stratum.conn do |conn|
+        queries.each do |sql, args|
+          conn.query(sql, args).each do |row|
+            next if seen[row['oid']]
+
+            begin
+              next unless network.include?(IPAddr.new(row['address']))
+            rescue ArgumentError
+              next
+            end
+            seen[row['oid']] = true
+            oids.push(row['oid'])
+          end
+        end
+      end
+
+      Yabitz::Model::IPAddress.get(oids)
+    end
+
     def api_v1_search_words
       params[:q].to_s.split(/[\s　]+/).reject(&:empty?)
     end
@@ -160,6 +191,10 @@ class Yabitz::Application < Sinatra::Base
     end
 
     def api_v1_host(host)
+      rackunit = api_v1_ref(host.rackunit, :rackunit)
+      if rackunit and host.rackunit.respond_to?(:rack)
+        rackunit[:rack] = api_v1_ref(host.rackunit.rack, :label)
+      end
       {
         :oid => host.oid,
         :id => host.id,
@@ -172,7 +207,7 @@ class Yabitz::Application < Sinatra::Base
         :content => host.service ? api_v1_ref(host.service.content, :name) : nil,
         :parent => api_v1_ref(host.parent),
         :children => host.children.map {|child| api_v1_ref(child) },
-        :rackunit => api_v1_ref(host.rackunit, :rackunit),
+        :rackunit => rackunit,
         :hwid => host.hwid,
         :hwinfo => api_v1_ref(host.hwinfo, :name),
         :cpu => host.cpu,
@@ -243,6 +278,7 @@ class Yabitz::Application < Sinatra::Base
         :address => ip.address,
         :version => ip.version,
         :holder => ip.holder,
+        :hosts => ip.hosts.map {|host| api_v1_ref(host) },
         :host_oids => ip.hosts.map(&:oid),
         :notes => ip.notes
       }
@@ -387,14 +423,42 @@ class Yabitz::Application < Sinatra::Base
   end
 
   get '/ybz/api/v1/ipaddresses' do
-    ips = Yabitz::Model::IPAddress.all
-    ips = api_v1_filter_text(ips, params[:q], [
-      Proc.new {|ip| ip.address },
-      Proc.new {|ip| ip.version },
-      Proc.new {|ip| ip.notes }
-    ])
+    segment = nil
+    ips = if params[:segment_oid]
+            segment = Yabitz::Model::IPSegment.get(params[:segment_oid].to_i)
+            halt api_v1_not_found('ipsegment') unless segment
+            api_v1_ipaddresses_in_network(segment.to_addr)
+          elsif params[:q] and not params[:q].to_s.strip.empty?
+            like = '%' + params[:q].to_s.strip + '%'
+            oids = []
+            Stratum.conn do |conn|
+              sql = <<~SQL
+                SELECT oid
+                FROM #{Yabitz::Model::IPAddress.tablename}
+                WHERE head=? AND removed=?
+                  AND (address LIKE ? OR notes LIKE ?)
+                ORDER BY version, address
+                LIMIT ?
+              SQL
+              conn.query(sql, Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE, like, like, API_V1_MAX_LIMIT).each do |row|
+                oids.push(row['oid'])
+              end
+            end
+            Yabitz::Model::IPAddress.get(oids)
+          else
+            []
+          end
+    unless params[:q] and not params[:q].to_s.strip.empty? and not params[:segment_oid]
+      ips = api_v1_filter_text(ips, params[:q], [
+        Proc.new {|ip| ip.address },
+        Proc.new {|ip| ip.version },
+        Proc.new {|ip| ip.hosts.map(&:display_name).join(' ') },
+        Proc.new {|ip| ip.notes }
+      ])
+    end
     ips, change_meta = api_v1_filter_changed(ips, Yabitz::Model::IPAddress)
-    api_v1_collection(ips.sort, 'ipaddresses', change_meta) {|ip| api_v1_ipaddress(ip) }
+    extra_meta = segment ? {:segment => api_v1_ipsegment(segment)} : {}
+    api_v1_collection(ips.sort, 'ipaddresses', change_meta.merge(extra_meta)) {|ip| api_v1_ipaddress(ip) }
   end
 
   get '/ybz/api/v1/ipaddresses/:address' do |address|

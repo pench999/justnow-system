@@ -1271,6 +1271,9 @@ a:hover
 #themebox
   :float right
   :clear right
+  :display flex
+  :align-items center
+  :gap 7px
   :margin-top 7px
   :font-size 12px
   :color #43515f
@@ -1283,6 +1286,22 @@ a:hover
   :font-size 12px
   :border-radius 6px
   :background #ffffff
+#mobile_view_button
+  :display inline-block
+  :height 26px
+  :line-height 24px
+  :padding 0 10px
+  :border 1px solid #9fb5c4
+  :border-radius 6px
+  :background #ffffff
+  :color #0f5f79
+  :font-size 12px
+  :font-weight bold
+  :text-decoration none
+#mobile_view_button:hover
+  :background #e7f4f8
+  :border-color #176b87
+  :color #0a4f68
 #rack_density_box
   :margin-top 8px
   :font-size 12px
@@ -1921,3 +1940,274 @@ body.theme-contrast .host_status_other
 
     button
       :grid-column 1
+
+@media screen and (max-width: 720px)
+  body
+    :min-width 0
+    :font-size 14px
+
+  #content
+    :max-width none
+    :width auto
+    :padding 0 10px
+
+  #appheader
+    :height auto
+    :min-height 0
+    :padding-top 12px
+    :padding-bottom 12px
+
+  #appheaderlogo
+    :position static
+    :display block
+    :margin 0 0 12px 0
+
+  #nav
+    :float none !important
+    :display flex !important
+    :flex-wrap wrap
+    :gap 6px
+    :clear both
+    :line-height 1.8
+
+  #nav li
+    :float none
+    :display inline-block
+    :white-space nowrap
+
+  #datetime, #themebox, #searchbox
+    :float none !important
+    :clear both
+    :text-align left
+    :padding-top 8px
+
+  #searchboxwrap, #searchboxwrap table
+    :width 100%
+
+  input#searchinput
+    :width calc(100vw - 86px)
+    :max-width 280px
+
+  #appview, #maincontents
+    :width 100%
+    :overflow-x auto
+    :-webkit-overflow-scrolling touch
+
+  #mainview, #mainview_full, #detailview
+    :float none
+    :position static
+    :width auto
+    :max-width none
+
+  #detailview
+    :margin-top 12px
+
+  #selectionbox, #detailbox, #notesbox
+    :margin 0 0 10px 0
+
+  #toolbox
+    :font-size 13px
+    :line-height 1.8
+
+  #toolbox div, #toolbox p
+    :margin-bottom 6px
+
+  #toolbox button, #toolbox input[type=submit], #toolbox select
+    :margin 2px 3px 2px 0
+
+  #toolbox input[type=text], #grepbox input[type=text]
+    :max-width 100%
+    :box-sizing border-box
+
+  .inline_filter
+    :line-height 1.6
+
+  .inline_filter input
+    :width 100%
+    :box-sizing border-box
+    :margin 4px 0
+
+  .mainviewboxouter, #hostlist, #servicelist, #racklist, #iplist, .maintable
+    :min-width 680px
+
+  #maincontents > #hostlist, #maincontents > #servicelist, #maincontents > #racklist, #maincontents > #iplist, #maincontents > .maintable
+    :width 680px
+
+  #hostlist td, #servicelist td, #racklist td, #iplist td
+    :padding 7px 8px
+
+  tr.sortbar th
+    :font-size 10px
+    :white-space nowrap
+
+  .host_displayname
+    :min-width 130px
+
+  .host_ipaddresses_multi, .host_service, .host_rackunit
+    :min-width 92px
+
+  .host_hwid, .host_alert
+    :display none
+
+  #servicecreate, form.smartadd
+    :display none
+
+  #greptable
+    :width 680px
+
+  .rack_display
+    :min-width 640px
+    :font-size 12px !important
+
+  .rack_display td
+    :padding 4px 5px !important
+
+  .rack-density-detail .rack_host_detail
+    :display none
+
+  .rack_host_badge
+    :font-size 9px
+
+  .basic_auth_panel
+    :max-width none
+    :padding 14px
+
+  .basic_auth_form input
+    :max-width none
+    :width 100%
+    :box-sizing border-box
+
+  #maincontents
+    :overflow-x visible
+
+  #hostlist, #servicelist, #racklist, #iplist
+    :display block
+    :width 100% !important
+    :min-width 0
+    :border none
+    :border-radius 0
+    :background transparent
+    :box-shadow none
+
+  #hostlist tbody, #servicelist tbody, #racklist tbody, #iplist tbody
+    :display block
+
+  #hostlist tr.sortbar, #servicelist tr.sortbar, #racklist tr.sortbar, #iplist tr.sortbar,
+  #hostlist tr.host_category_summary, #hostlist tr.host_category_summary_total
+    :display none
+
+  #hostlist tr.host_outline, #servicelist tr.service_item, #racklist tr.rack_item, #iplist tr.ipaddress_item, #iplist tr.ipsegment_item
+    :display block
+    :position relative
+    :margin 0 0 10px 0
+    :padding 10px 12px 10px 16px
+    :border 1px solid #cbd8e2
+    :border-radius 8px
+    :background #ffffff
+    :box-shadow 0 1px 4px rgba(15, 35, 50, 0.10)
+    :overflow hidden
+
+  #hostlist tr.host_outline > td, #servicelist tr.service_item > td, #racklist tr.rack_item > td, #iplist tr.ipaddress_item > td, #iplist tr.ipsegment_item > td
+    :display block
+    :width auto !important
+    :min-width 0
+    :padding 2px 0
+    :border none !important
+    :background transparent
+    :box-sizing border-box
+    :text-align left
+
+  #hostlist .td_padding, #hostlist .td_padding_narrow, #hostlist .td_line_term,
+  #servicelist .td_padding, #servicelist .td_padding_narrow, #servicelist .td_line_term,
+  #racklist .td_padding, #racklist .td_padding_narrow, #racklist .td_line_term,
+  #iplist .td_padding, #iplist .td_padding_narrow, #iplist .td_line_term
+    :display none !important
+
+  #hostlist .host_status_in_service, #hostlist .host_status_under_dev, #hostlist .host_status_no_count, #hostlist .host_status_suspended, #hostlist .host_status_standby, #hostlist .host_status_removing, #hostlist .host_status_removed, #hostlist .host_status_missing, #hostlist .host_status_other,
+  #servicelist .charging_normal, #servicelist .charging_no_count, #servicelist .charging_shared,
+  #racklist .rack_normal, #racklist .rack_notgoing,
+  #iplist .ipaddress_normal, #iplist .ipaddress_holder, #iplist .ipaddress_blank
+    :display block !important
+    :position absolute
+    :left 0
+    :top 0
+    :bottom 0
+    :width 6px !important
+    :padding 0
+
+  #hostlist .host_status_in_service div, #hostlist .host_status_under_dev div, #hostlist .host_status_no_count div, #hostlist .host_status_suspended div, #hostlist .host_status_standby div, #hostlist .host_status_removing div, #hostlist .host_status_removed div, #hostlist .host_status_missing div, #hostlist .host_status_other div,
+  #servicelist .charging_normal div, #servicelist .charging_no_count div, #servicelist .charging_shared div,
+  #racklist .rack_normal div, #racklist .rack_notgoing div,
+  #iplist .ipaddress_normal img, #iplist .ipaddress_holder img, #iplist .ipaddress_blank img
+    :display none
+
+  #hostlist .host_displayname, #servicelist .service_name:first-of-type, #racklist .rack_label, #iplist .ipaddress_address
+    :font-size 16px
+    :font-weight 700
+    :line-height 1.45
+    :margin-bottom 4px
+
+  #hostlist .host_displayname:before, #servicelist .service_name:before, #racklist .rack_label:before, #iplist .ipaddress_address:before
+    :display none
+
+  #hostlist .host_ipaddresses:before
+    :content "IP"
+  #hostlist .host_service:before
+    :content "サービス"
+  #hostlist .host_rackunit:before
+    :content "ラック"
+  #servicelist .service_content:before
+    :content "コンテンツ"
+  #racklist .rack_desc:before
+    :content "種別"
+  #racklist .rack_units:before
+    :content "使用U"
+  #racklist .rack_state:before
+    :content "状態"
+  #iplist .ipaddress_version:before
+    :content "種別"
+  #iplist .ipaddress_area:before
+    :content "範囲"
+  #iplist .ipaddress_used:before
+    :content "使用状況"
+  #iplist .ipaddress_memo:before
+    :content "メモ"
+
+  #hostlist .host_ipaddresses:before, #hostlist .host_service:before, #hostlist .host_rackunit:before,
+  #servicelist .service_content:before,
+  #racklist .rack_desc:before, #racklist .rack_units:before, #racklist .rack_state:before,
+  #iplist .ipaddress_version:before, #iplist .ipaddress_area:before, #iplist .ipaddress_used:before, #iplist .ipaddress_memo:before
+    :display inline-block
+    :min-width 68px
+    :margin-right 8px
+    :color #607282
+    :font-size 11px
+    :font-weight 700
+
+  #hostlist table.ipaddrs
+    :display inline-table
+    :width auto !important
+    :vertical-align top
+
+  #hostlist .host_ipaddresses_multi
+    :display none !important
+
+  #servicelist .service_name
+    :display inline-block
+    :margin-right 12px
+
+  #servicelist .service_content
+    :display block
+    :clear both
+
+  #racklist .rack_state
+    :font-size 13px
+
+  #racklist .rack_state + .rack_state
+    :margin-top 2px
+
+  #iplist tr.ipaddress_item .ipaddress_memo
+    :font-size 13px
+
+  #maincontents .rack_display
+    :min-width 640px

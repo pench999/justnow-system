@@ -236,6 +236,20 @@ module Yabitz
       field :notes, :string, :length => 1024, :empty => :ok
 
       def self.query_or_create(*args)
+        attrs = args.first
+        if attrs.kind_of?(Hash) and attrs[:rackunit] and !attrs[:rack]
+          racktype = Yabitz::RackTypes.search_by_unit(attrs[:rackunit])
+          if racktype
+            attrs = attrs.dup
+            attrs[:rack] = Yabitz::Model::Rack.query_or_create(
+              :label => racktype.rack_label(attrs[:rackunit]),
+              :type => racktype.name,
+              :datacenter => racktype.datacenter
+            )
+            args[0] = attrs
+          end
+        end
+
         obj = super
 
         unless obj.rack

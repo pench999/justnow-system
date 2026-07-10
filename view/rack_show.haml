@@ -2,6 +2,8 @@
 %div#toolbox_spacer_top
 %div#toolbox
   %p&= @page_title
+  - rack_query_suffix = @mobile_view ? '?mobile=1' : ''
+  - host_link = lambda {|host| @mobile_view ? "/mobile/#host/#{host.oid}" : "/ybz/host/#{host.oid}" }
   %p
     %a{:href => '/ybz/host/' + @hosts.sort.map(&:oid).join('-')} ラック内の全ホストを表示
   - csv_url = request.path_info + '.csv'
@@ -10,11 +12,11 @@
     %a{:href => csv_url} CSVダウンロード
   %p 
     - if prev_rack
-      %a{:href => "/ybz/rack/#{prev_rack.oid}"} 前のラック(#{prev_rack.label} <=)
+      %a{:href => "/ybz/rack/#{prev_rack.oid}#{rack_query_suffix}"} 前のラック(#{prev_rack.label} <=)
     - if prev_rack and next_rack
       = '|'
     - if next_rack
-      %a{:href => "/ybz/rack/#{next_rack.oid}"} (=> #{next_rack.label})次のラック
+      %a{:href => "/ybz/rack/#{next_rack.oid}#{rack_query_suffix}"} (=> #{next_rack.label})次のラック
   %p#rack_density_box
     %label{:for => "rack_density_selector"} 表示
     %select#rack_density_selector
@@ -46,7 +48,7 @@
                 - else
                   - hosts.each do |host|
                     %div
-                      %a{:href => "/ybz/host/#{host.oid}"}&= host.display_name
+                      %a{:href => host_link.call(host)}&= host.display_name
               %td.td_base&= hosts.map(&:status).uniq.join(', ')
   - if @highlight_host_oids and @highlight_host_oids.size > 0
     :javascript
