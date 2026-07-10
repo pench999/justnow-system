@@ -131,6 +131,29 @@ a {
   gap: 10px;
 }
 
+.hidden {
+  display: none !important;
+}
+
+.load-more-wrap {
+  padding: 14px 0 24px;
+}
+
+#load-more-button {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: var(--panel);
+  color: var(--accent);
+  font-size: 15px;
+  font-weight: 800;
+}
+
+#load-more-button:disabled {
+  opacity: 0.65;
+}
+
 .card {
   display: block;
   position: relative;

@@ -4,7 +4,10 @@
     detail: '',
     detailOid: '',
     query: '',
-    limit: 50
+    limit: 50,
+    offset: 0,
+    total: 0,
+    loading: false
   };
 
   var resources = {
@@ -39,6 +42,8 @@
   var status = document.getElementById('status');
   var searchForm = document.getElementById('search-form');
   var searchInput = document.getElementById('search-input');
+  var loadMoreWrap = document.getElementById('load-more-wrap');
+  var loadMoreButton = document.getElementById('load-more-button');
   var tabs = Array.prototype.slice.call(document.querySelectorAll('.tab'));
 
   function text(value, fallback) {
@@ -271,6 +276,23 @@
     status.textContent = message;
   }
 
+  function resetPaging() {
+    state.offset = 0;
+    state.total = 0;
+  }
+
+  function setLoadMoreVisible(visible) {
+    if (!loadMoreWrap) return;
+    loadMoreWrap.classList.toggle('hidden', !visible);
+  }
+
+  function setLoadMoreLoading(loading) {
+    state.loading = loading;
+    if (!loadMoreButton) return;
+    loadMoreButton.disabled = loading;
+    loadMoreButton.textContent = loading ? '読み込み中...' : 'もっと見る';
+  }
+
   function setActiveTab() {
     tabs.forEach(function (tab) {
       var resource = state.detail === 'host' ? 'hosts' : (state.detail === 'service' ? 'services' : (state.detail === 'ipaddress' ? 'ipaddresses' : state.resource));
@@ -312,6 +334,7 @@
     var resource = resources[state.resource];
     var params = new URLSearchParams();
     params.set('limit', state.limit);
+    params.set('offset', state.offset);
     if (state.query) params.set('q', state.query);
     if (state.resource === 'hosts' && state.serviceOid) params.set('service_oid', state.serviceOid);
     if (state.resource === 'ipaddresses' && state.segmentOid) params.set('segment_oid', state.segmentOid);
@@ -326,19 +349,28 @@
   }
 
   function showUnauthorized() {
+    setLoadMoreVisible(false);
     results.innerHTML = '<div class="empty"><strong>ログインが必要です</strong><span>ログイン後にモバイル画面へ戻ってください。</span><div class="actions"><a href="/ybz/authenticate/login">ログイン</a><a href="/ybz">PC版を開く</a></div></div>';
     setStatus('未ログイン');
   }
 
-  function load() {
+  function load(append) {
+    append = !!append;
     if (state.detail) {
+      resetPaging();
+      setLoadMoreVisible(false);
       loadDetail();
       return;
     }
     var resource = resources[state.resource];
     setActiveTab();
+    if (!append) {
+      resetPaging();
+      results.innerHTML = '';
+    }
+    setLoadMoreVisible(false);
+    setLoadMoreLoading(true);
     setStatus(resource.label + 'を読み込み中...');
-    results.innerHTML = '';
 
     fetch(buildUrl(), { credentials: 'same-origin' })
       .then(function (response) {
@@ -353,21 +385,41 @@
         if (!payload) return;
         var data = payload.data || [];
         var meta = payload.meta || {};
-        if (data.length < 1) {
+        var currentOffset = Number(meta.offset || 0);
+        var count = Number(meta.count || data.length);
+        var total = Number(meta.total || 0);
+        var shown = currentOffset + count;
+        if (data.length < 1 && !append) {
           var template = document.getElementById('empty-template');
           results.appendChild(template.content.cloneNode(true));
         } else {
-          results.innerHTML = data.map(resource.render).join('');
+          var html = data.map(resource.render).join('');
+          if (append) {
+            results.insertAdjacentHTML('beforeend', html);
+          } else {
+            results.innerHTML = html;
+          }
         }
-        setStatus(resource.label + ' ' + data.length + '件 / 全' + text(meta.total, data.length) + '件');
+        state.offset = shown;
+        state.total = total;
+        setLoadMoreVisible(shown < total);
+        setStatus(resource.label + ' ' + shown + '件 / 全' + text(total, shown) + '件');
       })
       .catch(function (error) {
-        results.innerHTML = '<div class="empty"><strong>読み込みに失敗しました</strong><span>' + escapeHtml(error.message) + '</span></div>';
+        if (!append) {
+          results.innerHTML = '<div class="empty"><strong>読み込みに失敗しました</strong><span>' + escapeHtml(error.message) + '</span></div>';
+        }
+        setLoadMoreVisible(append && state.offset < state.total);
         setStatus('エラー');
+      })
+      .finally(function () {
+        setLoadMoreLoading(false);
       });
   }
 
   function loadDetail() {
+    setLoadMoreVisible(false);
+    setLoadMoreLoading(false);
     setActiveTab();
     var label = state.detail === 'host' ? 'ホスト詳細' : (state.detail === 'service' ? 'サービス詳細' : 'IP詳細');
     setStatus(label + 'を読み込み中...');
@@ -410,6 +462,13 @@
     state.segmentOid = '';
     updateHash();
   });
+
+  if (loadMoreButton) {
+    loadMoreButton.addEventListener('click', function () {
+      if (state.loading) return;
+      load(true);
+    });
+  }
 
   window.addEventListener('hashchange', function () {
     parseHash();
