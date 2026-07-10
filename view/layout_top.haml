@@ -102,7 +102,7 @@
           %li
             %a{:href => "/ybz/auth_info/basic_auth"} Basic認証ユーザー
   %div{:style => "float: right; clear: right; padding-top: 7px;"}
-    - t_now = Time.now
+    - t_now = Time.now.getlocal('+09:00')
     %span#datetime #{t_now.year}年#{t_now.mon}月#{t_now.day}日 #{sprintf("%02d",t_now.hour)}:#{sprintf("%02d",t_now.min)}
   %div#themebox
     %label{:for => "theme_selector"} テーマ
