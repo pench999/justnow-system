@@ -1,6 +1,8 @@
 (function () {
   var state = {
     resource: 'hosts',
+    detail: '',
+    detailOid: '',
     query: '',
     limit: 50
   };
@@ -86,6 +88,10 @@
     return '<a href="' + escapeHtml(href) + '">' + escapeHtml(label) + '</a>';
   }
 
+  function backAction(label, href) {
+    return '<a class="back-link" href="' + escapeHtml(href) + '">' + escapeHtml(label) + '</a>';
+  }
+
   function renderHost(host) {
     var ips = [].concat(host.localips || [], host.globalips || [], host.virtualips || []);
     var rack = host.rackunit ? host.rackunit.label : '-';
@@ -102,7 +108,7 @@
         field('OS', text(host.os))
       ],
       actions: [
-        action('詳細', '/ybz/host/' + host.oid),
+        action('詳細', '#host/' + host.oid),
         host.service ? action('同サービス', '#hosts?service_oid=' + host.service.oid) : '',
         rackUrl ? action('ラック図', rackUrl) : ''
       ].filter(Boolean)
@@ -120,10 +126,67 @@
         field('URL', join(service.urls))
       ],
       actions: [
-        action('詳細', '/ybz/service/' + service.oid),
+        action('詳細', '#service/' + service.oid),
         action('ホスト', '#hosts?service_oid=' + service.oid)
       ]
     });
+  }
+
+  function renderHostDetail(host) {
+    var ips = [].concat(host.localips || [], host.globalips || [], host.virtualips || []);
+    var rack = host.rackunit ? host.rackunit.label : '-';
+    var rackUrl = host.rackunit && host.rackunit.rack ? '/ybz/rack/' + host.rackunit.rack.oid + '?highlight_host=' + host.oid : null;
+    return '<div class="detail-nav">' + backAction('← ホスト一覧', '#hosts') + '</div>' +
+      card({
+        title: host.display_name || host.id || 'ホスト',
+        badge: host.status || '',
+        classes: ['detail-card', 'status-' + text(host.status, '').toLowerCase()],
+        fields: [
+          field('ID', text(host.id)),
+          field('状態', text(host.status)),
+          field('種別', text(host.type)),
+          field('サービス', refLabel(host.service)),
+          field('コンテンツ', refLabel(host.content)),
+          linkField('ラック', rack, rackUrl),
+          field('HWID', text(host.hwid)),
+          field('HW情報', refLabel(host.hwinfo)),
+          field('OS', text(host.os)),
+          field('CPU', text(host.cpu)),
+          field('メモリ', text(host.memory)),
+          field('ディスク', text(host.disk)),
+          field('DNS', join(host.dnsnames)),
+          field('IP', join(ips)),
+          field('子ホスト', join((host.children || []).map(function (child) { return child.label; }))),
+          field('メモ', text(host.notes))
+        ],
+        actions: [
+          action('PC版で開く', '/ybz/host/' + host.oid),
+          host.service ? action('同サービスのホスト', '#hosts?service_oid=' + host.service.oid) : '',
+          rackUrl ? action('ラック図', rackUrl) : ''
+        ].filter(Boolean)
+      });
+  }
+
+  function renderServiceDetail(service) {
+    return '<div class="detail-nav">' + backAction('← サービス一覧', '#services') + '</div>' +
+      card({
+        title: service.name || 'サービス',
+        badge: service.hypervisors ? 'HV' : '',
+        classes: ['detail-card'],
+        fields: [
+          field('ID', text(service.id)),
+          field('コンテンツ', refLabel(service.content)),
+          field('ML', text(service.mladdress)),
+          field('連絡先', refLabel(service.contact)),
+          field('URL', join(service.urls)),
+          field('HV候補', service.hypervisors ? 'あり' : '-'),
+          field('メモ', text(service.notes))
+        ],
+        actions: [
+          action('PC版で開く', '/ybz/service/' + service.oid),
+          action('ホスト一覧', '#hosts?service_oid=' + service.oid)
+        ]
+      });
   }
 
   function renderRack(rack) {
@@ -165,14 +228,25 @@
 
   function setActiveTab() {
     tabs.forEach(function (tab) {
-      tab.classList.toggle('active', tab.getAttribute('data-resource') === state.resource);
+      var resource = state.detail === 'host' ? 'hosts' : (state.detail === 'service' ? 'services' : state.resource);
+      tab.classList.toggle('active', tab.getAttribute('data-resource') === resource);
     });
   }
 
   function parseHash() {
     var raw = location.hash.replace(/^#/, '');
     var parts = raw.split('?');
-    if (parts[0] && resources[parts[0]]) state.resource = parts[0];
+    var path = parts[0] || '';
+    var detailMatch = path.match(/^(host|service)\/(\d+)$/);
+    state.detail = '';
+    state.detailOid = '';
+    if (detailMatch) {
+      state.detail = detailMatch[1];
+      state.detailOid = detailMatch[2];
+      state.resource = state.detail === 'host' ? 'hosts' : 'services';
+    } else if (path && resources[path]) {
+      state.resource = path;
+    }
     var params = new URLSearchParams(parts[1] || '');
     state.query = params.get('q') || '';
     state.serviceOid = params.get('service_oid') || '';
@@ -196,12 +270,22 @@
     return resource.endpoint + '?' + params.toString();
   }
 
+  function buildDetailUrl() {
+    if (state.detail === 'host') return '/ybz/api/v1/hosts/' + encodeURIComponent(state.detailOid);
+    if (state.detail === 'service') return '/ybz/api/v1/services/' + encodeURIComponent(state.detailOid);
+    return '';
+  }
+
   function showUnauthorized() {
     results.innerHTML = '<div class="empty"><strong>ログインが必要です</strong><span>ログイン後にモバイル画面へ戻ってください。</span><div class="actions"><a href="/ybz/authenticate/login">ログイン</a><a href="/ybz">PC版を開く</a></div></div>';
     setStatus('未ログイン');
   }
 
   function load() {
+    if (state.detail) {
+      loadDetail();
+      return;
+    }
     var resource = resources[state.resource];
     setActiveTab();
     setStatus(resource.label + 'を読み込み中...');
@@ -227,6 +311,33 @@
           results.innerHTML = data.map(resource.render).join('');
         }
         setStatus(resource.label + ' ' + data.length + '件 / 全' + text(meta.total, data.length) + '件');
+      })
+      .catch(function (error) {
+        results.innerHTML = '<div class="empty"><strong>読み込みに失敗しました</strong><span>' + escapeHtml(error.message) + '</span></div>';
+        setStatus('エラー');
+      });
+  }
+
+  function loadDetail() {
+    setActiveTab();
+    var label = state.detail === 'host' ? 'ホスト詳細' : 'サービス詳細';
+    setStatus(label + 'を読み込み中...');
+    results.innerHTML = '';
+
+    fetch(buildDetailUrl(), { credentials: 'same-origin' })
+      .then(function (response) {
+        if (response.status === 401) {
+          showUnauthorized();
+          return null;
+        }
+        if (!response.ok) throw new Error('HTTP ' + response.status);
+        return response.json();
+      })
+      .then(function (payload) {
+        if (!payload) return;
+        var data = payload.data;
+        results.innerHTML = state.detail === 'host' ? renderHostDetail(data) : renderServiceDetail(data);
+        setStatus(label);
       })
       .catch(function (error) {
         results.innerHTML = '<div class="empty"><strong>読み込みに失敗しました</strong><span>' + escapeHtml(error.message) + '</span></div>';

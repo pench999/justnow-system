@@ -234,6 +234,34 @@ a {
   font-weight: 700;
 }
 
+.detail-nav {
+  margin: 0 0 10px;
+}
+
+.back-link {
+  display: inline-block;
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-weight: 800;
+}
+
+.detail-card .fields {
+  gap: 7px;
+}
+
+.detail-card .field {
+  grid-template-columns: 86px 1fr;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #edf2f5;
+}
+
+.detail-card .field:last-child {
+  border-bottom: none;
+}
+
 .empty {
   padding: 24px 12px;
   border: 1px dashed #b8c7d2;
