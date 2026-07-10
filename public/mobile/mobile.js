@@ -105,7 +105,7 @@
   function renderHost(host) {
     var ips = [].concat(host.localips || [], host.globalips || [], host.virtualips || []);
     var rack = host.rackunit ? host.rackunit.label : '-';
-    var rackUrl = host.rackunit && host.rackunit.rack ? '/ybz/rack/' + host.rackunit.rack.oid + '?highlight_host=' + host.oid : null;
+    var rackUrl = host.rackunit && host.rackunit.rack ? '/ybz/rack/' + host.rackunit.rack.oid + '?highlight_host=' + host.oid + '&mobile=1' : null;
     return card({
       title: host.display_name || host.id || 'ホスト',
       badge: host.status || '',
@@ -145,7 +145,7 @@
   function renderHostDetail(host) {
     var ips = [].concat(host.localips || [], host.globalips || [], host.virtualips || []);
     var rack = host.rackunit ? host.rackunit.label : '-';
-    var rackUrl = host.rackunit && host.rackunit.rack ? '/ybz/rack/' + host.rackunit.rack.oid + '?highlight_host=' + host.oid : null;
+    var rackUrl = host.rackunit && host.rackunit.rack ? '/ybz/rack/' + host.rackunit.rack.oid + '?highlight_host=' + host.oid + '&mobile=1' : null;
     return '<div class="detail-nav">' + backAction('← ホスト一覧', '#hosts') + '</div>' +
       card({
         title: host.display_name || host.id || 'ホスト',
@@ -210,7 +210,7 @@
         field('メモ', rack.notes ? 'あり' : '-')
       ],
       actions: [
-        action('ラック図', '/ybz/rack/' + rack.oid)
+        action('ラック図', '/ybz/rack/' + rack.oid + '?mobile=1')
       ]
     });
   }

@@ -19,6 +19,7 @@ module Yabitz::Plugin
 - highlighted = lambda {|host| @highlight_host_oids && @highlight_host_oids.include?(host.oid.to_i) }
 - host_or_child_highlighted = lambda {|host| highlighted.call(host) || (host.children && host.children.any?{|c| highlighted.call(c)}) }
 - host_cell_class = lambda {|host| ['rack_host_unit', 'rack_host_status_' + safe_class.call(host.status), 'rack_host_type_' + host_type_group.call(host), (host_or_child_highlighted.call(host) ? 'rack_host_highlight' : nil)].compact.join(' ') }
+- host_link = lambda {|host| @mobile_view ? "/mobile/#host/" + host.oid.to_s : "/ybz/host/" + host.oid.to_s }
 - racktype = Yabitz::RackTypes.search(@rack.label)
 %table.rack_display{:width => '100%', :style => 'width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px;'}
   %tr
@@ -39,7 +40,7 @@ module Yabitz::Plugin
         - full_rowspan_remaining = host_height - 1
         %td{:colspan => 2, :rowspan => host_height, :style => style_filled, :class => host_cell_class.call(host)}
           %div
-            %a.rack_host_name{:href => "/ybz/host/" + host.oid.to_s, :style => style_disp}&= disp.call(host)
+            %a.rack_host_name{:href => host_link.call(host), :style => style_disp}&= disp.call(host)
             %span.rack_host_info{:style => style_info}&= info.call(host)
             %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(host.status)
             %span.rack_host_badge.rack_host_type_badge&= host.type.to_s
@@ -48,7 +49,7 @@ module Yabitz::Plugin
             %ul.rack_host_children
               - host.children.each do |c|
                 %li{:class => (highlighted.call(c) ? 'rack_child_highlight' : nil)}
-                  %a.rack_host_name{:href => "/ybz/host/" + c.oid.to_s, :style => style_disp}&= disp.call(c)
+                  %a.rack_host_name{:href => host_link.call(c), :style => style_disp}&= disp.call(c)
                   %span.rack_host_info{:style => style_info}&= info.call(c)
                   %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(c.status)
                   %span.rack_host_badge.rack_host_type_badge&= c.type.to_s
@@ -62,7 +63,7 @@ module Yabitz::Plugin
           - front_rowspan_remaining = host_height - 1
           %td{:rowspan => host_height, :style => style_filled, :class => host_cell_class.call(host)}
             %div
-              %a.rack_host_name{:href => "/ybz/host/" + host.oid.to_s, :style => style_disp}&= disp.call(host)
+              %a.rack_host_name{:href => host_link.call(host), :style => style_disp}&= disp.call(host)
               %span.rack_host_info{:style => style_info}&= info.call(host)
               %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(host.status)
               %span.rack_host_badge.rack_host_type_badge&= host.type.to_s
@@ -71,7 +72,7 @@ module Yabitz::Plugin
               %ul.rack_host_children
                 - host.children.each do |c|
                   %li{:class => (highlighted.call(c) ? 'rack_child_highlight' : nil)}
-                    %a.rack_host_name{:href => "/ybz/host/" + c.oid.to_s, :style => style_disp}&= disp.call(c)
+                    %a.rack_host_name{:href => host_link.call(c), :style => style_disp}&= disp.call(c)
                     %span.rack_host_info{:style => style_info}&= info.call(c)
                     %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(c.status)
                     %span.rack_host_badge.rack_host_type_badge&= c.type.to_s
@@ -87,7 +88,7 @@ module Yabitz::Plugin
           - rear_rowspan_remaining = host_height - 1
           %td{:rowspan => host_height, :style => style_filled, :class => host_cell_class.call(host)}
             %div
-              %a.rack_host_name{:href => "/ybz/host/" + host.oid.to_s, :style => style_disp}&= disp.call(host)
+              %a.rack_host_name{:href => host_link.call(host), :style => style_disp}&= disp.call(host)
               %span.rack_host_info{:style => style_info}&= info.call(host)
               %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(host.status)
               %span.rack_host_badge.rack_host_type_badge&= host.type.to_s
@@ -96,7 +97,7 @@ module Yabitz::Plugin
               %ul.rack_host_children
                 - host.children.each do |c|
                   %li{:class => (highlighted.call(c) ? 'rack_child_highlight' : nil)}
-                    %a.rack_host_name{:href => "/ybz/host/" + c.oid.to_s, :style => style_disp}&= disp.call(c)
+                    %a.rack_host_name{:href => host_link.call(c), :style => style_disp}&= disp.call(c)
                     %span.rack_host_info{:style => style_info}&= info.call(c)
                     %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(c.status)
                     %span.rack_host_badge.rack_host_type_badge&= c.type.to_s
