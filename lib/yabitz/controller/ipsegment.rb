@@ -261,9 +261,6 @@ class Yabitz::Application < Sinatra::Base
   post '/ybz/ipsegment/create' do
     admin_protected!
 
-    if Yabitz::Model::IPSegment.query(:address => request.params['address'].strip, :count => true) > 0
-      raise Yabitz::DuplicationError
-    end
     seg = Yabitz::Model::IPSegment.new
     seg.set(request.params['address'].strip, request.params['mask'].to_i.to_s)
 
@@ -277,7 +274,24 @@ class Yabitz::Application < Sinatra::Base
                  Yabitz::Model::IPSegment::AREA_GLOBAL
                end
     seg.ongoing = true
-    seg.save
+
+    Stratum.transaction do |conn|
+      lock_key = conn.escape("ipsegment:create:#{seg.address}")
+      locked = conn.query("SELECT GET_LOCK('#{lock_key}', 5) AS locked").first['locked'].to_i
+      halt HTTP_STATUS_CONFLICT, "同時登録の競合が発生しました。少し待ってからやりなおしてください" if locked != 1
+
+      begin
+        existing = Yabitz::Model::IPSegment.query(:address => seg.address)
+        if existing.size > 0
+          exact = existing.any?{|item| item.netmask.to_s == seg.netmask.to_s}
+          raise Yabitz::DuplicationError unless exact
+        else
+          seg.save
+        end
+      ensure
+        conn.query("DO RELEASE_LOCK('#{lock_key}')")
+      end
+    end
     
     "ok"
   end

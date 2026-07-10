@@ -957,12 +957,27 @@ function commit_mainview_form(form, success_message, on_success_callback, on_err
   return false;
 };
 
+function set_smartadd_form_busy(form, busy) {
+  $(form)
+    .data('submitting', busy)
+    .find(':input')
+    .prop('disabled', busy);
+}
+
 function commit_smartadd_form(event) {
-  $(event.target).ajaxSubmit({
-    success: reload_page,
-    error: function(xhr){show_error_dialog(xhr.responseText);}
-  });
+  var form = $(event.target);
   event.preventDefault();
+  if (form.data('submitting')) {
+    return false;
+  }
+  set_smartadd_form_busy(form, true);
+  form.ajaxSubmit({
+    success: reload_page,
+    error: function(xhr){
+      set_smartadd_form_busy(form, false);
+      show_error_dialog(xhr.responseText);
+    }
+  });
   return false;
 };
 
