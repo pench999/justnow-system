@@ -1921,3 +1921,139 @@ body.theme-contrast .host_status_other
 
     button
       :grid-column 1
+
+@media screen and (max-width: 720px)
+  body
+    :min-width 0
+    :font-size 14px
+
+  #content
+    :max-width none
+    :width auto
+    :padding 0 10px
+
+  #appheader
+    :height auto
+    :min-height 0
+    :padding-top 12px
+    :padding-bottom 12px
+
+  #appheaderlogo
+    :position static
+    :display block
+    :margin 0 0 12px 0
+
+  #nav
+    :float none !important
+    :display flex !important
+    :flex-wrap wrap
+    :gap 6px
+    :clear both
+    :line-height 1.8
+
+  #nav li
+    :float none
+    :display inline-block
+    :white-space nowrap
+
+  #datetime, #themebox, #searchbox
+    :float none !important
+    :clear both
+    :text-align left
+    :padding-top 8px
+
+  #searchboxwrap, #searchboxwrap table
+    :width 100%
+
+  input#searchinput
+    :width calc(100vw - 86px)
+    :max-width 280px
+
+  #appview, #maincontents
+    :width 100%
+    :overflow-x auto
+    :-webkit-overflow-scrolling touch
+
+  #mainview, #mainview_full, #detailview
+    :float none
+    :position static
+    :width auto
+    :max-width none
+
+  #detailview
+    :margin-top 12px
+
+  #selectionbox, #detailbox, #notesbox
+    :margin 0 0 10px 0
+
+  #toolbox
+    :font-size 13px
+    :line-height 1.8
+
+  #toolbox div, #toolbox p
+    :margin-bottom 6px
+
+  #toolbox button, #toolbox input[type=submit], #toolbox select
+    :margin 2px 3px 2px 0
+
+  #toolbox input[type=text], #grepbox input[type=text]
+    :max-width 100%
+    :box-sizing border-box
+
+  .inline_filter
+    :line-height 1.6
+
+  .inline_filter input
+    :width 100%
+    :box-sizing border-box
+    :margin 4px 0
+
+  .mainviewboxouter, #hostlist, #servicelist, #racklist, #iplist, .maintable
+    :min-width 680px
+
+  #maincontents > #hostlist, #maincontents > #servicelist, #maincontents > #racklist, #maincontents > #iplist, #maincontents > .maintable
+    :width 680px
+
+  #hostlist td, #servicelist td, #racklist td, #iplist td
+    :padding 7px 8px
+
+  tr.sortbar th
+    :font-size 10px
+    :white-space nowrap
+
+  .host_displayname
+    :min-width 130px
+
+  .host_ipaddresses_multi, .host_service, .host_rackunit
+    :min-width 92px
+
+  .host_hwid, .host_alert
+    :display none
+
+  #servicecreate, form.smartadd
+    :display none
+
+  #greptable
+    :width 680px
+
+  .rack_display
+    :min-width 640px
+    :font-size 12px !important
+
+  .rack_display td
+    :padding 4px 5px !important
+
+  .rack-density-detail .rack_host_detail
+    :display none
+
+  .rack_host_badge
+    :font-size 9px
+
+  .basic_auth_panel
+    :max-width none
+    :padding 14px
+
+  .basic_auth_form input
+    :max-width none
+    :width 100%
+    :box-sizing border-box
