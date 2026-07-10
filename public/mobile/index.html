@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JustNow Mobile</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="stylesheet" href="/mobile/mobile.css?v=20260710b">
+</head>
+<body>
+  <header class="app-header">
+    <a class="brand" href="/mobile/" aria-label="JustNow Mobile">
+      <img src="/images/yabitz_logo.png" alt="JustNow System">
+    </a>
+    <a class="desktop-link" href="/ybz">PC版</a>
+  </header>
+
+  <main class="app-shell">
+    <section class="search-panel">
+      <form id="search-form" class="search-form">
+        <input id="search-input" type="search" placeholder="ホスト名、IP、サービス、ラック..." autocomplete="off">
+        <button type="submit">検索</button>
+      </form>
+      <nav class="tabs" aria-label="表示切り替え">
+        <button class="tab active" type="button" data-resource="hosts">ホスト</button>
+        <button class="tab" type="button" data-resource="services">サービス</button>
+        <button class="tab" type="button" data-resource="racks">ラック</button>
+        <button class="tab" type="button" data-resource="ipsegments">IP</button>
+      </nav>
+    </section>
+
+    <section id="status" class="status">読み込み中...</section>
+    <section id="results" class="results" aria-live="polite"></section>
+  </main>
+
+  <template id="empty-template">
+    <div class="empty">
+      <strong>該当するデータがありません</strong>
+      <span>検索条件を変えてください。</span>
+    </div>
+  </template>
+
+  <script src="/mobile/mobile.js?v=20260710b"></script>
+</body>
+</html>

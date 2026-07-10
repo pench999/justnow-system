@@ -126,6 +126,10 @@ class Yabitz::Application < Sinatra::Base
     redirect '/ybz'
   end
 
+  get '/mobile/?' do
+    send_file File.join(settings.public_folder, 'mobile', 'index.html')
+  end
+
   Yabitz::Plugin.get(:handler).each do |plugin|
     if plugin.respond_to?(:addhandlers)
       plugin.addhandlers(self)

@@ -1,0 +1,260 @@
+:root {
+  --bg: #edf3f7;
+  --panel: #ffffff;
+  --text: #17212b;
+  --muted: #647383;
+  --line: #d4e0e8;
+  --accent: #176b87;
+  --accent-soft: #e7f4f8;
+  --danger: #d75f6f;
+  --warn: #d6a11d;
+  --ok: #0f7b45;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 15px;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(237, 243, 247, 0.94);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(8px);
+}
+
+.brand img {
+  display: block;
+  width: 140px;
+  height: auto;
+}
+
+.desktop-link {
+  padding: 7px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--text);
+  font-weight: 700;
+}
+
+.app-shell {
+  padding: 12px;
+}
+
+.search-panel {
+  position: sticky;
+  top: 62px;
+  z-index: 8;
+  margin: 0 0 12px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 1px 4px rgba(15, 35, 50, 0.08);
+}
+
+.search-form {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+}
+
+.search-form input {
+  min-width: 0;
+  width: 100%;
+  padding: 10px 11px;
+  border: 1px solid #b8c7d2;
+  border-radius: 8px;
+  font-size: 16px;
+}
+
+.search-form button,
+.tab {
+  border: 1px solid #b8c7d2;
+  border-radius: 8px;
+  background: #f7fafc;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.search-form button {
+  padding: 0 12px;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+  margin-top: 9px;
+}
+
+.tab {
+  padding: 8px 4px;
+}
+
+.tab.active {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #fff;
+}
+
+.status {
+  min-height: 22px;
+  margin: 4px 2px 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.results {
+  display: grid;
+  gap: 10px;
+}
+
+.card {
+  display: block;
+  position: relative;
+  padding: 12px 12px 12px 16px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  box-shadow: 0 1px 4px rgba(15, 35, 50, 0.08);
+  overflow: hidden;
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: var(--accent);
+}
+
+.card.status-no_count::before,
+.card.status-missing::before,
+.card.status-other::before {
+  background: var(--danger);
+}
+
+.card.status-under_dev::before,
+.card.status-standby::before {
+  background: var(--warn);
+}
+
+.card.status-in_service::before,
+.card.ongoing::before {
+  background: var(--ok);
+}
+
+.card-title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 17px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+
+.card-title span {
+  min-width: 0;
+  word-break: break-word;
+}
+
+.badge {
+  flex: 0 0 auto;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: #245568;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.fields {
+  display: grid;
+  gap: 4px;
+  margin-top: 7px;
+}
+
+.field {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: 8px;
+  line-height: 1.45;
+}
+
+.field .label {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.field .value {
+  min-width: 0;
+  word-break: break-word;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.actions a {
+  padding: 6px 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f7fafc;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.empty {
+  padding: 24px 12px;
+  border: 1px dashed #b8c7d2;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.65);
+  text-align: center;
+}
+
+.empty strong,
+.empty span {
+  display: block;
+}
+
+.empty span {
+  margin-top: 6px;
+  color: var(--muted);
+}
+
+@media (min-width: 760px) {
+  .app-shell {
+    max-width: 760px;
+    margin: 0 auto;
+  }
+}

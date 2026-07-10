@@ -160,6 +160,10 @@ class Yabitz::Application < Sinatra::Base
     end
 
     def api_v1_host(host)
+      rackunit = api_v1_ref(host.rackunit, :rackunit)
+      if rackunit and host.rackunit.respond_to?(:rack)
+        rackunit[:rack] = api_v1_ref(host.rackunit.rack, :label)
+      end
       {
         :oid => host.oid,
         :id => host.id,
@@ -172,7 +176,7 @@ class Yabitz::Application < Sinatra::Base
         :content => host.service ? api_v1_ref(host.service.content, :name) : nil,
         :parent => api_v1_ref(host.parent),
         :children => host.children.map {|child| api_v1_ref(child) },
-        :rackunit => api_v1_ref(host.rackunit, :rackunit),
+        :rackunit => rackunit,
         :hwid => host.hwid,
         :hwinfo => api_v1_ref(host.hwinfo, :name),
         :cpu => host.cpu,
