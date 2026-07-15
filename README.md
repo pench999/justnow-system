@@ -73,6 +73,7 @@ JustNow System には読み取り専用の JSON API v1 があります。
 
 - [API v1 読み取り専用API 日本語版](docs/api_v1_readonly.ja.md)
 - [API v1 Readonly English version](docs/api_v1_readonly.md)
+- [管理者向け運用ドキュメント](docs/admin_operations.ja.md)
 
 補足:
 
