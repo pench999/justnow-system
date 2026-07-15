@@ -4,7 +4,9 @@ ENV APP_HOME=/app \
     BUNDLE_PATH=/bundle \
     RACK_ENV=production
 
-RUN apt-get update \
+RUN find /etc/apt -type f -name '*.list' -o -name '*.sources' \
+      | xargs sed -i 's|http://deb.debian.org|https://deb.debian.org|g' \
+ && apt-get update \
  && apt-get install -y --no-install-recommends \
       build-essential \
       default-libmysqlclient-dev \
