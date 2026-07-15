@@ -67,6 +67,21 @@ module Sinatra
         throw(:halt, [403, "Forbidden\n"])
       end
     end
+
+    def can_view_host_notes?
+      !!@isadmin
+    end
+
+    def redact_host_notes!(payload)
+      case payload
+      when Array
+        payload.each {|item| redact_host_notes!(item) }
+      when Hash
+        payload.delete('notes')
+        payload.delete(:notes)
+      end
+      payload
+    end
   end
   helpers AuthenticateHelper
 

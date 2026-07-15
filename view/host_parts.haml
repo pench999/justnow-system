@@ -116,7 +116,7 @@
     %ul.valueslist
       - @host.tagchain.tagchain.each do |v|
         %li.valueitem= anchored_tag(v, @host)
-  - if @user
+  - if @isadmin
     %form.inline.field_edit_form{:name => "hostfieldedit", :action => "/ybz/host/#{@host.oid}", :method => "POST", :onsubmit => "return false;"}
       %div.fieldvalue.memoitem
         %div.hidden
@@ -140,12 +140,3 @@
           %textarea{:rows => 15, :cols => 28, :name => "value"}&= @host.notes
           %input{:type => "submit", :name => "memoupdate", :value => "更新"}
           %input{:type => "reset", :name => "memocancel", :value => "取消"}
-  - else
-    %div.field メモ:
-    %div.value
-      - if @host.notes.nil? or @host.notes.empty?
-        なし
-      - else
-        - @host.notes.split("\n").each do |note|
-          %div
-            &= note

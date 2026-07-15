@@ -219,7 +219,8 @@ class Yabitz::Application < Sinatra::Base
         :globalips => host.globalips.map(&:address),
         :virtualips => host.virtualips.map(&:address),
         :alert => host.alert,
-        :notes => host.notes
+        :can_view_notes => can_view_host_notes?,
+        :notes => (can_view_host_notes? ? host.notes : nil)
       }
     end
 

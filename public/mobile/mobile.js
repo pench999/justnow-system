@@ -146,6 +146,7 @@
     var ips = [].concat(host.localips || [], host.globalips || [], host.virtualips || []);
     var rack = host.rackunit ? host.rackunit.label : '-';
     var rackUrl = host.rackunit && host.rackunit.rack ? '/ybz/rack/' + host.rackunit.rack.oid + '?highlight_host=' + host.oid + '&mobile=1' : null;
+    var noteField = host.can_view_notes ? [field('メモ', text(host.notes))] : [];
     return '<div class="detail-nav">' + backAction('← ホスト一覧', '#hosts') + '</div>' +
       card({
         title: host.display_name || host.id || 'ホスト',
@@ -166,9 +167,8 @@
           field('ディスク', text(host.disk)),
           field('DNS', join(host.dnsnames)),
           field('IP', join(ips)),
-          field('子ホスト', join((host.children || []).map(function (child) { return child.label; }))),
-          field('メモ', text(host.notes))
-        ],
+          field('子ホスト', join((host.children || []).map(function (child) { return child.label; })))
+        ].concat(noteField),
         actions: [
           action('PC版で開く', '/ybz/host/' + host.oid),
           host.service ? action('同サービスのホスト', '#hosts?service_oid=' + host.service.oid) : '',

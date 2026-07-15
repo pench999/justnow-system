@@ -16,7 +16,9 @@ class Yabitz::Application < Sinatra::Base
     case ctype
     when '.json'
       response['Content-Type'] = 'application/json'
-      @hosts.to_json
+      payload = JSON.parse(@hosts.to_json)
+      redact_host_notes!(payload) unless can_view_host_notes?
+      JSON.generate(payload)
     when '.ajax'
       raise RuntimeError, "ajax host detail call accepts only 1 host" if @hosts.size > 1
       @host = @hosts.first
@@ -351,7 +353,7 @@ class Yabitz::Application < Sinatra::Base
       end
 
       field = request.params['field'].to_sym
-      unless @isadmin or field == :notes or field == :tagchain
+      unless @isadmin or field == :tagchain
         halt HTTP_STATUS_FORBIDDEN, "not authorized"
       end
 
@@ -846,4 +848,3 @@ EOT
     end
   end
 end
-
