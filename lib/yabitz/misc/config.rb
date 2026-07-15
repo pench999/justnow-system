@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 require_relative '../plugin'
+require_relative '../version'
 
 module Yabitz
   module Config
@@ -27,7 +28,7 @@ module Yabitz
         if @config.respond_to?(:credit_html)
           @config.credit_html(@env)
         else
-          "JustNow System / 2026 imagenzai at fairway-corp.co.jp / Apache License v2.0"
+          "JustNow System v#{Yabitz::VERSION} / 2026 imagenzai at fairway-corp.co.jp / Apache License v2.0"
         end
       end
 

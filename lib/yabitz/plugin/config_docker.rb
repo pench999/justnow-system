@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+require_relative '../version'
+
 module Yabitz::Plugin
   module DockerConfig
     def self.plugin_type
@@ -18,7 +20,7 @@ module Yabitz::Plugin
     end
 
     def self.credit_html(env)
-      "JustNow System / 2026 imagenzai at fairway-corp.co.jp / Apache License v2.0"
+      "JustNow System v#{Yabitz::VERSION} / 2026 imagenzai at fairway-corp.co.jp / Apache License v2.0"
     end
 
     def self.dbparams(env)
