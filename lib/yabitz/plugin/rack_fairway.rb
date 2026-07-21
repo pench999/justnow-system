@@ -48,6 +48,15 @@ module Yabitz::Plugin
             %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(host.status)
             %span.rack_host_badge.rack_host_type_badge&= host.type.to_s
             %div.rack_host_detail&= detail.call(host)
+          - if host.children and host.children.size > 0
+            %ul.rack_host_children
+              - host.children.each do |c|
+                %li{:class => (highlighted.call(c) ? 'rack_child_highlight' : nil)}
+                  %a.rack_host_name{:href => host_link.call(c), :style => style_disp}&= disp.call(c)
+                  %span.rack_host_info{:style => style_info}&= info.call(c)
+                  %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(c.status)
+                  %span.rack_host_badge.rack_host_type_badge&= c.type.to_s
+                  %div.rack_host_detail&= detail.call(c)
       - else
         - if front_rowspan_remaining > 0
           - front_rowspan_remaining -= 1
