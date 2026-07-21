@@ -177,8 +177,8 @@ module Yabitz::Plugin
                   %span.rack_host_badge.rack_host_type_badge&= host.type.to_s
                   %div.rack_host_detail&= detail.call(host)
             - else
-              %td.rack_empty_unit{:style => style_empty, :title => 'empty U'}
-                %div empty
+              %td.rack_empty_unit{:style => style_empty, :title => '空きU'}
+                %div 空き
         - if rear_rowspan_remaining > 0
           - rear_rowspan_remaining -= 1
         - elsif @units[rear]
@@ -208,8 +208,8 @@ module Yabitz::Plugin
                   %span.rack_host_badge.rack_host_type_badge&= host.type.to_s
                   %div.rack_host_detail&= detail.call(host)
             - else
-              %td.rack_empty_unit{:style => style_empty, :title => 'empty U'}
-                %div empty
+              %td.rack_empty_unit{:style => style_empty, :title => '空きU'}
+                %div 空き
 EOT
     end
   end
