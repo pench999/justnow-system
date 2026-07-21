@@ -104,7 +104,7 @@
 
   function renderHost(host) {
     var ips = [].concat(host.localips || [], host.globalips || [], host.virtualips || []);
-    var rack = host.rackunit ? host.rackunit.label : '-';
+    var rack = host.rackunit ? host.rackunit.label : (host.location || '-');
     var rackUrl = host.rackunit && host.rackunit.rack ? '/ybz/rack/' + host.rackunit.rack.oid + '?highlight_host=' + host.oid + '&mobile=1' : null;
     return card({
       title: host.display_name || host.id || 'ホスト',
@@ -144,7 +144,7 @@
 
   function renderHostDetail(host) {
     var ips = [].concat(host.localips || [], host.globalips || [], host.virtualips || []);
-    var rack = host.rackunit ? host.rackunit.label : '-';
+    var rack = host.rackunit ? host.rackunit.label : (host.location || '-');
     var rackUrl = host.rackunit && host.rackunit.rack ? '/ybz/rack/' + host.rackunit.rack.oid + '?highlight_host=' + host.oid + '&mobile=1' : null;
     var noteField = host.can_view_notes ? [field('メモ', text(host.notes))] : [];
     return '<div class="detail-nav">' + backAction('← ホスト一覧', '#hosts') + '</div>' +

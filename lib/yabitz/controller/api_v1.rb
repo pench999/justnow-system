@@ -208,6 +208,7 @@ class Yabitz::Application < Sinatra::Base
         :parent => api_v1_ref(host.parent),
         :children => host.children.map {|child| api_v1_ref(child) },
         :rackunit => rackunit,
+        :location => host.location,
         :hwid => host.hwid,
         :hwinfo => api_v1_ref(host.hwinfo, :name),
         :cpu => host.cpu,

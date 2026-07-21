@@ -63,8 +63,10 @@
   %td.host_rackunit
     - if host.rackunit and host.rackunit.rack
       %a{:href => "/ybz/rack/#{host.rackunit.rack.oid}?highlight_host=#{host.oid}"}&= host.rackunit.to_s
-    - else
+    - elsif host.rackunit
       &= host.rackunit.to_s
+    - else
+      &= host.location.to_s
     %img{:src => "/images/1x1.gif"}
   %td.host_alert
     - alertplugin = Yabitz::Plugin.get(:hostalerts).first

@@ -91,6 +91,7 @@ class Yabitz::Application < Sinatra::Base
         host.status = params['status']
         host.type = hosttype.name
         host.rackunit = params["rackunit#{i}"].strip.empty? ? nil : Yabitz::Model::RackUnit.query_or_create(:rackunit => params["rackunit#{i}"].strip)
+        host.location = params["location#{i}"].to_s.strip
         host.hwid = params["hwid#{i}"].strip
         host.hwinfo = params["hwinfo#{i}"].strip.empty? ? nil : Yabitz::Model::HwInformation.get(params["hwinfo#{i}"].to_i)
         host.cpu = params["cpu#{i}"].strip
@@ -209,6 +210,7 @@ class Yabitz::Application < Sinatra::Base
         host.status = json['status']
         host.type = hosttype.name
         host.rackunit = (json["rackunit"].nil? or json["rackunit"].empty?) ? nil : Yabitz::Model::RackUnit.query_or_create(:rackunit => json["rackunit"])
+        host.location = json["location"].to_s
         host.hwid = json["hwid"]
         host.hwinfo = (json["hwinfo"].nil? or json['hwinfo'].empty?) ? nil : Yabitz::Model::HwInformation.query(:name => json["hwinfo"], :unique => true)
         host.cpu = json["cpu"]

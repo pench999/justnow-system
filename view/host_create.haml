@@ -64,12 +64,17 @@
                     %select.host_hypervisor{:name => "hypervisor0", :onchange => "select_hypervisor(this);" }
                       %option{:value => ""} （選択なし）
                 %tr
-                  %th.namefield ラック位置
+                  %th.namefield= "\u30e9\u30c3\u30af\u4f4d\u7f6e"
                   %td.inputfield.left
                     %input.simple.optional{:type => "text", :name => "rackunit0", :size => 17}
-                  %th.namefield HWID
+                  %th.namefield= "\u8a2d\u7f6e\u5834\u6240"
                   %td.inputfield.right
+                    %input.simple.optional{:type => "text", :name => "location0", :size => 17}
+                %tr
+                  %th.namefield HWID
+                  %td.inputfield.left
                     %input.simple.optional{:type => "text", :name => "hwid0", :size => 17}
+                  %td{:colspan => 2} &nbsp;
                 %tr
                   %th.namefield DNSName
                   %td.inputfield.left

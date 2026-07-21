@@ -30,6 +30,7 @@ module Yabitz
       field :parent, :ref, :model => 'Yabitz::Model::Host', :empty => :ok, :manualmaint => true, :serialize => :full
       field :children, :reflist, :model => 'Yabitz::Model::Host', :empty => :ok, :serialize => :meta
       field :rackunit, :ref, :model => 'Yabitz::Model::RackUnit', :empty => :ok
+      field :location, :string, :length => 128, :empty => :ok
       field :hwid, :string, :length => 64, :empty => :ok
       field :hwinfo, :ref, :model => 'Yabitz::Model::HwInformation', :empty => :ok
       field :cpu, :string, :validator => 'check_cpu', :normalizer => 'normalize_cpu', :empty => :ok
@@ -47,10 +48,10 @@ module Yabitz
       field :notes, :string, :length => 4096, :empty => :ok
       field :tagchain, :ref, :model => 'Yabitz::Model::TagChain', :empty => :ok
 
-      CSVFIELDS_S = [:rackunit, :localips, :dnsnames, :hwid]
-      CSVFIELDS_M = [:rackunit, :localips, :globalips, :service, :dnsnames, :hwinfo, :hwid, :status]
-      CSVFIELDS_L = [:rackunit, :localips, :globalips, :virtualips, :service, :dnsnames, :type, :hwinfo, :cpu, :memory, :disk, :os, :hwid, :status]
-      CSVFIELDS_LL = [:oid, :rackunit, :localips, :globalips, :virtualips, :service, :dnsnames, :type, :hwinfo, :cpu, :memory, :disk, :os, :hwid, :status, :alert]
+      CSVFIELDS_S = [:rackunit, :location, :localips, :dnsnames, :hwid]
+      CSVFIELDS_M = [:rackunit, :location, :localips, :globalips, :service, :dnsnames, :hwinfo, :hwid, :status]
+      CSVFIELDS_L = [:rackunit, :location, :localips, :globalips, :virtualips, :service, :dnsnames, :type, :hwinfo, :cpu, :memory, :disk, :os, :hwid, :status]
+      CSVFIELDS_LL = [:oid, :rackunit, :location, :localips, :globalips, :virtualips, :service, :dnsnames, :type, :hwinfo, :cpu, :memory, :disk, :os, :hwid, :status, :alert]
 
       def json_meta_fields
         if self.localips_by_id.size > 0
@@ -62,7 +63,7 @@ module Yabitz
 
       def self.instanciate_mapping(fieldname)
         case fieldname
-        when :status, :type, :hwid, :cpu, :memory, :disk, :notes
+        when :status, :type, :location, :hwid, :cpu, :memory, :disk, :notes
           {:method => :new, :class => String}
         when :alert
           {:method => :boolparser}
@@ -116,6 +117,8 @@ module Yabitz
         val = customcomp(self, other, 'globalips', true, true)
         return val unless val == 0
         val = customcomp(self, other, 'rackunit', true)
+        return val unless val == 0
+        val = customcomp(self, other, 'location')
         return val unless val == 0
         val = customcomp(self, other, 'hwid')
         return val unless val == 0
