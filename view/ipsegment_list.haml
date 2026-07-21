@@ -19,7 +19,7 @@
 %div#toolbox_spacer_bottom
 %div#maincontents
   - if @isadmin
-    %form.inline.smartadd{:name => 'create_ipsegment', :action => '/ybz/ipsegment/create', :method => "POST"}
+    %form.smartadd{:name => 'create_ipsegment', :action => '/ybz/ipsegment/create', :method => "POST"}
       %table#ipsegmentcreate
         %tr.ipaddress_item
           %td.td_line_head

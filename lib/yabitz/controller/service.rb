@@ -149,7 +149,11 @@ class Yabitz::Application < Sinatra::Base
     service.content = Yabitz::Model::Content.get(request.params['content'].to_i)
     service.mladdress = request.params['mladdress'].strip
     service.save
-    redirect '/ybz/service/list'
+    if request.env['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
+      "ok"
+    else
+      redirect '/ybz/services'
+    end
   end
 
   get %r!/ybz/service/(\d+)(\.json|\.ajax|\.tr\.ajax)?! do |oid, ctype|

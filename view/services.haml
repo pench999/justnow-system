@@ -98,7 +98,7 @@
 %div#toolbox_spacer_bottom
 %div#maincontents
   - if @isadmin and not @service_single
-    %form.inline.smartadd{:name => 'create_service', :action => '/ybz/service/create', :method => "POST"}
+    %form.smartadd{:name => 'create_service', :action => '/ybz/service/create', :method => "POST"}
       %table#servicecreate
         %tr.service_item
           %td.td_line_head
