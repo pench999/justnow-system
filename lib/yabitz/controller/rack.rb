@@ -30,7 +30,11 @@ class Yabitz::Application < Sinatra::Base
     rack.ongoing = true
     rack.save
     
-    "ok"
+    if request.env['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
+      "ok"
+    else
+      redirect '/ybz/rack/list'
+    end
   end
 
   get %r!/ybz/rack/list(\.json|\.csv)?! do |ctype|
