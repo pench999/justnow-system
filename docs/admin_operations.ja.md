@@ -144,6 +144,46 @@ docker compose exec db sh -c 'mysqldump -uroot -p"$MYSQL_ROOT_PASSWORD" --single
 
 取得した dump は、必要に応じて VM 外へ退避してください。
 
+## 空IPアドレスのクリーンアップ
+
+IPセグメント外に残った空のIPアドレスを削除する運用スクリプトがあります。
+
+対象になるのは、以下をすべて満たす `ipaddresses` のみです。
+
+- active な IPv4 レコード
+- ホスト参照なし
+- 予約フラグなし
+- メモなし
+- active な IPセグメントの範囲外
+
+まず dry-run で削除候補件数を確認します。
+
+```bash
+cd ~/justnow-system
+scripts/cleanup_empty_ipaddresses.sh --dry-run
+```
+
+実行する場合:
+
+```bash
+cd ~/justnow-system
+scripts/cleanup_empty_ipaddresses.sh --execute
+```
+
+`--execute` では、削除前に `backups/` 配下へ `mysqldump` の gzip バックアップを自動作成します。確認プロンプトを省略する場合は `--yes` を付けます。
+
+```bash
+scripts/cleanup_empty_ipaddresses.sh --execute --yes
+```
+
+バックアップ先を変える場合:
+
+```bash
+scripts/cleanup_empty_ipaddresses.sh --execute --backup-dir /var/backups/justnow-system
+```
+
+このスクリプトは `ipsegments`、ホスト参照ありIP、予約済みIP、メモありIPは削除しません。
+
 ## リストア
 
 原則として、本番 DB へ直接上書きリストアする前に、検証環境で確認してください。
