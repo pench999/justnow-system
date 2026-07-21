@@ -7,13 +7,24 @@ require 'haml'
 class Yabitz::Application < Sinatra::Base
   post '/ybz/rack/create' do
     admin_protected!
-    if Yabitz::Model::Rack.query(:label => request.params['label'], :count => true) > 0
+    label = request.params['label'].to_s.strip
+    rack_label_examples = Yabitz::RackTypes.list.map(&:rack_label_example).uniq.join(', ')
+
+    if label.empty?
+      halt 400, "ラック名を入力してください。入力例: #{rack_label_examples}"
+    end
+
+    if Yabitz::Model::Rack.query(:label => label, :count => true) > 0
       raise Yabitz::DuplicationError
     end
 
+    racktype = Yabitz::RackTypes.search(label)
+    unless racktype
+      halt 400, "未対応のラック名です。入力例: #{rack_label_examples}"
+    end
+
     rack = Yabitz::Model::Rack.new()
-    rack.label = request.params['label'].strip
-    racktype = Yabitz::RackTypes.search(rack.label)
+    rack.label = label
     rack.type = racktype.name
     rack.datacenter = racktype.datacenter
     rack.ongoing = true

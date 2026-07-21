@@ -25,6 +25,9 @@
           %td.rack_label{:style => "padding-left: 1em;"}
             ラック名:
             %input.smartinput{:type => 'text', :size => 16, :name => 'label'}
+            %span.form_hint
+              入力例:
+              &= Yabitz::RackTypes.list.map(&:rack_label_example).uniq.join(', ')
           %td.td_padding_narrow
             %img{:src => "/images/1x1.gif"}
           %td.td_base
