@@ -369,6 +369,14 @@ describe Yabitz::Model::RackUnit do
     @t.dividing.should eql(Yabitz::RackTypes::DIVIDING_HALF_FRONT)
     lambda {@t.dividing = Yabitz::RackTypes::DIVIDING_HALF_REAR}.should_not raise_exception(Stratum::FieldValidationError)
     @t.dividing.should eql(Yabitz::RackTypes::DIVIDING_HALF_REAR)
+    lambda {@t.dividing = Yabitz::RackTypes::DIVIDING_QUARTER_FRONT_1}.should_not raise_exception(Stratum::FieldValidationError)
+    @t.dividing.should eql(Yabitz::RackTypes::DIVIDING_QUARTER_FRONT_1)
+    lambda {@t.dividing = Yabitz::RackTypes::DIVIDING_QUARTER_FRONT_2}.should_not raise_exception(Stratum::FieldValidationError)
+    @t.dividing.should eql(Yabitz::RackTypes::DIVIDING_QUARTER_FRONT_2)
+    lambda {@t.dividing = Yabitz::RackTypes::DIVIDING_QUARTER_REAR_1}.should_not raise_exception(Stratum::FieldValidationError)
+    @t.dividing.should eql(Yabitz::RackTypes::DIVIDING_QUARTER_REAR_1)
+    lambda {@t.dividing = Yabitz::RackTypes::DIVIDING_QUARTER_REAR_2}.should_not raise_exception(Stratum::FieldValidationError)
+    @t.dividing.should eql(Yabitz::RackTypes::DIVIDING_QUARTER_REAR_2)
   end
   
   it "に rack が正常に入出力可能なこと" do
