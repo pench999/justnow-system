@@ -266,7 +266,9 @@ class Yabitz::Application < Sinatra::Base
       rack_str = rack.to_s
       Stratum.transaction do |conn|
         rackunits.each do |ru|
-          halt HTTP_STATUS_CONFLICT, "ラックに所属ホストが存在したままです: 更新が衝突した可能性があります" if ru.hosts_by_id > 0
+          if ru.hosts_by_id.size > 0
+            halt HTTP_STATUS_CONFLICT, "ラックに所属ホストが存在したままです: 更新が衝突した可能性があります"
+          end
           ru.rack = nil
           ru.save
           ru.remove
