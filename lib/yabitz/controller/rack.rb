@@ -65,14 +65,25 @@ class Yabitz::Application < Sinatra::Base
       ], @racks.sort)
     else
       @units_in_racks = {}
-      @rack_blank_scores = nil
+      @rack_blank_scores = {}
 
+      rackunits_per_rack = {}
       @rackunits = Yabitz::Model::RackUnit.all
       Stratum.preload(@rackunits, Yabitz::Model::RackUnit)
       @rackunits.each do |ru|
         next if ru.hosts.select{|h| h.isnt(:removed, :removing)}.size < 1
+        rackunits_per_rack[ru.rack_by_id] ||= []
+        rackunits_per_rack[ru.rack_by_id].push(ru)
         @units_in_racks[ru.rack_by_id] ||= 0
         @units_in_racks[ru.rack_by_id] += 1
+      end
+      @racks.each do |rack|
+        racktype = Yabitz::RackTypes.search(rack.label)
+        @rack_blank_scores[rack.oid] = if racktype and racktype.respond_to?(:rackunit_status_list)
+                                         racktype.rackunit_status_list(rack.label, (rackunits_per_rack[rack.oid] || []))
+                                       else
+                                         [0, (rackunits_per_rack[rack.oid] || []).size]
+                                       end
       end
 
       @page_title = "ラック一覧"
