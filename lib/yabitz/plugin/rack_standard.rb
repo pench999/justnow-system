@@ -161,6 +161,15 @@ module Yabitz::Plugin
               %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(host.status)
               %span.rack_host_badge.rack_host_type_badge&= host.type.to_s
               %div.rack_host_detail&= detail.call(host)
+            - if host.children and host.children.size > 0
+              %ul.rack_host_children
+                - host.children.each do |c|
+                  %li{:class => (highlighted.call(c) ? 'rack_child_highlight' : nil)}
+                    %a.rack_host_name{:href => host_link.call(c), :style => style_disp}&= disp.call(c)
+                    %span.rack_host_info{:style => style_info}&= info.call(c)
+                    %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(c.status)
+                    %span.rack_host_badge.rack_host_type_badge&= c.type.to_s
+                    %div.rack_host_detail&= detail.call(c)
         - else
           - [front1, front2].each do |quarter|
             - if quarter_rowspan_remaining[quarter].to_i > 0
@@ -176,6 +185,15 @@ module Yabitz::Plugin
                   %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(host.status)
                   %span.rack_host_badge.rack_host_type_badge&= host.type.to_s
                   %div.rack_host_detail&= detail.call(host)
+                - if host.children and host.children.size > 0
+                  %ul.rack_host_children
+                    - host.children.each do |c|
+                      %li{:class => (highlighted.call(c) ? 'rack_child_highlight' : nil)}
+                        %a.rack_host_name{:href => host_link.call(c), :style => style_disp}&= disp.call(c)
+                        %span.rack_host_info{:style => style_info}&= info.call(c)
+                        %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(c.status)
+                        %span.rack_host_badge.rack_host_type_badge&= c.type.to_s
+                        %div.rack_host_detail&= detail.call(c)
             - else
               %td.rack_empty_unit{:style => style_empty, :title => '空きU'}
                 %div 空き
@@ -192,6 +210,15 @@ module Yabitz::Plugin
               %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(host.status)
               %span.rack_host_badge.rack_host_type_badge&= host.type.to_s
               %div.rack_host_detail&= detail.call(host)
+            - if host.children and host.children.size > 0
+              %ul.rack_host_children
+                - host.children.each do |c|
+                  %li{:class => (highlighted.call(c) ? 'rack_child_highlight' : nil)}
+                    %a.rack_host_name{:href => host_link.call(c), :style => style_disp}&= disp.call(c)
+                    %span.rack_host_info{:style => style_info}&= info.call(c)
+                    %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(c.status)
+                    %span.rack_host_badge.rack_host_type_badge&= c.type.to_s
+                    %div.rack_host_detail&= detail.call(c)
         - else
           - [rear1, rear2].each do |quarter|
             - if quarter_rowspan_remaining[quarter].to_i > 0
@@ -207,6 +234,15 @@ module Yabitz::Plugin
                   %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(host.status)
                   %span.rack_host_badge.rack_host_type_badge&= host.type.to_s
                   %div.rack_host_detail&= detail.call(host)
+                - if host.children and host.children.size > 0
+                  %ul.rack_host_children
+                    - host.children.each do |c|
+                      %li{:class => (highlighted.call(c) ? 'rack_child_highlight' : nil)}
+                        %a.rack_host_name{:href => host_link.call(c), :style => style_disp}&= disp.call(c)
+                        %span.rack_host_info{:style => style_info}&= info.call(c)
+                        %span.rack_host_badge.rack_host_status_badge&= Yabitz::Model::Host.status_title(c.status)
+                        %span.rack_host_badge.rack_host_type_badge&= c.type.to_s
+                        %div.rack_host_detail&= detail.call(c)
             - else
               %td.rack_empty_unit{:style => style_empty, :title => '空きU'}
                 %div 空き
