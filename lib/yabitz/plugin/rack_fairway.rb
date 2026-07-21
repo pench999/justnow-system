@@ -308,48 +308,4 @@ EOT
     end
   end
 
-  module KoshigayaRack46U
-    extend FairwayRackCommon
-    extend FairwayRackDisplay
-
-    def self.plugin_priority
-      3
-    end
-
-    def self.name
-      'STANDARD46U'
-    end
-
-    def self.datacenter
-      'KOSHIGAYA'
-    end
-
-    def self.rack_label_pattern
-      /\AK[0-9]{2}\Z/
-    end
-
-    def self.rackunit_label_pattern
-      /\AK[0-9]{2}-(0[1-9]|[1-3][0-9]|4[0-6])[fr]?\Z/
-    end
-
-    def self.rackunit_label_capture_pattern
-      /\A(K[0-9]{2}-)(0[1-9]|[1-3][0-9]|4[0-6])([fr]?)\Z/
-    end
-
-    def self.rack_label(rackunit_label)
-      rackunit_label[0, 3]
-    end
-
-    def self.rack_label_example
-      'K01'
-    end
-
-    def self.rackunit_label_example
-      'K01-46(f/r)'
-    end
-
-    def self.rack_unit_count
-      46
-    end
-  end
 end
