@@ -27,7 +27,11 @@ class Yabitz::Application < Sinatra::Base
     dept = Yabitz::Model::Dept.new()
     dept.name = request.params['name'].strip
     dept.save
-    "ok"
+    if request.env['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
+      "ok"
+    else
+      redirect '/ybz/dept/list'
+    end
   end
   get %r!/ybz/dept/(\d+)(\.json|\.tr\.ajax|\.ajax)?! do |oid, ctype|
     authorized?

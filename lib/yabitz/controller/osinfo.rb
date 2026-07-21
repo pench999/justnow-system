@@ -43,7 +43,11 @@ class Yabitz::Application < Sinatra::Base
     osinfo.name = request.params['name'].strip
     osinfo.save
     
-    "ok"
+    if request.env['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
+      "ok"
+    else
+      redirect '/ybz/osinfo/list'
+    end
   end
 
   post '/ybz/osinfo/alter-prepare/:ope/:oid' do

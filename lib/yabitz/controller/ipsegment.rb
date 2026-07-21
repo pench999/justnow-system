@@ -293,7 +293,11 @@ class Yabitz::Application < Sinatra::Base
       end
     end
     
-    "ok"
+    if request.env['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
+      "ok"
+    else
+      redirect '/ybz/ipsegment/list/local'
+    end
   end
 
   post '/ybz/ipsegment/alter-prepare/:ope/:oid' do

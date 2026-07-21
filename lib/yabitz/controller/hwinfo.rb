@@ -50,7 +50,11 @@ class Yabitz::Application < Sinatra::Base
     end
     hwinfo.save
     
-    "ok"
+    if request.env['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest'
+      "ok"
+    else
+      redirect '/ybz/hwinfo/list'
+    end
   end
   
   post %r!/ybz/hwinfo/(\d+)! do |oid|
