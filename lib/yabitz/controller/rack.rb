@@ -269,8 +269,6 @@ class Yabitz::Application < Sinatra::Base
           if ru.hosts_by_id.size > 0
             halt HTTP_STATUS_CONFLICT, "ラックに所属ホストが存在したままです: 更新が衝突した可能性があります"
           end
-          ru.rack = nil
-          ru.save
           ru.remove
         end
       end
