@@ -958,10 +958,10 @@ function commit_mainview_form(form, success_message, on_success_callback, on_err
 };
 
 function set_smartadd_form_busy(form, busy) {
-  $(form)
-    .data('submitting', busy)
-    .find(':input')
-    .prop('disabled', busy);
+  var target = $(form);
+  target.data('submitting', busy);
+  target.find(':submit, :image, button').prop('disabled', busy);
+  target.find('input[type=text], textarea').prop('readonly', busy);
 }
 
 function commit_smartadd_form(event) {
