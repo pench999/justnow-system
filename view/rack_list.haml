@@ -17,8 +17,8 @@
 %div#toolbox_spacer_bottom
 %div#maincontents
   - if @isadmin
-    %table#rackcreate
-      %form.smartadd{:name => 'create_rack', :action => '/ybz/rack/create', :method => "POST"}
+    %form.smartadd{:name => 'create_rack', :action => '/ybz/rack/create', :method => "POST"}
+      %table#rackcreate
         %tr.rack_item
           %td.td_line_head
             %div.header_status
@@ -31,7 +31,7 @@
           %td.td_padding_narrow
             %img{:src => "/images/1x1.gif"}
           %td.td_base
-            %input{:type => 'image', :height => 24, :width => 24, :src => '/images/adding.png'}
+            %input{:type => 'image', :height => 24, :width => 24, :src => '/images/adding.png', :alt => '追加', :title => 'ラックを追加'}
           %td.td_line_term
             %img{:src => "/images/1x1.gif"}
   %table#racklist
