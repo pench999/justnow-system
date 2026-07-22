@@ -18,6 +18,8 @@ module Yabitz
         plugins = Yabitz::Plugin.get(:racktype).select{|p| p.respond_to?(:search_extra_pattern)}
         patterns = [pattern] + plugins.map{|p| p.search_extra_pattern(pattern_string)}.flatten
         patterns.map{|p| Yabitz::Model::RackUnit.regex_match(:rackunit => Regexp.compile(p)).map(&:hosts_by_id)}.flatten.uniq
+      when 'location'
+        Yabitz::Model::Host.regex_match(:location => pattern, :oidonly => true)
       when 'hwid'
         Yabitz::Model::Host.regex_match(:hwid => pattern, :oidonly => true)
       when 'dnsname'
@@ -91,6 +93,7 @@ module Yabitz
        [:hwid, "HWID", :host],
        [:ipaddress, "IPアドレス", :host],
        [:rackunit, "ラック位置", :host],
+       [:location, "設置場所", :host],
        [:tag, "タグ", :host],
        [:brickhwid, "機器情報 HWID", :brick],
        [:brickserial, "機器情報 シリアル", :brick]
@@ -110,6 +113,8 @@ module Yabitz
         plugins = Yabitz::Plugin.get(:racktype).select{|p| p.respond_to?(:search_extra_pattern)}
         patterns = [keyword] + plugins.map{|p| p.search_extra_pattern(keyword)}.flatten
         patterns.map{|p| Yabitz::Model::RackUnit.regex_match(:rackunit => Regexp.compile(p)).map(&:hosts)}.flatten.compact
+      when :location
+        Yabitz::Model::Host.regex_match(:location => Regexp.compile(keyword)).flatten.compact
       when :dnsname
         Yabitz::Model::DNSName.regex_match(:dnsname => Regexp.compile(keyword)).map(&:hosts).flatten.compact
       when :hwid

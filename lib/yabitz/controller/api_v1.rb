@@ -324,6 +324,7 @@ class Yabitz::Application < Sinatra::Base
                 result = Yabitz::DetailSearch.search('OR', [
                   ['service', escaped],
                   ['rackunit', escaped],
+                  ['location', escaped],
                   ['hwid', escaped],
                   ['dnsname', escaped],
                   ['ipaddress', escaped],
