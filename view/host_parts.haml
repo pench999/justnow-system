@@ -44,14 +44,6 @@
           %a{:href => "/ybz/host/#{c.oid}"}&= c.display_name
   = field_editable 'host', @host, :text, :rackunit, "ラック位置", @host.rackunit.to_s, "未割当", :link => (@host.rackunit ? "/ybz/rackunit/#{@host.rackunit.oid}" : nil)
   = field_editable 'host', @host, :text, :location, "\u8a2d\u7f6e\u5834\u6240", @host.location, "\u672a\u8a18\u5165"
-  - location_value = @host.location.to_s.strip
-  - unless location_value.empty?
-    - location_tag = "location:" + location_value
-    - location_search_url = "/ybz/search?andor=AND&cond0=0&field0=location&value0=" + CGI.escape(location_value)
-    %div.fieldvalue
-      %span.field= "\u8a2d\u7f6e\u5834\u6240\u30bf\u30b0\u5019\u88dc"
-      %span.value
-        %a{:href => location_search_url}&= location_tag
   = field_editable 'host', @host, :text, :hwid, "HWID", @host.hwid, "未割当", :link => "/ybz/smartsearch?keywords=" + h(@host.hwid)
   = field_editable 'host', @host, :selector, :hwinfo, "ハードウェア情報", (@host.hwinfo ? @host.hwinfo.oid.to_s : ""), "未指定", :display_value => @host.hwinfo.to_s, :opt_class => Yabitz::Model::HwInformation, :opt_value => :oid, :opt_label => :name
   = field_editable 'host', @host, :text, :cpu, "CPU", @host.cpu, "未記入"
