@@ -7,40 +7,46 @@ require 'haml'
 class Yabitz::Application < Sinatra::Base
 
   def rack_mini_statuses(racks, rackunits_per_rack)
-      statuses = {}
-      racks.each do |rack|
-        racktype = Yabitz::RackTypes.search(rack.label)
-        statuses[rack.oid] = []
-        next unless racktype and racktype.respond_to?(:rackunit_space_list)
+  statuses = {}
+  racks.each do |rack|
+    racktype = Yabitz::RackTypes.search(rack.label)
+    statuses[rack.oid] = []
+    next unless racktype and racktype.respond_to?(:rackunit_space_list)
 
-        used = {}
-        rackunits_per_rack.fetch(rack.oid, []).each do |rackunit|
-          rackunit.hosts.each do |host|
-            next unless host.isnt(:removed, :removing)
-            unit_height = host.hwinfo ? [host.hwinfo.unit_height.to_i, 1].max : 1
-            labels = [rackunit.rackunit]
-            labels += racktype.upper_rackunit_labels(rackunit.rackunit, unit_height - 1) if unit_height > 1 and racktype.respond_to?(:upper_rackunit_labels)
-            labels.each do |label|
-              state = host.alert.to_s.empty? ? 'used' : 'alert'
-              used[label] = state if used[label] != 'alert'
-            end
-          end
-        end
-
-        racktype.rackunit_space_list(rack.label).each do |full, front, rear, front1, front2, rear1, rear2|
-          row = ['', '', '', '']
-          if used[full]
-            row = [used[full], used[full], used[full], used[full]]
-          else
-            [[front, [0, 1]], [rear, [2, 3]], [front1, [0]], [front2, [1]], [rear1, [2]], [rear2, [3]]].each do |label, parts|
-              next unless used[label]
-              parts.each{|part| row[part] = used[label] == 'alert' ? 'alert' : 'partial'}
-            end
-          end
-          statuses[rack.oid].push(row)
+    used = {}
+    rackunits_per_rack.fetch(rack.oid, []).each do |rackunit|
+      rackunit.hosts.each do |host|
+        next unless host.isnt(:removed, :removing)
+        unit_height = host.hwinfo ? [host.hwinfo.unit_height.to_i, 1].max : 1
+        labels = [rackunit.rackunit]
+        labels += racktype.upper_rackunit_labels(rackunit.rackunit, unit_height - 1) if unit_height > 1 and racktype.respond_to?(:upper_rackunit_labels)
+        labels.each do |label|
+          state = host.alert.to_s.empty? ? 'used' : 'alert'
+          used[label] = state if used[label] != 'alert'
         end
       end
-      statuses
+    end
+
+    racktype.rackunit_space_list(rack.label).each do |full, front, rear, front1, front2, rear1, rear2|
+      row = ['', '', '', '']
+      if used[full]
+        row = [used[full], used[full], used[full], used[full]]
+      else
+        [[front, [0, 1]], [rear, [2, 3]], [front1, [0]], [front2, [1]], [rear1, [2]], [rear2, [3]]].each do |label, parts|
+          next unless used[label]
+          parts.each{|part| row[part] = used[label] == 'alert' ? 'alert' : 'partial'}
+        end
+      end
+      statuses[rack.oid].push(row)
+    end
+  end
+  statuses
+  end
+
+  def grouped_racks_by_datacenter_prefix(racks)
+    racks.group_by do |rack|
+      rack.label.to_s[/\A[A-Za-z]/].to_s.upcase.empty? ? '?' : rack.label.to_s[/\A[A-Za-z]/].to_s.upcase
+    end.sort
   end
 
   post '/ybz/rack/create' do
@@ -128,6 +134,7 @@ class Yabitz::Application < Sinatra::Base
       @mini_rack_statuses = rack_mini_statuses(@racks, rackunits_per_rack)
 
       @racks.sort!
+      @mini_rack_groups = grouped_racks_by_datacenter_prefix(@racks)
       haml :rack_list
     end
   end
@@ -163,6 +170,7 @@ class Yabitz::Application < Sinatra::Base
     @mini_rack_statuses = rack_mini_statuses(@racks, rackunits_per_rack)
 
     @racks.sort!{|a,b| ((a.datacenter <=> b.datacenter) != 0) ? a.datacenter <=> b.datacenter : @rack_blank_scores[b.oid].first <=> @rack_blank_scores[a.oid].first}
+    @mini_rack_groups = grouped_racks_by_datacenter_prefix(@racks)
     haml :rack_list
   end
 

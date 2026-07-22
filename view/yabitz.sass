@@ -2241,12 +2241,32 @@ body.theme-contrast .host_status_other
     :min-width 640px
 
 #mini_rack_list
+  :display block
+  :margin 0 0 1.2em 0
+
+.mini_rack_group
+  :display grid
+  :grid-template-columns 2.5em 1fr
+  :gap 8px
+  :align-items start
+  :padding 0.6em 0
+  :border-top 1px solid $w_border
+
+.mini_rack_group:first-child
+  :border-top none
+
+.mini_rack_group_label
+  :padding-top 70px
+  :text-align right
+  :font-weight bold
+  :color $w_bold
+
+.mini_rack_group_items
   :display grid
   :grid-template-columns repeat(auto-fill, 46px)
   :gap 8px 6px
   :align-items end
   :justify-content start
-  :margin 0 0 1.2em 0
 
 a.mini_rack
   :display grid
