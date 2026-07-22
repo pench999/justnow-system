@@ -35,5 +35,16 @@
               %img{:src => '/images/adding.png', :height => 24, :width => 24, :alt => '追加'}
           %td.td_line_term
             %img{:src => "/images/1x1.gif"}
+  - if @mini_rack_statuses
+    %div#mini_rack_list
+      - @racks.each do |rack|
+        - mini_rows = @mini_rack_statuses[rack.oid] || []
+        %a.mini_rack{:href => "/ybz/rack/#{rack.oid}", :title => h(rack.label)}
+          %span.mini_rack_frame
+            - mini_rows.each do |row|
+              %span.mini_rack_u
+                - row.each do |state|
+                  %span{:class => "mini_rack_part #{state}"}
+          %span.mini_rack_label&= rack.label
   %table#racklist
     = partial :rack, :collection => @racks

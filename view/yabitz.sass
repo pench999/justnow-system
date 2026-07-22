@@ -2239,3 +2239,63 @@ body.theme-contrast .host_status_other
 
   #maincontents .rack_display
     :min-width 640px
+
+#mini_rack_list
+  :display grid
+  :grid-template-columns repeat(auto-fill, 46px)
+  :gap 8px 6px
+  :align-items end
+  :justify-content start
+  :margin 0 0 1.2em 0
+
+a.mini_rack
+  :display grid
+  :gap 4px
+  :justify-items center
+  :color $p_text
+  :text-decoration none
+  :min-width 0
+
+a.mini_rack:hover .mini_rack_frame
+  :outline 2px solid $search_blue
+  :outline-offset 2px
+
+.mini_rack_frame
+  :display grid
+  :grid-template-rows repeat(42, 1fr)
+  :gap 1px
+  :width 38px
+  :height 168px
+  :padding 2px
+  :border 1px solid $w_border
+  :background-color $w_background + #111
+  :box-sizing border-box
+
+.mini_rack_u
+  :display grid
+  :grid-template-columns repeat(4, 1fr)
+  :gap 1px
+  :min-height 0
+
+.mini_rack_part
+  :display block
+  :min-width 0
+  :background-color #ffffff
+
+.mini_rack_part.used
+  :background-color #7f9db9
+
+.mini_rack_part.partial
+  :background-color #d6a11d
+
+.mini_rack_part.alert
+  :background-color #ff4444
+
+.mini_rack_label
+  :display block
+  :max-width 46px
+  :overflow hidden
+  :text-overflow ellipsis
+  :white-space nowrap
+  :font-weight bold
+  :font-size 90%
