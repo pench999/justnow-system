@@ -1,4 +1,8 @@
 -# coding: utf-8
+- current_path = request.path_info.to_s
+- current = lambda {|paths| paths.any?{|path| current_path == path or current_path.start_with?(path + '/') }}
+- current_class = lambda {|paths| current.call(paths) ? 'current' : nil}
+- menu_class = lambda {|paths| current.call(paths) ? 'menu_current' : nil}
 %div#appheader
   %a{:href => "/ybz/"}
     %div#appheaderlogo{:title => "JustNow System"}
@@ -11,81 +15,89 @@
       - else
         %li
           %a{:href => "/ybz/authenticate/login"} ログイン
-      %li
+      %li{:class => current_class.call(['/ybz/services'])}
         %a{:href => "/ybz/services"} サービス一覧
-      %li
+      %li{:class => menu_class.call(['/ybz/host', '/ybz/hosts', '/ybz/search', '/ybz/smartsearch'])}
         %a{:href => "#"}
           ホスト
         %ul
           - if @isadmin
-            %li
+            %li{:class => current_class.call(['/ybz/host/create'])}
               %a{:href => "/ybz/host/create"} ホスト登録
-          %li
+          %li{:class => current_class.call(['/ybz/hosts/status/under_dev'])}
             %a{:href => "/ybz/hosts/status/under_dev"} 準備中
-          %li
+          %li{:class => current_class.call(['/ybz/hosts/status/no_count'])}
             %a{:href => "/ybz/hosts/status/no_count"} 非課金
-          %li
+          %li{:class => current_class.call(['/ybz/hosts/status/suspended'])}
             %a{:href => "/ybz/hosts/status/suspended"} 停止
-          %li
+          %li{:class => current_class.call(['/ybz/hosts/status/standby'])}
             %a{:href => "/ybz/hosts/status/standby"} 待機
-          %li
+          %li{:class => current_class.call(['/ybz/hosts/status/removing'])}
             %a{:href => "/ybz/hosts/status/removing"} 撤去依頼済
-          %li
+          %li{:class => current_class.call(['/ybz/hosts/status/removed'])}
             %a{:href => "/ybz/hosts/status/removed"} 撤去完了
-          %li
+          %li{:class => current_class.call(['/ybz/hosts/status/missing'])}
             %a{:href => "/ybz/hosts/status/missing"} 管理対象外
-          %li
+          %li{:class => current_class.call(['/ybz/hosts/status/other'])}
             %a{:href => "/ybz/hosts/status/other"} 不明
-      %li
+      %li{:class => menu_class.call(['/ybz/brick', '/ybz/bricks'])}
         %a{:href => "#"}
           機器
         %ul
           - if @isadmin
-            %li
+            %li{:class => current_class.call(['/ybz/brick/create'])}
               %a{:href => "/ybz/brick/create"} 機器登録
-          %li
+          %li{:class => current_class.call(['/ybz/bricks/list/stock'])}
             %a{:href => "/ybz/bricks/list/stock"} 在庫
-          %li
+          %li{:class => current_class.call(['/ybz/bricks/list/spare'])}
             %a{:href => "/ybz/bricks/list/spare"} 故障交換用
-          %li
+          %li{:class => current_class.call(['/ybz/bricks/list/repair'])}
             %a{:href => "/ybz/bricks/list/repair"} 修理中
-          %li
+          %li{:class => current_class.call(['/ybz/bricks/list/broken'])}
             %a{:href => "/ybz/bricks/list/broken"} 故障
-          %li
+          %li{:class => current_class.call(['/ybz/bricks/list/in_use'])}
             %a{:href => "/ybz/bricks/list/in_use"} 使用中
-          %li
+          %li{:class => current_class.call(['/ybz/bricks/list/all'])}
             %a{:href => "/ybz/bricks/list/all"} 全て
-          %li
+          %li{:class => current_class.call(['/ybz/brick/served'])}
             %a{:href => "/ybz/brick/served"} 利用開始機器リスト
-      %li
+      %li{:class => menu_class.call(['/ybz/rack'])}
+        %a{:href => "#"}
+          ラック
+        %ul
+          %li{:class => current_class.call(['/ybz/rack/list'])}
+            %a{:href => "/ybz/rack/list"} ラック一覧
+          %li{:class => current_class.call(['/ybz/rack/minilist'])}
+            %a{:href => "/ybz/rack/minilist"}= "\u30df\u30cb\u30e9\u30c3\u30af"
+      %li{:class => menu_class.call(['/ybz/operations', '/ybz/contact', '/ybz/contactmember', '/ybz/hwinfo', '/ybz/osinfo', '/ybz/ipsegment', '/ybz/content', '/ybz/dept', '/ybz/hosts/suggest'])}
         %a{:href => "#"}
           各種リスト
         %ul
-          %li
-            %a{:href => "/ybz/operations"} 操作タグ
-          %li
-            %a{:href => "/ybz/contact/list"} 連絡先
-          %li
-            %a{:href => "/ybz/contactmember/list"} 連絡先メンバ
-          %li
-            %a{:href => "/ybz/hwinfo/list"} HW情報
-          %li
-            %a{:href => "/ybz/osinfo/list"} OS情報
-          %li
+          %li.nav_section ネットワーク
+          %li{:class => current_class.call(['/ybz/ipsegment/list/local'])}
             %a{:href => "/ybz/ipsegment/list/local"} Local NW
-          %li
+          %li{:class => current_class.call(['/ybz/ipsegment/list/global'])}
             %a{:href => "/ybz/ipsegment/list/global"} Global NW
-          %li
-            %a{:href => "/ybz/rack/list"} ラック
-          %li
-            %a{:href => "/ybz/rack/minilist"}= "\u30df\u30cb\u30e9\u30c3\u30af"
-          %li
+          %li.nav_section マスタ
+          %li{:class => current_class.call(['/ybz/hwinfo/list'])}
+            %a{:href => "/ybz/hwinfo/list"} HW情報
+          %li{:class => current_class.call(['/ybz/osinfo/list'])}
+            %a{:href => "/ybz/osinfo/list"} OS情報
+          %li.nav_section 組織
+          %li{:class => current_class.call(['/ybz/contact/list'])}
+            %a{:href => "/ybz/contact/list"} 連絡先
+          %li{:class => current_class.call(['/ybz/contactmember/list'])}
+            %a{:href => "/ybz/contactmember/list"} 連絡先メンバ
+          %li{:class => current_class.call(['/ybz/content/list'])}
             %a{:href => "/ybz/content/list"} コンテンツ
-          %li
+          %li{:class => current_class.call(['/ybz/dept/list'])}
             %a{:href => "/ybz/dept/list"} 部署
-          %li
+          %li.nav_section 運用
+          %li{:class => current_class.call(['/ybz/operations'])}
+            %a{:href => "/ybz/operations"} 操作タグ
+          %li{:class => current_class.call(['/ybz/hosts/suggest'])}
             %a{:href => "/ybz/hosts/suggest"} ハイパーバイザ
-      %li
+      %li{:class => menu_class.call(['/ybz/charge', '/ybz/machines', '/ybz/checker', '/ybz/auth_info'])}
         %a{:href => "#"}
           管理項目
         %ul
