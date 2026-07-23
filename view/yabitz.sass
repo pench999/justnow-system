@@ -2280,6 +2280,20 @@ a.mini_rack:hover .mini_rack_frame
   :outline 2px solid $search_blue
   :outline-offset 2px
 
+a.mini_rack_unavailable
+  :opacity 0.45
+  :filter grayscale(100%)
+
+a.mini_rack_unavailable:hover .mini_rack_frame
+  :outline-color #888888
+
+a.mini_rack_unavailable .mini_rack_frame
+  :background-color #d8d8d8
+  :border-color #a8a8a8
+
+a.mini_rack_unavailable .mini_rack_part
+  :background-color #c7c7c7
+
 .mini_rack_frame
   :display grid
   :grid-template-rows repeat(42, 1fr)

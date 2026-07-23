@@ -16,7 +16,10 @@
       %div.mini_rack_group_items
         - racks.each do |rack|
           - mini_rows = @mini_rack_statuses[rack.oid] || []
-          %a.mini_rack{:href => "/ybz/rack/#{rack.oid}", :title => h(rack.label)}
+          - rack_unavailable = !rack.ongoing?
+          - rack_classes = ['mini_rack', (rack_unavailable ? 'mini_rack_unavailable' : nil)].compact.join(' ')
+          - rack_title = rack_unavailable ? "#{rack.label} (\u4f7f\u7528\u4e0d\u53ef)" : rack.label
+          %a{:class => rack_classes, :href => "/ybz/rack/#{rack.oid}", :title => h(rack_title)}
             %span.mini_rack_frame
               - mini_rows.each do |row|
                 %span.mini_rack_u
