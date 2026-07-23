@@ -288,6 +288,23 @@ module Yabitz
       end
     end
     
+
+    class RackGroupLabel < Stratum::Model
+      table :rack_group_labels
+      field :prefix, :string, :length => 16
+      field :display_name, :string, :length => 64, :empty => :ok
+
+      def self.label_map
+        self.all.inject({}){|map, label| map.update(label.prefix => label.display_name)}
+      end
+
+      def self.display_name_for(prefix, labels=nil)
+        labels ||= self.label_map
+        value = labels[prefix]
+        value.to_s.empty? ? prefix : value
+      end
+    end
+
     class Rack < Stratum::Model
       table :racks
       field :label, :string, :validator => 'check_racklabel'

@@ -1,0 +1,24 @@
+-# coding: utf-8
+
+- label_map = @rack_group_labels || {}
+%div#mini_rack_list
+  - @mini_rack_groups.each do |group_label, racks|
+    - display_name = Yabitz::Model::RackGroupLabel.display_name_for(group_label, label_map)
+    %section.mini_rack_group
+      %div.mini_rack_group_label
+        %div.mini_rack_group_name&= display_name
+        - if @isadmin
+          %form.mini_rack_group_edit{:action => "/ybz/rack/minilist/group_label", :method => "POST"}
+            %input{:type => "hidden", :name => "prefix", :value => group_label}
+            %input{:type => "text", :name => "display_name", :value => h(display_name), :size => 8}
+            %button{:type => "submit"}= "\u5909\u66f4"
+      %div.mini_rack_group_items
+        - racks.each do |rack|
+          - mini_rows = @mini_rack_statuses[rack.oid] || []
+          %a.mini_rack{:href => "/ybz/rack/#{rack.oid}", :title => h(rack.label)}
+            %span.mini_rack_frame
+              - mini_rows.each do |row|
+                %span.mini_rack_u
+                  - row.each do |state|
+                    %span{:class => "mini_rack_part #{state}"}
+            %span.mini_rack_label&= rack.label

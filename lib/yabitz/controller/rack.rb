@@ -7,46 +7,63 @@ require 'haml'
 class Yabitz::Application < Sinatra::Base
 
   def rack_mini_statuses(racks, rackunits_per_rack)
-  statuses = {}
-  racks.each do |rack|
-    racktype = Yabitz::RackTypes.search(rack.label)
-    statuses[rack.oid] = []
-    next unless racktype and racktype.respond_to?(:rackunit_space_list)
+    statuses = {}
+    racks.each do |rack|
+      racktype = Yabitz::RackTypes.search(rack.label)
+      statuses[rack.oid] = []
+      next unless racktype and racktype.respond_to?(:rackunit_space_list)
 
-    used = {}
-    rackunits_per_rack.fetch(rack.oid, []).each do |rackunit|
-      rackunit.hosts.each do |host|
-        next unless host.isnt(:removed, :removing)
-        unit_height = host.hwinfo ? [host.hwinfo.unit_height.to_i, 1].max : 1
-        labels = [rackunit.rackunit]
-        labels += racktype.upper_rackunit_labels(rackunit.rackunit, unit_height - 1) if unit_height > 1 and racktype.respond_to?(:upper_rackunit_labels)
-        labels.each do |label|
-          state = host.alert.to_s.empty? ? 'used' : 'alert'
-          used[label] = state if used[label] != 'alert'
+      used = {}
+      rackunits_per_rack.fetch(rack.oid, []).each do |rackunit|
+        rackunit.hosts.each do |host|
+          next unless host.isnt(:removed, :removing)
+          unit_height = host.hwinfo ? [host.hwinfo.unit_height.to_i, 1].max : 1
+          labels = [rackunit.rackunit]
+          labels += racktype.upper_rackunit_labels(rackunit.rackunit, unit_height - 1) if unit_height > 1 and racktype.respond_to?(:upper_rackunit_labels)
+          labels.each do |label|
+            state = host.alert.to_s.empty? ? 'used' : 'alert'
+            used[label] = state if used[label] != 'alert'
+          end
         end
       end
-    end
 
-    racktype.rackunit_space_list(rack.label).each do |full, front, rear, front1, front2, rear1, rear2|
-      row = ['', '', '', '']
-      if used[full]
-        row = [used[full], used[full], used[full], used[full]]
-      else
-        [[front, [0, 1]], [rear, [2, 3]], [front1, [0]], [front2, [1]], [rear1, [2]], [rear2, [3]]].each do |label, parts|
-          next unless used[label]
-          parts.each{|part| row[part] = used[label] == 'alert' ? 'alert' : 'partial'}
+      racktype.rackunit_space_list(rack.label).each do |full, front, rear, front1, front2, rear1, rear2|
+        row = ['', '', '', '']
+        if used[full]
+          row = [used[full], used[full], used[full], used[full]]
+        else
+          [[front, [0, 1]], [rear, [2, 3]], [front1, [0]], [front2, [1]], [rear1, [2]], [rear2, [3]]].each do |label, parts|
+            next unless used[label]
+            parts.each{|part| row[part] = used[label] == 'alert' ? 'alert' : 'partial'}
+          end
         end
+        statuses[rack.oid].push(row)
       end
-      statuses[rack.oid].push(row)
     end
+    statuses
   end
-  statuses
+
+  def rack_group_prefix(rack)
+    rack.label.to_s[/\A[A-Za-z]/].to_s.upcase.empty? ? '?' : rack.label.to_s[/\A[A-Za-z]/].to_s.upcase
   end
 
   def grouped_racks_by_datacenter_prefix(racks)
-    racks.group_by do |rack|
-      rack.label.to_s[/\A[A-Za-z]/].to_s.upcase.empty? ? '?' : rack.label.to_s[/\A[A-Za-z]/].to_s.upcase
-    end.sort
+    racks.group_by{|rack| rack_group_prefix(rack)}.sort
+  end
+
+  def rackunits_per_rack
+    rackunits_per_rack = {}
+    @units_in_racks = {}
+    @rackunits = Yabitz::Model::RackUnit.all
+    Stratum.preload(@rackunits, Yabitz::Model::RackUnit)
+    @rackunits.each do |ru|
+      next if ru.hosts.select{|h| h.isnt(:removed, :removing)}.size < 1
+      rackunits_per_rack[ru.rack_by_id] ||= []
+      rackunits_per_rack[ru.rack_by_id].push(ru)
+      @units_in_racks[ru.rack_by_id] ||= 0
+      @units_in_racks[ru.rack_by_id] += 1
+    end
+    rackunits_per_rack
   end
 
   post '/ybz/rack/create' do
@@ -137,6 +154,31 @@ class Yabitz::Application < Sinatra::Base
       @mini_rack_groups = grouped_racks_by_datacenter_prefix(@racks)
       haml :rack_list
     end
+  end
+
+
+  get %r!/ybz/rack/minilist! do
+    authorized?
+    @racks = Yabitz::Model::Rack.all.sort
+    rackunits = rackunits_per_rack
+    @mini_rack_statuses = rack_mini_statuses(@racks, rackunits)
+    @mini_rack_groups = grouped_racks_by_datacenter_prefix(@racks)
+    @rack_group_labels = Yabitz::Model::RackGroupLabel.label_map
+    @page_title = "\u30df\u30cb\u30e9\u30c3\u30af"
+    haml :mini_rack_list
+  end
+
+  post '/ybz/rack/minilist/group_label' do
+    admin_protected!
+    prefix = params[:prefix].to_s.strip.upcase
+    display_name = params[:display_name].to_s.strip
+    halt HTTP_STATUS_NOT_ACCEPTABLE, "invalid prefix" unless prefix =~ /\A[A-Z?]\Z/
+
+    label = Yabitz::Model::RackGroupLabel.query(:prefix => prefix).first
+    label ||= Yabitz::Model::RackGroupLabel.new.tap{|obj| obj.prefix = prefix}
+    label.display_name = display_name.empty? ? prefix : display_name
+    label.save
+    redirect '/ybz/rack/minilist'
   end
 
   get %r!/ybz/rack/blanklist! do
