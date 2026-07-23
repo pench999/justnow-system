@@ -1895,9 +1895,25 @@ body.theme-modern .droppy a, body.theme-dark .droppy a
   :padding 9px 10px
   :border-radius 7px
 
+body.theme-modern .droppy li.hover > a, body.theme-modern .droppy a.hover, body.theme-modern .droppy a:hover
+  :background-color #eef5f8
+  :color #0f4f64
+  :text-decoration none
+
+body.theme-modern .droppy li.current > a, body.theme-modern .droppy li.menu_current > a
+  :background-color #176b87
+  :color #ffffff
+
+body.theme-modern .droppy li.current.hover > a, body.theme-modern .droppy li.menu_current.hover > a, body.theme-modern .droppy li.current > a:hover, body.theme-modern .droppy li.menu_current > a:hover
+  :background-color #176b87
+  :color #ffffff
+
 body.theme-modern .droppy ul, body.theme-dark .droppy ul
   :position static
   :display block !important
+  :visibility visible !important
+  :height auto !important
+  :overflow visible !important
   :width auto
   :padding 2px 0 0 12px
   :margin 0 0 6px
@@ -1972,7 +1988,15 @@ body.theme-dark .droppy li.current > a, body.theme-dark .droppy li.menu_current 
   :background-color #2f89a8
   :color #ffffff
 
-body.theme-dark .droppy li.hover a, body.theme-dark .droppy a:hover
+body.theme-dark .droppy li.hover > a, body.theme-dark .droppy a.hover, body.theme-dark .droppy a:hover
+  :background-color #233240
+  :color #ffffff
+
+body.theme-dark .droppy li.current > a, body.theme-dark .droppy li.menu_current > a
+  :background-color #2f89a8
+  :color #ffffff
+
+body.theme-dark .droppy li.current.hover > a, body.theme-dark .droppy li.menu_current.hover > a, body.theme-dark .droppy li.current > a:hover, body.theme-dark .droppy li.menu_current > a:hover
   :background-color #2f89a8
   :color #ffffff
 
