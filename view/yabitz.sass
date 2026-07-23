@@ -2321,15 +2321,26 @@ a.mini_rack:hover .mini_rack_frame
   :font-size 90%
 
 .mini_rack_group_name
-  :margin-bottom 0.4em
+  :display inline-block
+  :max-width 7em
+  :overflow hidden
+  :text-overflow ellipsis
+  :white-space nowrap
 
-.mini_rack_group_edit input
+.mini_rack_group_edit .mini_rack_group_name
+  :cursor text
+
+.mini_rack_group_edit .mini_rack_group_name:hover
+  :text-decoration underline
+
+.mini_rack_group_input
+  :display none
   :width 6.5em
   :font-size 90%
   :padding 2px
 
-.mini_rack_group_edit button
-  :display block
-  :margin-top 0.3em
-  :font-size 90%
-  :padding 2px 5px
+.mini_rack_group_edit.editing .mini_rack_group_name
+  :display none
+
+.mini_rack_group_edit.editing .mini_rack_group_input
+  :display inline-block

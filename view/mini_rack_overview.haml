@@ -6,12 +6,13 @@
     - display_name = Yabitz::Model::RackGroupLabel.display_name_for(group_label, label_map)
     %section.mini_rack_group
       %div.mini_rack_group_label
-        %div.mini_rack_group_name&= display_name
         - if @isadmin
           %form.mini_rack_group_edit{:action => "/ybz/rack/minilist/group_label", :method => "POST"}
             %input{:type => "hidden", :name => "prefix", :value => group_label}
-            %input{:type => "text", :name => "display_name", :value => h(display_name), :size => 8}
-            %button{:type => "submit"}= "\u5909\u66f4"
+            %span.mini_rack_group_name{:tabindex => 0}&= display_name
+            %input.mini_rack_group_input{:type => "text", :name => "display_name", :value => h(display_name), :size => 8}
+        - else
+          %div.mini_rack_group_name&= display_name
       %div.mini_rack_group_items
         - racks.each do |rack|
           - mini_rows = @mini_rack_statuses[rack.oid] || []
@@ -22,3 +23,31 @@
                   - row.each do |state|
                     %span{:class => "mini_rack_part #{state}"}
             %span.mini_rack_label&= rack.label
+
+:javascript
+  $(function(){
+    $('#mini_rack_list').delegate('.mini_rack_group_name', 'click keypress', function(e){
+      if (e.type == 'keypress' && e.which != 13) { return; }
+      var form = $(this).closest('form.mini_rack_group_edit');
+      var input = form.find('input[name="display_name"]');
+      input.data('original-value', input.val());
+      form.addClass('editing');
+      input.focus().select();
+      e.preventDefault();
+    });
+    $('#mini_rack_list').delegate('.mini_rack_group_input', 'keydown', function(e){
+      if (e.which == 13) {
+        $(this).closest('form.mini_rack_group_edit').submit();
+        return false;
+      }
+      if (e.which == 27) {
+        $(this).val($(this).data('original-value'));
+        $(this).closest('form.mini_rack_group_edit').removeClass('editing');
+        return false;
+      }
+    });
+    $('#mini_rack_list').delegate('.mini_rack_group_input', 'blur', function(){
+      $(this).val($(this).data('original-value'));
+      $(this).closest('form.mini_rack_group_edit').removeClass('editing');
+    });
+  });
