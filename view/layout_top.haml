@@ -69,21 +69,26 @@
             %a{:href => "/ybz/rack/list"} ラック一覧
           %li{:class => current_class.call(['/ybz/rack/minilist'])}
             %a{:href => "/ybz/rack/minilist"}= "\u30df\u30cb\u30e9\u30c3\u30af"
-      %li{:class => menu_class.call(['/ybz/operations', '/ybz/contact', '/ybz/contactmember', '/ybz/hwinfo', '/ybz/osinfo', '/ybz/ipsegment', '/ybz/content', '/ybz/dept', '/ybz/hosts/suggest'])}
+      %li{:class => menu_class.call(['/ybz/ipsegment'])}
         %a{:href => "#"}
-          各種リスト
+          ネットワーク
         %ul
-          %li.nav_section ネットワーク
           %li{:class => current_class.call(['/ybz/ipsegment/list/local'])}
             %a{:href => "/ybz/ipsegment/list/local"} Local NW
           %li{:class => current_class.call(['/ybz/ipsegment/list/global'])}
             %a{:href => "/ybz/ipsegment/list/global"} Global NW
-          %li.nav_section マスタ
+      %li{:class => menu_class.call(['/ybz/hwinfo', '/ybz/osinfo'])}
+        %a{:href => "#"}
+          マスタ
+        %ul
           %li{:class => current_class.call(['/ybz/hwinfo/list'])}
             %a{:href => "/ybz/hwinfo/list"} HW情報
           %li{:class => current_class.call(['/ybz/osinfo/list'])}
             %a{:href => "/ybz/osinfo/list"} OS情報
-          %li.nav_section 組織
+      %li{:class => menu_class.call(['/ybz/contact', '/ybz/contactmember', '/ybz/content', '/ybz/dept'])}
+        %a{:href => "#"}
+          組織
+        %ul
           %li{:class => current_class.call(['/ybz/contact/list'])}
             %a{:href => "/ybz/contact/list"} 連絡先
           %li{:class => current_class.call(['/ybz/contactmember/list'])}
@@ -92,7 +97,10 @@
             %a{:href => "/ybz/content/list"} コンテンツ
           %li{:class => current_class.call(['/ybz/dept/list'])}
             %a{:href => "/ybz/dept/list"} 部署
-          %li.nav_section 運用
+      %li{:class => menu_class.call(['/ybz/operations', '/ybz/hosts/suggest'])}
+        %a{:href => "#"}
+          運用
+        %ul
           %li{:class => current_class.call(['/ybz/operations'])}
             %a{:href => "/ybz/operations"} 操作タグ
           %li{:class => current_class.call(['/ybz/hosts/suggest'])}

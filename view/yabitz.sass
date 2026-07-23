@@ -2103,6 +2103,128 @@ body.theme-dark .mini_rack_part.alert
   body.theme-modern #appview, body.theme-dark #appview
     :padding 10px 0
 
+
+// Sidebar menu fixes for Modern/Dark. Droppy is disabled for these themes,
+// so keep the navigation as a plain expanded tree.
+body.theme-modern #nav, body.theme-dark #nav
+  :line-height 1.35
+
+body.theme-modern #nav > li, body.theme-dark #nav > li
+  :margin 0 0 8px
+  :position static !important
+
+body.theme-modern #nav > li > a, body.theme-dark #nav > li > a
+  :display block
+  :padding 7px 10px
+  :border none
+  :border-radius 6px
+  :background transparent
+  :line-height 1.25
+  :font-size 13px
+  :font-weight bold
+  :box-sizing border-box
+
+body.theme-modern #nav > li > a, body.theme-modern #nav > li > a:hover, body.theme-modern #nav > li.hover > a, body.theme-modern #nav > li > a.hover
+  :background transparent !important
+  :color #17212b !important
+  :text-decoration none
+
+body.theme-modern #nav > li.current > a, body.theme-modern #nav > li.menu_current > a, body.theme-modern #nav > li.current > a:hover, body.theme-modern #nav > li.menu_current > a:hover
+  :background #176b87 !important
+  :color #ffffff !important
+
+body.theme-modern #nav ul, body.theme-dark #nav ul
+  :position static !important
+  :display block !important
+  :visibility visible !important
+  :height auto !important
+  :overflow visible !important
+  :left auto !important
+  :top auto !important
+  :z-index auto !important
+  :width auto
+  :padding 0 0 0 12px
+  :margin 2px 0 0 0
+  :border none
+  :border-left 1px solid #dce5ec
+  :box-shadow none
+  :background transparent
+
+body.theme-modern #nav ul li, body.theme-dark #nav ul li
+  :position static !important
+  :margin 0
+
+body.theme-modern #nav ul li a, body.theme-modern #nav ul li a:hover, body.theme-modern #nav li.hover ul li a, body.theme-modern #nav ul li a.hover
+  :display block
+  :padding 4px 10px
+  :border none
+  :border-radius 5px
+  :background transparent !important
+  :color #26323d !important
+  :line-height 1.35
+  :font-size 13px
+  :font-weight normal
+  :text-decoration none
+  :box-sizing border-box
+
+body.theme-modern #nav ul li.current > a, body.theme-modern #nav li.hover ul li.current > a, body.theme-modern #nav ul li.current > a:hover
+  :background #d9edf4 !important
+  :color #0f4f64 !important
+  :font-weight bold
+
+body.theme-dark #nav > li > a, body.theme-dark #nav > li > a:hover, body.theme-dark #nav > li.hover > a, body.theme-dark #nav > li > a.hover
+  :background transparent !important
+  :color #d8e2ea !important
+  :text-decoration none
+
+body.theme-dark #nav > li.current > a, body.theme-dark #nav > li.menu_current > a, body.theme-dark #nav > li.current > a:hover, body.theme-dark #nav > li.menu_current > a:hover
+  :background #2f89a8 !important
+  :color #ffffff !important
+
+body.theme-dark #nav ul
+  :border-left-color #334556
+
+body.theme-dark #nav ul li a, body.theme-dark #nav ul li a:hover, body.theme-dark #nav li.hover ul li a, body.theme-dark #nav ul li a.hover
+  :display block
+  :padding 4px 10px
+  :border none
+  :border-radius 5px
+  :background transparent !important
+  :color #cbd7e0 !important
+  :line-height 1.35
+  :font-size 13px
+  :font-weight normal
+  :text-decoration none
+  :box-sizing border-box
+
+body.theme-dark #nav ul li.current > a, body.theme-dark #nav li.hover ul li.current > a, body.theme-dark #nav ul li.current > a:hover
+  :background #203d4c !important
+  :color #a9e3f3 !important
+  :font-weight bold
+
+body.theme-modern #themebox, body.theme-dark #themebox
+  :display grid
+  :grid-template-columns auto 1fr
+  :gap 6px
+  :align-items center
+
+body.theme-modern #themebox select, body.theme-dark #themebox select
+  :width 100%
+  :min-width 0
+
+body.theme-modern #mobile_view_button, body.theme-dark #mobile_view_button
+  :grid-column 1 / -1
+  :display block
+  :padding 4px 0
+
+body.theme-modern #searchbox table, body.theme-dark #searchbox table
+  :width 100%
+
+body.theme-modern input#searchinput, body.theme-dark input#searchinput
+  :width 100%
+  :min-width 0
+  :box-sizing border-box
+
 body.theme-contrast
   :background #dde7ee
 body.theme-contrast .mainviewboxouter, body.theme-contrast .inline_filter, body.theme-contrast #selectionbox, body.theme-contrast #detailbox, body.theme-contrast #notesbox

@@ -6,7 +6,9 @@ $(function(){
   $('#detailview').height(h);
   $('#detailboxarea').height(h);
   
-  $('#nav').droppy();
+  if (current_theme_name() != 'modern' && current_theme_name() != 'dark') {
+    $('#nav').droppy();
+  }
   $('#searchinput').keypress(function(e){if(e.which == 13){$('#smartsearch').submit();};});
   setup_global_keyboard_shortcuts();
   setup_inline_list_filter();
