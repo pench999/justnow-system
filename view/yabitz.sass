@@ -1929,9 +1929,34 @@ body.theme-modern .droppy ul li a, body.theme-dark .droppy ul li a
   :padding 6px 10px
   :font-size 13px
 
+body.theme-modern .droppy ul li a
+  :color #26323d !important
+
+body.theme-modern .droppy li.hover ul li a, body.theme-modern .droppy ul li a.hover
+  :background transparent !important
+  :color #26323d !important
+
+body.theme-modern .droppy ul li a:hover
+  :background-color #eef5f8 !important
+  :color #0f4f64 !important
+
+body.theme-modern .droppy ul li.current > a, body.theme-modern .droppy li.hover ul li.current > a
+  :background-color #d9edf4 !important
+  :color #0f4f64 !important
+  :font-weight bold
+
 body.theme-modern .droppy ul li.nav_section, body.theme-dark .droppy ul li.nav_section
   :padding 9px 10px 3px
   :border-top none
+
+body.theme-modern .droppy li, body.theme-dark .droppy li
+  :position static
+
+body.theme-modern .droppy li.hover ul, body.theme-dark .droppy li.hover ul
+  :position static !important
+  :left auto !important
+  :top auto !important
+  :z-index auto !important
 
 body.theme-modern #appview, body.theme-modern #appfooter, body.theme-dark #appview, body.theme-dark #appfooter
   :margin-left 276px
