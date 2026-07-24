@@ -2104,6 +2104,46 @@ body.theme-dark .mini_rack_part.alert
     :padding 10px 0
 
 
+
+body.theme-modern #appview, body.theme-dark #appview
+  :display flex
+  :align-items flex-start
+  :gap 16px
+  :box-sizing border-box
+
+body.theme-modern #mainview, body.theme-dark #mainview
+  :float none
+  :flex 1 1 auto
+  :min-width 0
+  :width auto
+
+body.theme-modern #mainview_full, body.theme-dark #mainview_full
+  :float none
+  :flex 1 1 auto
+  :min-width 0
+  :width auto
+
+body.theme-modern #detailview, body.theme-dark #detailview
+  :float none
+  :flex 0 0 320px
+  :width 320px
+  :margin-left 0
+  :position relative
+  :align-self flex-start
+
+body.theme-modern #detailboxarea, body.theme-dark #detailboxarea
+  :position relative
+
+body.theme-modern #selectionbox, body.theme-modern #detailbox, body.theme-modern #notesbox, body.theme-dark #selectionbox, body.theme-dark #detailbox, body.theme-dark #notesbox
+  :box-sizing border-box
+
+@media screen and (max-width: 1040px)
+  body.theme-modern #appview, body.theme-dark #appview
+    :display block
+  body.theme-modern #detailview, body.theme-dark #detailview
+    :width auto
+    :margin-top 12px
+
 // Sidebar menu fixes for Modern/Dark. Droppy is disabled for these themes,
 // so keep the navigation as a plain expanded tree.
 body.theme-modern #nav, body.theme-dark #nav

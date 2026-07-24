@@ -909,6 +909,9 @@ function reload_table_rows(type, oids){
 };
 
 function detailbox_offset(){
+  if (sidebar_theme_active()) {
+    return $('#detailboxarea').offset().top;
+  }
   var topmargin_h = $("#appheader").outerHeight();
   var toolbox_h = $("#toolbox_spacer_top").outerHeight() + $("#toolbox_spacer_bottom").outerHeight() + $("#toolbox").outerHeight();
   return topmargin_h + toolbox_h;
