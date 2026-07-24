@@ -9,6 +9,7 @@ $(function(){
   if (current_theme_name() != 'modern' && current_theme_name() != 'dark') {
     $('#nav').droppy();
   }
+  setup_sidebar_nav();
   $('#searchinput').keypress(function(e){if(e.which == 13){$('#smartsearch').submit();};});
   setup_global_keyboard_shortcuts();
   setup_inline_list_filter();
@@ -208,6 +209,37 @@ function apply_theme(theme){
   $('body')
     .removeClass('theme-default theme-modern theme-soft theme-dark theme-contrast')
     .addClass('theme-' + theme);
+  setup_sidebar_nav();
+}
+
+function sidebar_theme_active(){
+  return $('body').hasClass('theme-modern') || $('body').hasClass('theme-dark');
+}
+
+function setup_sidebar_nav(){
+  var nav = $('#nav');
+  nav.find('> li:has(> ul)').each(function(){
+    var item = $(this);
+    if (!item.hasClass('sidebar_ready')) {
+      item.addClass('sidebar_ready');
+      item.find('> a').click(function(e){
+        if (!sidebar_theme_active()) { return true; }
+        var parent = $(this).parent('li');
+        parent.toggleClass('sidebar_open');
+        e.preventDefault();
+        return false;
+      });
+    }
+    if (sidebar_theme_active()) {
+      if (item.hasClass('menu_current') || item.find('> ul > li.current').size() > 0) {
+        item.addClass('sidebar_open');
+      } else if (!item.hasClass('sidebar_open')) {
+        item.removeClass('sidebar_open');
+      }
+    } else {
+      item.removeClass('sidebar_open');
+    }
+  });
 }
 
 function setup_theme_selector(){
@@ -216,6 +248,7 @@ function setup_theme_selector(){
   $('#theme_selector').val(theme).change(function(){
     var selected = $(this).val();
     apply_theme(selected);
+    setup_sidebar_nav();
     try {
       localStorage.setItem('justnow.theme', selected);
     } catch(e) {

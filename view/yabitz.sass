@@ -2225,6 +2225,69 @@ body.theme-modern input#searchinput, body.theme-dark input#searchinput
   :min-width 0
   :box-sizing border-box
 
+
+body.theme-modern #appheader, body.theme-dark #appheader
+  :display flex
+  :flex-direction column
+
+body.theme-modern #nav > li.sidebar_ready > a, body.theme-dark #nav > li.sidebar_ready > a
+  :position relative
+  :padding-right 28px
+  :cursor pointer
+
+body.theme-modern #nav > li.sidebar_ready > a:after, body.theme-dark #nav > li.sidebar_ready > a:after
+  :content "▸"
+  :position absolute
+  :right 10px
+  :top 50%
+  :margin-top -0.65em
+  :font-size 12px
+  :color #7b8a97
+
+body.theme-modern #nav > li.sidebar_ready.sidebar_open > a:after, body.theme-dark #nav > li.sidebar_ready.sidebar_open > a:after
+  :content "▾"
+
+body.theme-modern #nav > li.sidebar_ready > ul, body.theme-dark #nav > li.sidebar_ready > ul
+  :display none !important
+
+body.theme-modern #nav > li.sidebar_ready.sidebar_open > ul, body.theme-dark #nav > li.sidebar_ready.sidebar_open > ul
+  :display block !important
+
+body.theme-modern #nav > li.sidebar_ready:not(.sidebar_open), body.theme-dark #nav > li.sidebar_ready:not(.sidebar_open)
+  :margin-bottom 8px
+
+body.theme-modern #nav > li.sidebar_ready.sidebar_open, body.theme-dark #nav > li.sidebar_ready.sidebar_open
+  :margin-bottom 10px
+
+body.theme-modern #nav > li.sidebar_ready.sidebar_open > ul, body.theme-dark #nav > li.sidebar_ready.sidebar_open > ul
+  :padding-left 18px
+  :margin-top 3px
+
+body.theme-modern #sidebar_footer, body.theme-dark #sidebar_footer
+  :display block
+  :margin-top auto
+  :padding-top 14px
+  :border-top 1px solid #e2e9ef
+  :font-size 11px
+  :line-height 1.4
+  :color #6b7785
+
+body.theme-modern #sidebar_footer a
+  :color #176b87
+
+body.theme-dark #sidebar_footer
+  :border-top-color #2b3a49
+  :color #94a6b7
+
+body.theme-dark #sidebar_footer a
+  :color #7cc7df
+
+body.theme-default #sidebar_footer, body.theme-contrast #sidebar_footer
+  :display none
+
+body.theme-modern #appfooter, body.theme-dark #appfooter
+  :display none
+
 body.theme-contrast
   :background #dde7ee
 body.theme-contrast .mainviewboxouter, body.theme-contrast .inline_filter, body.theme-contrast #selectionbox, body.theme-contrast #detailbox, body.theme-contrast #notesbox

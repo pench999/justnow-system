@@ -146,4 +146,6 @@
                 %input{:onfocus => "this.select();", :type => "text", :id => "searchinput", :name => "keywords"}
       %div#searchlinkwrap
         %a{:href => "/ybz/search"} 詳細なホスト検索
+  %div#sidebar_footer
+    = Yabitz.config().credit_html()
 %div{:id => "break", :style => "clear: both; padding-bottom: 1em;"}
