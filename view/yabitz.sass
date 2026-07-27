@@ -2891,6 +2891,32 @@ a.mini_rack_unavailable .mini_rack_part
   :display inline-block
 
 
+// Compact list density for sidebar themes.
+body.theme-modern #hostlist, body.theme-modern #servicelist, body.theme-dark #hostlist, body.theme-dark #servicelist
+  :font-size 13px
+  :line-height 1.25
+
+body.theme-modern #hostlist tr.host_outline > td, body.theme-modern #servicelist tr.service_item > td, body.theme-dark #hostlist tr.host_outline > td, body.theme-dark #servicelist tr.service_item > td
+  :padding-top 4px
+  :padding-bottom 4px
+  :line-height 1.25
+
+body.theme-modern #hostlist tr.host_outline > td > div, body.theme-modern #servicelist tr.service_item > td > div, body.theme-dark #hostlist tr.host_outline > td > div, body.theme-dark #servicelist tr.service_item > td > div
+  :padding-top 1.25em !important
+
+body.theme-modern #hostlist .host_displayname, body.theme-modern #servicelist .service_name, body.theme-dark #hostlist .host_displayname, body.theme-dark #servicelist .service_name
+  :padding-left 1em
+
+body.theme-modern #hostlist .host_ipaddresses, body.theme-modern #hostlist .host_service, body.theme-modern #hostlist .host_hwid, body.theme-modern #hostlist .host_rackunit, body.theme-modern #hostlist .host_alert, body.theme-modern #servicelist .service_content, body.theme-dark #hostlist .host_ipaddresses, body.theme-dark #hostlist .host_service, body.theme-dark #hostlist .host_hwid, body.theme-dark #hostlist .host_rackunit, body.theme-dark #hostlist .host_alert, body.theme-dark #servicelist .service_content
+  :font-size 12px
+  :line-height 1.2
+
+body.theme-modern #hostlist table.ipaddrs td, body.theme-dark #hostlist table.ipaddrs td
+  :padding-top 1px
+  :padding-bottom 1px
+  :line-height 1.2
+
+
 .ip_scope_select, .ip-scope-input
   max-width: 9em
   margin-left: 0.4em
