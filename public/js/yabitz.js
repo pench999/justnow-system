@@ -1234,12 +1234,36 @@ function show_add_item(event) {
     .blur(hide_add_item)
     .keypress(function(e){if(e.which == 13){$(e.target).closest('form.field_edit_form').submit();};})
     .focus();
+  div2.filter('.ip-scope-edit').find('select.ip-scope-input')
+    .unbind()
+    .mousedown(function(e){e.stopPropagation();})
+    .click(function(e){e.stopPropagation();})
+    .change(function(e){
+      sync_ip_scope_inputs($(e.target).closest('form.field_edit_form'));
+    })
+    .blur(hide_add_item);
 };
 
 function hide_add_item(event) {
   var target = $(event.target).closest('li.addinput');
+  var dataedit = target.children('div.dataedit');
+  if (dataedit.hasClass('ip-scope-edit')) {
+    window.setTimeout(function(){
+      if (dataedit.is(document.activeElement) || dataedit.has(document.activeElement).size() > 0) {
+        return false;
+      }
+      hide_ip_add_item(target);
+    }, 0);
+    return false;
+  }
   $(event.target).val('');
-  $(event.target).closest('div.ip-scope-edit').find('input.ip-combined-input').val('');
+  target.hide();
+};
+
+function hide_ip_add_item(target) {
+  target.find('input.ip-address-input').val('');
+  target.find('input.ip-combined-input').val('');
+  target.find('select.ip-scope-input').val('default');
   target.hide();
 };
 
