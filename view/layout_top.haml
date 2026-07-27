@@ -105,22 +105,23 @@
             %a{:href => "/ybz/operations"} 操作タグ
           %li{:class => current_class.call(['/ybz/hosts/suggest'])}
             %a{:href => "/ybz/hosts/suggest"} ハイパーバイザ
-      %li{:class => menu_class.call(['/ybz/charge', '/ybz/machines', '/ybz/checker', '/ybz/auth_info'])}
-        %a{:href => "#"}
-          管理項目
-        %ul
-          %li
-            %a{:href => "/ybz/charge/summary"} 課金情報
-          %li
-            %a{:href => "/ybz/machines/hardware"} 筐体別使用状況
-          %li
-            %a{:href => "/ybz/machines/os"} OS別使用状況
-          %li
-            %a{:href => "/ybz/checker"} チェッカ
-          %li
-            %a{:href => "/ybz/auth_info/list"} ユーザリスト
-          %li
-            %a{:href => "/ybz/auth_info/basic_auth"} Basic認証ユーザー
+      - if @isadmin
+        %li{:class => menu_class.call(['/ybz/charge', '/ybz/machines', '/ybz/checker', '/ybz/auth_info'])}
+          %a{:href => "#"}
+            管理項目
+          %ul
+            %li
+              %a{:href => "/ybz/charge/summary"} 課金情報
+            %li
+              %a{:href => "/ybz/machines/hardware"} 筐体別使用状況
+            %li
+              %a{:href => "/ybz/machines/os"} OS別使用状況
+            %li
+              %a{:href => "/ybz/checker"} チェッカ
+            %li
+              %a{:href => "/ybz/auth_info/list"} ユーザリスト
+            %li
+              %a{:href => "/ybz/auth_info/basic_auth"} Basic認証ユーザー
   %div{:style => "float: right; clear: right; padding-top: 7px;"}
     - t_now = Time.now.getlocal('+09:00')
     %span#datetime #{t_now.year}年#{t_now.mon}月#{t_now.day}日 #{sprintf("%02d",t_now.hour)}:#{sprintf("%02d",t_now.min)}
