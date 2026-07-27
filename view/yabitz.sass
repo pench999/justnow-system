@@ -1849,39 +1849,49 @@ body.theme-modern #content, body.theme-dark #content
   :padding 0
 
 
-body.theme-modern:before, body.theme-dark:before
-  :content ""
+body.theme-modern #apptopbar, body.theme-dark #apptopbar
   :position fixed
   :left 276px
   :right 0
   :top 0
-  :height 34px
-  :z-index 15
-  :background #f4f7f9
-  :pointer-events none
+  :height 52px
+  :z-index 20
+  :display flex
+  :align-items center
+  :justify-content space-between
+  :box-sizing border-box
+  :padding 0 22px
+  :border-bottom 1px solid #d6dee5
+  :background #ffffff
+  :box-shadow 0 1px 8px rgba(15, 35, 50, 0.06)
 
-body.theme-modern:after, body.theme-dark:after
-  :content ""
+body.theme-modern .apptopbar_title, body.theme-dark .apptopbar_title
+  :font-size 14px
+  :font-weight bold
+  :color #26323d
+
+body.theme-modern #appbottombar, body.theme-dark #appbottombar
   :position fixed
   :left 276px
   :right 0
   :bottom 0
-  :height 24px
-  :z-index 15
-  :background #f4f7f9
-  :pointer-events none
+  :height 22px
+  :z-index 20
+  :box-sizing border-box
+  :border-top 1px solid #d6dee5
+  :background #ffffff
 
-body.theme-dark:before, body.theme-dark:after
-  :background #111820
+body.theme-dark #apptopbar, body.theme-dark #appbottombar
+  :background #17212b
+  :border-color #304253
+
+body.theme-dark .apptopbar_title
+  :color #d8e2ea
 
 body.theme-modern #accountbox, body.theme-dark #accountbox
   :display flex
   :align-items center
   :gap 10px
-  :position fixed
-  :top 12px
-  :right 18px
-  :z-index 20
   :padding 7px 10px
   :border 1px solid #d6dee5
   :border-radius 8px
@@ -2025,7 +2035,7 @@ body.theme-modern #appview, body.theme-modern #appfooter, body.theme-dark #appvi
   :margin-left 276px
 
 body.theme-modern #appview, body.theme-dark #appview
-  :padding 46px 20px 34px
+  :padding 74px 22px 42px
 
 body.theme-modern #break, body.theme-dark #break
   :display none
@@ -2156,13 +2166,21 @@ body.theme-dark .mini_rack_part.alert
 
 @media screen and (max-width: 1040px)
 
-  body.theme-modern:before, body.theme-modern:after, body.theme-dark:before, body.theme-dark:after
+  body.theme-modern #apptopbar, body.theme-dark #apptopbar, body.theme-modern #appbottombar, body.theme-dark #appbottombar
+    :position static
+    :left auto
+    :right auto
+    :height auto
+    :padding 10px 12px
+    :margin 0 0 10px
+    :box-shadow none
+
+  body.theme-modern #appbottombar, body.theme-dark #appbottombar
     :display none
 
   body.theme-modern #accountbox, body.theme-dark #accountbox
-    :position static
     :display flex
-    :margin 0 0 10px
+    :margin 0
     :box-shadow none
   body.theme-modern #nav .nav_account, body.theme-dark #nav .nav_account
     :display none
@@ -2175,7 +2193,7 @@ body.theme-dark .mini_rack_part.alert
   body.theme-modern #appview, body.theme-modern #appfooter, body.theme-dark #appview, body.theme-dark #appfooter
     :margin-left 0
   body.theme-modern #appview, body.theme-dark #appview
-    :padding 14px 0 18px
+    :padding 0 0 18px
 
 
 
