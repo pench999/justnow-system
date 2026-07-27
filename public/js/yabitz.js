@@ -1125,6 +1125,8 @@ function un_highlight_editable_item(event) {
 };
 
 function show_editable_item(event) {
+  event.preventDefault();
+  event.stopPropagation();
   var group = $(event.target).closest('.clickableitem,.memoitem');
   group.children('.dataview').hide();
   group.children('.dataedit').css('display', 'inline');
@@ -1162,6 +1164,13 @@ function show_editable_item(event) {
       .blur(rollback_editable_item)
       .keypress(function(e){if(e.which == 13){$(e.target).closest('form.field_edit_form').submit();};})
       .focus();
+    group.children('.dataedit.ip-scope-edit').find('select.ip-scope-input')
+      .unbind()
+      .mousedown(function(e){e.stopPropagation();})
+      .click(function(e){e.stopPropagation();})
+      .change(function(e){
+        sync_ip_scope_inputs($(e.target).closest('form.field_edit_form'));
+      });
   }
 
 };
@@ -1183,19 +1192,31 @@ function rollback_editable_area(event) {
 function rollback_editable_item(event) {
   var group = $(event.target).closest('.clickableitem');
   if (group.children('div.dataedit').hasClass('ip-scope-edit')) {
-    var title = group.children('.dataview').attr('title') || '';
-    var parts = title.match(/^([A-Za-z0-9_.-]+):(.+)$/);
-    if (parts) {
-      group.children('div.dataedit').find('select.ip-scope-input').val(parts[1]);
-      group.children('div.dataedit').find('input.ip-address-input').val(parts[2]);
-    } else {
-      group.children('div.dataedit').find('select.ip-scope-input').val('default');
-      group.children('div.dataedit').find('input.ip-address-input').val(title);
-    }
-    sync_ip_scope_inputs(group.closest('form.field_edit_form'));
-  } else {
-    group.children('div.dataedit').find("input[name='value']").val(group.children('.dataview').attr('title'));
+    var dataedit = group.children('div.dataedit');
+    window.setTimeout(function(){
+      if (dataedit.is(document.activeElement) || dataedit.has(document.activeElement).size() > 0) {
+        return false;
+      }
+      rollback_ip_editable_item(group);
+    }, 0);
+    return false;
   }
+  group.children('div.dataedit').find("input[name='value']").val(group.children('.dataview').attr('title'));
+  group.children('.dataedit').hide();
+  group.children('.dataview').show();
+};
+
+function rollback_ip_editable_item(group) {
+  var title = group.children('.dataview').attr('title') || '';
+  var parts = title.match(/^([A-Za-z0-9_.-]+):(.+)$/);
+  if (parts) {
+    group.children('div.dataedit').find('select.ip-scope-input').val(parts[1]);
+    group.children('div.dataedit').find('input.ip-address-input').val(parts[2]);
+  } else {
+    group.children('div.dataedit').find('select.ip-scope-input').val('default');
+    group.children('div.dataedit').find('input.ip-address-input').val(title);
+  }
+  sync_ip_scope_inputs(group.closest('form.field_edit_form'));
   group.children('.dataedit').hide();
   group.children('.dataview').show();
 };
