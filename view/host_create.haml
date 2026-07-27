@@ -2,6 +2,7 @@
 
 %div.hidden.resultbox
   %select
+- ip_scopes = Yabitz::Model::IPAddress.scopes
 
 %div#toolbox_spacer_top
 %div#toolbox
@@ -81,7 +82,10 @@
                     %input.simple.blank_onclone{:type => "text", :name => "dnsnames0", :size => 17} 
                   %th.namefield Local IP
                   %td.inputfield.right
-                    %input.simple.blank_onclone{:type => "text", :name => "localips0", :size => 17, :title => "例: 192.168.1.10 または tenant-a:192.168.1.10"}
+                    %input.simple.blank_onclone.ip_address_input{:type => "text", :name => "localips0", :size => 17}
+                    %select.ip_scope_select{:name => "localips_scope0"}
+                      - ip_scopes.each do |scope|
+                        %option{:value => scope, :selected => scope == Yabitz::Model::IPAddress::DEFAULT_SCOPE}&= scope
                     %span.loading
                       %img{:src => '/images/load_s.gif'}
                 %tr
@@ -116,10 +120,16 @@
                 %tr
                   %th.namefield Global IP
                   %td.inputfield.left
-                    %input.simple.optional{:type => "text", :name => "globalips0", :size => 17, :title => "例: 203.0.113.10 または tenant-a:203.0.113.10"}
+                    %input.simple.optional.ip_address_input{:type => "text", :name => "globalips0", :size => 17}
+                    %select.ip_scope_select{:name => "globalips_scope0"}
+                      - ip_scopes.each do |scope|
+                        %option{:value => scope, :selected => scope == Yabitz::Model::IPAddress::DEFAULT_SCOPE}&= scope
                   %th.namefield Virtual IP
                   %td.inputfield.right
-                    %input.simple.optional{:type => "text", :name => "virtualips0", :size => 17, :title => "例: 192.168.1.10 または tenant-a:192.168.1.10"}
+                    %input.simple.optional.ip_address_input{:type => "text", :name => "virtualips0", :size => 17}
+                    %select.ip_scope_select{:name => "virtualips_scope0"}
+                      - ip_scopes.each do |scope|
+                        %option{:value => scope, :selected => scope == Yabitz::Model::IPAddress::DEFAULT_SCOPE}&= scope
                 %tr
                   %th.namefield タグ
                   %td.inputfield.left

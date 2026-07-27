@@ -6,6 +6,18 @@ require 'haml'
 
 class Yabitz::Application < Sinatra::Base
 
+
+  def scoped_ip_values(params, field, index)
+    scope = Yabitz::Model::IPAddress.normalize_scope(params["#{field}_scope#{index}"])
+    params["#{field}#{index}"].to_s.split(/\s+/).select{|ip| ip.size > 0}.map do |ip|
+      Yabitz::Model::IPAddress.with_scope(ip, scope)
+    end
+  end
+
+  def scoped_ip_objects(params, field, index)
+    scoped_ip_values(params, field, index).map{|ip| Yabitz::Model::IPAddress.query_or_create(:address => ip)}
+  end
+
   # ホスト詳細表示
   get %r!/ybz/host/([-0-9]+)(\.json|\.ajax|\.tr\.ajax|(\.[SML])?\.csv)?! do |oidlist, ctype, size|
     authorized?
@@ -99,9 +111,9 @@ class Yabitz::Application < Sinatra::Base
         host.disk = params["disk#{i}"].strip
         host.os = params["os#{i}"].strip.empty? ? "" : Yabitz::Model::OSInformation.get(params["os#{i}"].to_i).name
         host.dnsnames = params["dnsnames#{i}"].split(/\s+/).select{|n|n.size > 0}.map{|dns| Yabitz::Model::DNSName.query_or_create(:dnsname => dns)}
-        host.localips = params["localips#{i}"].split(/\s+/).select{|n|n.size > 0}.map{|lip| Yabitz::Model::IPAddress.query_or_create(:address => lip)}
-        host.globalips = params["globalips#{i}"].split(/\s+/).select{|n|n.size > 0}.map{|gip| Yabitz::Model::IPAddress.query_or_create(:address => gip)}
-        host.virtualips = params["virtualips#{i}"].split(/\s+/).select{|n|n.size > 0}.map{|gip| Yabitz::Model::IPAddress.query_or_create(:address => gip)}
+        host.localips = scoped_ip_objects(params, 'localips', i)
+        host.globalips = scoped_ip_objects(params, 'globalips', i)
+        host.virtualips = scoped_ip_objects(params, 'virtualips', i)
         alert_plugin = Yabitz::Plugin.get(:hostalerts).first
         host.alert = alert_plugin ? alert_plugin.default_value : false
 

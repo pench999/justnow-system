@@ -50,7 +50,9 @@
   = field_editable 'host', @host, :text, :memory, "メモリ", @host.memory, "未記入"
   = field_editable 'host', @host, :text, :disk, "ディスク", @host.disk, "未記入"
   = field_editable 'host', @host, :combobox, :os, "OS", @host.os, "未指定", :opt_class => Yabitz::Model::OSInformation, :opt_value => :name
+  - ip_scopes = Yabitz::Model::IPAddress.scopes
   - [['DNSホスト名', 'dnsnames'], ['Local IP', 'localips'], ['Global IP', 'globalips'], ['Virtual IP', 'virtualips']].each do |pair|
+    - ip_field = ['localips', 'globalips', 'virtualips'].include?(pair.last)
     - if @isadmin
       %form.inline.field_edit_form{:name => "editAdmin", :action => "/ybz/host/#{@host.oid}", :method => 'POST', :onsubmit => 'return false;'}
         %div.hidden
@@ -68,16 +70,30 @@
             - vnum += 1
             %li.valueitem.clickableitem
               %div.dataview.clickablelabel{:title => h(v.to_s)}&= v.to_s
-              %div.dataedit
-                %input{:type => "text", :name => "value#{vnum}", :value => h(v.to_s)}
+              %div.dataedit{:class => (ip_field ? 'ip-scope-edit' : nil)}
+                - if ip_field
+                  %select.ip-scope-input{:name => "scope#{vnum}"}
+                    - ip_scopes.each do |scope|
+                      %option{:value => scope, :selected => scope == v.scope}&= scope
+                  %input.ip-address-input{:type => "text", :name => "ipvalue#{vnum}", :value => h(v.address)}
+                  %input.ip-combined-input{:type => "hidden", :name => "value#{vnum}", :value => h(v.to_s)}
+                - else
+                  %input{:type => "text", :name => "value#{vnum}", :value => h(v.to_s)}
               %div.dataupdown
                 - if vnum > 1
                   %img.button.orderedit{:id => vnum, :name => 'up', :src => "/images/upward.png", :alt => "up"}
                 - if vnum < values.size
                   %img.button.orderedit{:id => vnum, :name => 'down', :src => "/images/downward.png", :alt => "down"}
           %li.valueitem.addinput
-            %div.dataedit
-              %input{:type => "text", :name => "value_new"}
+            %div.dataedit{:class => (ip_field ? 'ip-scope-edit' : nil)}
+              - if ip_field
+                %select.ip-scope-input{:name => "scope_new"}
+                  - ip_scopes.each do |scope|
+                    %option{:value => scope, :selected => scope == Yabitz::Model::IPAddress::DEFAULT_SCOPE}&= scope
+                %input.ip-address-input{:type => "text", :name => "ipvalue_new"}
+                %input.ip-combined-input{:type => "hidden", :name => "value_new"}
+              - else
+                %input{:type => "text", :name => "value_new"}
     - else
       %div.field&= pair.first
       %ul.valueslist

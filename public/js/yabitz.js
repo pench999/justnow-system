@@ -1035,7 +1035,7 @@ function commit_field_change(event) {
 
 function commit_order_change(event) {
   var swapfrom_valueitem = $(event.target).closest('li.valueitem');
-  var swapfrom = swapfrom_valueitem.children('div.dataedit').children('input');
+  var swapfrom = editable_value_input(swapfrom_valueitem.children('div.dataedit'));
   var swapto_valueitem = null;
   if ($(event.target).attr('name') == 'up') {
     swapto_valueitem = swapfrom_valueitem.prev();
@@ -1043,18 +1043,45 @@ function commit_order_change(event) {
   else {
     swapto_valueitem = swapfrom_valueitem.next();
   }
-  var swapto = swapto_valueitem.children('div.dataedit').children('input');
+  var swapto = editable_value_input(swapto_valueitem.children('div.dataedit'));
 
   var tmp = swapfrom.val();
   swapfrom.val(swapto.val());
   swapto.val(tmp);
+  var fromScope = swapfrom_valueitem.children('div.dataedit').find('select.ip-scope-input');
+  var toScope = swapto_valueitem.children('div.dataedit').find('select.ip-scope-input');
+  if (fromScope.size() > 0 && toScope.size() > 0) {
+    var tmpScope = fromScope.val();
+    fromScope.val(toScope.val());
+    toScope.val(tmpScope);
+  }
   
   commit_field_form($(event.target).closest('form.field_edit_form'), reload_detailbox);
   event.preventDefault();
   return false;
 };
 
+function sync_ip_scope_inputs(form) {
+  $(form).find('div.ip-scope-edit').each(function(){
+    var box = $(this);
+    var ip = $.trim(box.find('input.ip-address-input').val() || '');
+    var scope = box.find('select.ip-scope-input').val() || 'default';
+    var combined = '';
+    if (ip.length > 0) {
+      combined = (scope == 'default') ? ip : scope + ':' + ip;
+    }
+    box.find('input.ip-combined-input').val(combined);
+  });
+}
+
+function editable_value_input(dataedit) {
+  var ipInput = dataedit.find('input.ip-address-input');
+  if (ipInput.size() > 0) { return ipInput; }
+  return dataedit.children('input').filter('[type!=hidden]');
+}
+
 function commit_field_form(form, on_error_callback) {
+  sync_ip_scope_inputs(form);
   var fieldname = $(form).children("input[name='field']").val();
   var type = $('#detailbox > .identity').children("input[name='type']").val();
   var oid = $('#detailbox > .identity').children("input[name='oid']").val();
@@ -1128,7 +1155,7 @@ function show_editable_item(event) {
   }
   else {
     /* normal ajax input text setup */
-    var inputbox = group.children('.dataedit').children('input');
+    var inputbox = editable_value_input(group.children('.dataedit'));
     inputbox.addClass('datainput')
       .unbind()
       .focus(function(){this.select();})
@@ -1155,7 +1182,20 @@ function rollback_editable_area(event) {
 
 function rollback_editable_item(event) {
   var group = $(event.target).closest('.clickableitem');
-  group.children('div.dataedit').find("input[name='value']").val(group.children('.dataview').attr('title'));
+  if (group.children('div.dataedit').hasClass('ip-scope-edit')) {
+    var title = group.children('.dataview').attr('title') || '';
+    var parts = title.match(/^([A-Za-z0-9_.-]+):(.+)$/);
+    if (parts) {
+      group.children('div.dataedit').find('select.ip-scope-input').val(parts[1]);
+      group.children('div.dataedit').find('input.ip-address-input').val(parts[2]);
+    } else {
+      group.children('div.dataedit').find('select.ip-scope-input').val('default');
+      group.children('div.dataedit').find('input.ip-address-input').val(title);
+    }
+    sync_ip_scope_inputs(group.closest('form.field_edit_form'));
+  } else {
+    group.children('div.dataedit').find("input[name='value']").val(group.children('.dataview').attr('title'));
+  }
   group.children('.dataedit').hide();
   group.children('.dataview').show();
 };
@@ -1166,7 +1206,7 @@ function show_add_item(event) {
   div1.show();
   div2.show();
 
-  div2.children('input')
+  editable_value_input(div2)
     .addClass('datainput')
     .unbind()
     .focus(function(){this.select();})
@@ -1178,6 +1218,7 @@ function show_add_item(event) {
 function hide_add_item(event) {
   var target = $(event.target).closest('li.addinput');
   $(event.target).val('');
+  $(event.target).closest('div.ip-scope-edit').find('input.ip-combined-input').val('');
   target.hide();
 };
 

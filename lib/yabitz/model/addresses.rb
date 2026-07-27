@@ -175,6 +175,24 @@ module Yabitz
         end
       end
 
+
+      def self.scopes
+        scopes = []
+        Stratum.conn do |conn|
+          [tablename, IPSegment.tablename].each do |table|
+            conn.query("SELECT DISTINCT scope FROM #{table} WHERE head=? AND removed=? ORDER BY scope", Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE).each do |row|
+              scopes.push(normalize_scope(row['scope']))
+            end
+          end
+        end
+        ([DEFAULT_SCOPE] + scopes).uniq.sort
+      end
+
+      def self.with_scope(address, scope=DEFAULT_SCOPE)
+        parsed_scope, parsed_address = parse_scoped_address(address, scope)
+        display_address(parsed_address, parsed_scope)
+      end
+
       def self.display_address(address, scope=DEFAULT_SCOPE)
         normalized_scope = normalize_scope(scope)
         normalized_scope == DEFAULT_SCOPE ? address.to_s : normalized_scope + ':' + address.to_s
