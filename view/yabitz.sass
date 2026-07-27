@@ -1849,6 +1849,31 @@ body.theme-modern #content, body.theme-dark #content
   :padding 0
 
 
+body.theme-modern:before, body.theme-dark:before
+  :content ""
+  :position fixed
+  :left 276px
+  :right 0
+  :top 0
+  :height 34px
+  :z-index 15
+  :background #f4f7f9
+  :pointer-events none
+
+body.theme-modern:after, body.theme-dark:after
+  :content ""
+  :position fixed
+  :left 276px
+  :right 0
+  :bottom 0
+  :height 24px
+  :z-index 15
+  :background #f4f7f9
+  :pointer-events none
+
+body.theme-dark:before, body.theme-dark:after
+  :background #111820
+
 body.theme-modern #accountbox, body.theme-dark #accountbox
   :display flex
   :align-items center
@@ -2130,6 +2155,9 @@ body.theme-dark .mini_rack_part.alert
   :background-color #d65252
 
 @media screen and (max-width: 1040px)
+
+  body.theme-modern:before, body.theme-modern:after, body.theme-dark:before, body.theme-dark:after
+    :display none
 
   body.theme-modern #accountbox, body.theme-dark #accountbox
     :position static
