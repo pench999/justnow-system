@@ -13,7 +13,7 @@
     %meta{:name => "viewport", :content => "width=device-width, initial-scale=1"}
     %link{:rel => "icon", :href => "/favicon.ico"}
     %link{:rel => "shortcut icon", :href => "/favicon.ico"}
-    %link{:rel => "stylesheet", :href => "/ybz/yabitz.css?v=learn-frame-20260727a", :type => "text/css"}
+    %link{:rel => "stylesheet", :href => "/ybz/yabitz.css?v=simple-topbar-20260727a", :type => "text/css"}
     %link{:rel => "stylesheet", :href => "/css/jquery-ui.sunny.css", :type => "text/css"}
     %link{:rel => "stylesheet", :href => "/css/droppy.css", :type => "text/css"}
     - Yabitz::Plugin.get(:handler).each do |plugin|
@@ -56,14 +56,12 @@
     %div#content
       = partial :layout_top
       %div#apptopbar
-        %div.apptopbar_title&= @page_title || "JustNow System"
         %div#accountbox
           - if @user
             %span.account_name&= @user.fullname + (@isadmin ? "(ADMIN)" : "")
             %a.account_action{:href => "/ybz/authenticate/logout"} ログアウト
           - else
             %a.account_action{:href => "/ybz/authenticate/login"} ログイン
-      %div#appbottombar
       - if @default_selected_all
         %div.hidden.default_selected_all
           select all selectables

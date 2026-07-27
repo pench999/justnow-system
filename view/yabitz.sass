@@ -1851,42 +1851,23 @@ body.theme-modern #content, body.theme-dark #content
 
 body.theme-modern #apptopbar, body.theme-dark #apptopbar
   :position fixed
-  :left 276px
+  :left 248px
   :right 0
   :top 0
   :height 52px
   :z-index 20
   :display flex
   :align-items center
-  :justify-content space-between
+  :justify-content flex-end
   :box-sizing border-box
   :padding 0 22px
   :border-bottom 1px solid #d6dee5
   :background #ffffff
   :box-shadow 0 1px 8px rgba(15, 35, 50, 0.06)
 
-body.theme-modern .apptopbar_title, body.theme-dark .apptopbar_title
-  :font-size 14px
-  :font-weight bold
-  :color #26323d
-
-body.theme-modern #appbottombar, body.theme-dark #appbottombar
-  :position fixed
-  :left 276px
-  :right 0
-  :bottom 0
-  :height 22px
-  :z-index 20
-  :box-sizing border-box
-  :border-top 1px solid #d6dee5
-  :background #ffffff
-
-body.theme-dark #apptopbar, body.theme-dark #appbottombar
+body.theme-dark #apptopbar
   :background #17212b
   :border-color #304253
-
-body.theme-dark .apptopbar_title
-  :color #d8e2ea
 
 body.theme-modern #accountbox, body.theme-dark #accountbox
   :display flex
@@ -2032,10 +2013,10 @@ body.theme-modern .droppy li.hover ul, body.theme-dark .droppy li.hover ul
   :z-index auto !important
 
 body.theme-modern #appview, body.theme-modern #appfooter, body.theme-dark #appview, body.theme-dark #appfooter
-  :margin-left 276px
+  :margin-left 248px
 
 body.theme-modern #appview, body.theme-dark #appview
-  :padding 74px 22px 42px
+  :padding 74px 22px 24px
 
 body.theme-modern #break, body.theme-dark #break
   :display none
@@ -2166,7 +2147,7 @@ body.theme-dark .mini_rack_part.alert
 
 @media screen and (max-width: 1040px)
 
-  body.theme-modern #apptopbar, body.theme-dark #apptopbar, body.theme-modern #appbottombar, body.theme-dark #appbottombar
+  body.theme-modern #apptopbar, body.theme-dark #apptopbar
     :position static
     :left auto
     :right auto
@@ -2174,9 +2155,6 @@ body.theme-dark .mini_rack_part.alert
     :padding 10px 12px
     :margin 0 0 10px
     :box-shadow none
-
-  body.theme-modern #appbottombar, body.theme-dark #appbottombar
-    :display none
 
   body.theme-modern #accountbox, body.theme-dark #accountbox
     :display flex
