@@ -168,6 +168,9 @@ table.inputitems tr td.spacer
   :padding-top 1em
   :padding-bottom 1em
 
+#accountbox
+  :display none
+
 #username
   :position relative
   :color #000
@@ -1845,6 +1848,41 @@ body.theme-modern #content, body.theme-dark #content
   :max-width none
   :padding 0
 
+
+body.theme-modern #accountbox, body.theme-dark #accountbox
+  :display flex
+  :align-items center
+  :gap 10px
+  :position fixed
+  :top 12px
+  :right 18px
+  :z-index 20
+  :padding 7px 10px
+  :border 1px solid #d6dee5
+  :border-radius 8px
+  :background rgba(255, 255, 255, 0.92)
+  :box-shadow 0 1px 6px rgba(15, 35, 50, 0.12)
+  :font-size 12px
+  :line-height 1.2
+
+body.theme-modern #accountbox .account_name, body.theme-dark #accountbox .account_name
+  :font-weight bold
+  :color #26323d
+
+body.theme-modern #accountbox .account_action, body.theme-dark #accountbox .account_action
+  :white-space nowrap
+
+body.theme-modern #nav .nav_account, body.theme-dark #nav .nav_account
+  :display none
+
+body.theme-dark #accountbox
+  :background rgba(23, 33, 43, 0.94)
+  :border-color #304253
+  :box-shadow 0 1px 8px rgba(0, 0, 0, 0.3)
+
+body.theme-dark #accountbox .account_name
+  :color #d8e2ea
+
 body.theme-modern #appheader, body.theme-dark #appheader
   :position fixed
   :left 0
@@ -1962,7 +2000,7 @@ body.theme-modern #appview, body.theme-modern #appfooter, body.theme-dark #appvi
   :margin-left 276px
 
 body.theme-modern #appview, body.theme-dark #appview
-  :padding 18px 20px
+  :padding 46px 20px 34px
 
 body.theme-modern #break, body.theme-dark #break
   :display none
@@ -2092,6 +2130,14 @@ body.theme-dark .mini_rack_part.alert
   :background-color #d65252
 
 @media screen and (max-width: 1040px)
+
+  body.theme-modern #accountbox, body.theme-dark #accountbox
+    :position static
+    :display flex
+    :margin 0 0 10px
+    :box-shadow none
+  body.theme-modern #nav .nav_account, body.theme-dark #nav .nav_account
+    :display none
   body.theme-modern #appheader, body.theme-dark #appheader
     :position static
     :width auto
@@ -2101,7 +2147,7 @@ body.theme-dark .mini_rack_part.alert
   body.theme-modern #appview, body.theme-modern #appfooter, body.theme-dark #appview, body.theme-dark #appfooter
     :margin-left 0
   body.theme-modern #appview, body.theme-dark #appview
-    :padding 10px 0
+    :padding 14px 0 18px
 
 
 

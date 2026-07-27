@@ -6,14 +6,20 @@
 %div#appheader
   %a{:href => "/ybz/"}
     %div#appheaderlogo{:title => "JustNow System"}
+  %div#accountbox
+    - if @user
+      %span.account_name&= @user.fullname + (@isadmin ? "(ADMIN)" : "")
+      %a.account_action{:href => "/ybz/authenticate/logout"} ログアウト
+    - else
+      %a.account_action{:href => "/ybz/authenticate/login"} ログイン
   %div
     %ul{:id => "nav", :style => "float: right;"}
       - if @user
-        %li&= @user.fullname + (@isadmin ? "(ADMIN)" : "")
-        %li
+        %li.nav_account&= @user.fullname + (@isadmin ? "(ADMIN)" : "")
+        %li.nav_account
           %a{:href => "/ybz/authenticate/logout"} ログアウト
       - else
-        %li
+        %li.nav_account
           %a{:href => "/ybz/authenticate/login"} ログイン
       %li{:class => current_class.call(['/ybz/services'])}
         %a{:href => "/ybz/services"} サービス一覧
