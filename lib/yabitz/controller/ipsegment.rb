@@ -17,13 +17,13 @@ class Yabitz::Application < Sinatra::Base
     values_by_version = Hash.new{|hash, key| hash[key] = []}
     seen = {}
     host_sql = <<~SQL
-      SELECT address, version
+      SELECT address, scope, version
       FROM #{Yabitz::Model::IPAddress.tablename}
       WHERE head=? AND removed=?
         AND hosts > ''
     SQL
     holder_sql = <<~SQL
-      SELECT address, version
+      SELECT address, scope, version
       FROM #{Yabitz::Model::IPAddress.tablename}
       WHERE head=? AND removed=?
         AND holder=?
@@ -33,11 +33,12 @@ class Yabitz::Application < Sinatra::Base
       [conn.query(host_sql, Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE),
        conn.query(holder_sql, Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE, Stratum::Model::BOOL_TRUE)].each do |rows|
         rows.each do |row|
-          key = row['version'].to_s + ':' + row['address'].to_s
+          scope = Yabitz::Model::IPAddress.normalize_scope(row['scope'])
+          key = row['version'].to_s + ':' + scope + ':' + row['address'].to_s
           next if seen[key]
 
           begin
-            values_by_version[row['version']].push(IPAddr.new(row['address']).to_i)
+            values_by_version[[row['version'], scope]].push(IPAddr.new(row['address']).to_i)
             seen[key] = true
           rescue ArgumentError
             next
@@ -51,7 +52,7 @@ class Yabitz::Application < Sinatra::Base
   end
 
   def sort_ipsegments(ipsegments)
-    ipsegments.sort_by!{|seg| [seg.version, seg.to_addr.to_i, seg.netmask.to_i]}
+    ipsegments.sort_by!{|seg| [seg.version, seg.scope.to_s, seg.to_addr.to_i, seg.netmask.to_i]}
   end
 
   def lower_bound(values, target)
@@ -93,20 +94,21 @@ class Yabitz::Application < Sinatra::Base
     values_by_version = used_ip_values_by_version
     ipsegments.each_with_object({}) do |seg, result|
       network = seg.to_addr
-      result[seg.to_s] = used_ip_count_in_network(values_by_version[seg.version], network)
+      result[seg.to_s] = used_ip_count_in_network(values_by_version[[seg.version, Yabitz::Model::IPAddress.normalize_scope(seg.scope)]], network)
     end
   end
 
-  def meaningful_ipaddresses_in_network(network)
+  def meaningful_ipaddresses_in_network(network, scope=Yabitz::Model::IPAddress::DEFAULT_SCOPE)
+    scope = Yabitz::Model::IPAddress.normalize_scope(scope)
     oids = []
     seen = {}
     queries = [
-      ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND hosts > ''",
-       [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE]],
-      ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND holder=?",
-       [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE, Stratum::Model::BOOL_TRUE]],
-      ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND notes > ''",
-       [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE]]
+      ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND scope=? AND hosts > ''",
+       [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE, scope]],
+      ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND scope=? AND holder=?",
+       [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE, scope, Stratum::Model::BOOL_TRUE]],
+      ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND scope=? AND notes > ''",
+       [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE, scope]]
     ]
 
     Stratum.conn do |conn|
@@ -144,6 +146,7 @@ class Yabitz::Application < Sinatra::Base
         ['OID',       Proc.new{|segment| segment.oid }],
         ['CIDR',      Proc.new{|segment| segment.to_s }],
         ['ADDRESS',   Proc.new{|segment| segment.address }],
+        ['SCOPE',     Proc.new{|segment| segment.scope }],
         ['NETMASK',   Proc.new{|segment| segment.netmask }],
         ['VERSION',   Proc.new{|segment| segment.version }],
         ['AREA',      Proc.new{|segment| segment.area }],
@@ -175,6 +178,7 @@ class Yabitz::Application < Sinatra::Base
         ['OID',       Proc.new{|segment| segment.oid }],
         ['CIDR',      Proc.new{|segment| segment.to_s }],
         ['ADDRESS',   Proc.new{|segment| segment.address }],
+        ['SCOPE',     Proc.new{|segment| segment.scope }],
         ['NETMASK',   Proc.new{|segment| segment.netmask }],
         ['VERSION',   Proc.new{|segment| segment.version }],
         ['AREA',      Proc.new{|segment| segment.area }],
@@ -201,9 +205,10 @@ class Yabitz::Application < Sinatra::Base
     when '.csv'
       csv_attachment("justnow-ipsegment-#{@ipseg.address}_#{@ipseg.netmask}.csv")
       network = @ipseg.to_addr
-      ips = meaningful_ipaddresses_in_network(network).sort
+      ips = meaningful_ipaddresses_in_network(network, @ipseg.scope).sort
       build_csv([
         ['ADDRESS',  Proc.new{|ip| ip.address }],
+        ['SCOPE',    Proc.new{|ip| ip.scope }],
         ['VERSION',  Proc.new{|ip| ip.version }],
         ['HOSTS',    Proc.new{|ip| ip.hosts }],
         ['HOLDER',   Proc.new{|ip| ip.holder }],
@@ -216,9 +221,9 @@ class Yabitz::Application < Sinatra::Base
       haml :ipsegment_parts, :layout => false
     else
       @network = @ipseg.to_addr
-      @ips = meaningful_ipaddresses_in_network(@network)
+      @ips = meaningful_ipaddresses_in_network(@network, @ipseg.scope)
       iptable = Hash[*(@ips.map{|ip| [ip.address, ip]}.flatten)]
-      @network.to_range.each{|ip| @ips.push(Yabitz::Model::DummyIPAddress.new(ip.to_s)) unless iptable[ip.to_s]}
+      @network.to_range.each{|ip| @ips.push(Yabitz::Model::DummyIPAddress.new(ip.to_s, @ipseg.scope)) unless iptable[ip.to_s]}
       
       @page_title = "IPセグメント: #{@ipseg.to_s}"
       @ips.sort!
@@ -262,6 +267,7 @@ class Yabitz::Application < Sinatra::Base
     admin_protected!
 
     seg = Yabitz::Model::IPSegment.new
+    seg.scope = Yabitz::Model::IPAddress.normalize_scope(request.params['scope'])
     seg.set(request.params['address'].strip, request.params['mask'].to_i.to_s)
 
     cls_a = IPAddr.new("10.0.0.0/8")
@@ -276,12 +282,12 @@ class Yabitz::Application < Sinatra::Base
     seg.ongoing = true
 
     Stratum.transaction do |conn|
-      lock_key = conn.escape("ipsegment:create:#{seg.address}")
+      lock_key = conn.escape("ipsegment:create:#{seg.scope}:#{seg.address}:#{seg.netmask}")
       locked = conn.query("SELECT GET_LOCK('#{lock_key}', 5) AS locked").first['locked'].to_i
       halt HTTP_STATUS_CONFLICT, "同時登録の競合が発生しました。少し待ってからやりなおしてください" if locked != 1
 
       begin
-        existing = Yabitz::Model::IPSegment.query(:address => seg.address)
+        existing = Yabitz::Model::IPSegment.query(:address => seg.address, :scope => seg.scope)
         if existing.size > 0
           exact = existing.any?{|item| item.netmask.to_s == seg.netmask.to_s}
           raise Yabitz::DuplicationError unless exact
@@ -310,7 +316,7 @@ class Yabitz::Application < Sinatra::Base
     case params[:ope]
     when 'delete_records'
       network = segment.to_addr
-      if Yabitz::Model::IPAddress.choose(:address, :hosts, :holder, :lowlevel => true, :oidonly => true){|addr,hosts,holder| not addr.nil? and not addr.empty? and network.include?(IPAddr.new(addr)) and not hosts.nil? and not hosts.empty? and holder == Stratum::Model::BOOL_FALSE}.size > 0
+      if Yabitz::Model::IPAddress.choose(:address, :scope, :hosts, :holder, :lowlevel => true, :oidonly => true){|addr,scope,hosts,holder| not addr.nil? and not addr.empty? and network.include?(IPAddr.new(addr)) and scope == segment.scope and not hosts.nil? and not hosts.empty? and holder == Stratum::Model::BOOL_FALSE}.size > 0
         "セグメント #{segment} において使用中のIPアドレスがありますが、強行しますか？"
       else
         "選択されたセグメント #{segment} を削除して本当にいいですか？"

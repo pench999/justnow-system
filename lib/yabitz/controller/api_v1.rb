@@ -149,16 +149,17 @@ class Yabitz::Application < Sinatra::Base
       end
     end
 
-    def api_v1_ipaddresses_in_network(network)
+    def api_v1_ipaddresses_in_network(network, scope=Yabitz::Model::IPAddress::DEFAULT_SCOPE)
+      scope = Yabitz::Model::IPAddress.normalize_scope(scope)
       oids = []
       seen = {}
       queries = [
-        ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND hosts > ''",
-         [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE]],
-        ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND holder=?",
-         [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE, Stratum::Model::BOOL_TRUE]],
-        ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND notes > ''",
-         [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE]]
+        ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND scope=? AND hosts > ''",
+         [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE, scope]],
+        ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND scope=? AND holder=?",
+         [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE, scope, Stratum::Model::BOOL_TRUE]],
+        ["SELECT oid,address FROM #{Yabitz::Model::IPAddress.tablename} WHERE head=? AND removed=? AND scope=? AND notes > ''",
+         [Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE, scope]]
       ]
 
       Stratum.conn do |conn|
@@ -216,9 +217,9 @@ class Yabitz::Application < Sinatra::Base
         :disk => host.disk,
         :os => host.os,
         :dnsnames => host.dnsnames.map(&:dnsname),
-        :localips => host.localips.map(&:address),
-        :globalips => host.globalips.map(&:address),
-        :virtualips => host.virtualips.map(&:address),
+        :localips => host.localips.map(&:to_s),
+        :globalips => host.globalips.map(&:to_s),
+        :virtualips => host.virtualips.map(&:to_s),
         :alert => host.alert,
         :can_view_notes => can_view_host_notes?,
         :notes => (can_view_host_notes? ? host.notes : nil)
@@ -262,6 +263,7 @@ class Yabitz::Application < Sinatra::Base
         :last_modified => segment.inserted_at ? segment.inserted_at.to_s : nil,
         :removed => segment.removed,
         :address => segment.address,
+        :scope => segment.scope,
         :netmask => segment.netmask,
         :cidr => "#{segment.address}/#{segment.netmask}",
         :version => segment.version,
@@ -278,6 +280,8 @@ class Yabitz::Application < Sinatra::Base
         :last_modified => ip.inserted_at ? ip.inserted_at.to_s : nil,
         :removed => ip.removed,
         :address => ip.address,
+        :scope => ip.scope,
+        :scoped_address => ip.to_s,
         :version => ip.version,
         :holder => ip.holder,
         :hosts => ip.hosts.map {|host| api_v1_ref(host) },
@@ -410,7 +414,8 @@ class Yabitz::Application < Sinatra::Base
                end
     segments = api_v1_filter_text(segments, params[:q], [
       Proc.new {|segment| segment.address },
-      Proc.new {|segment| "#{segment.address}/#{segment.netmask}" },
+      Proc.new {|segment| segment.scope },
+      Proc.new {|segment| segment.to_s },
       Proc.new {|segment| segment.version },
       Proc.new {|segment| segment.area },
       Proc.new {|segment| segment.notes }
@@ -430,7 +435,7 @@ class Yabitz::Application < Sinatra::Base
     ips = if params[:segment_oid]
             segment = Yabitz::Model::IPSegment.get(params[:segment_oid].to_i)
             halt api_v1_not_found('ipsegment') unless segment
-            api_v1_ipaddresses_in_network(segment.to_addr)
+            api_v1_ipaddresses_in_network(segment.to_addr, segment.scope)
           elsif params[:q] and not params[:q].to_s.strip.empty?
             like = '%' + params[:q].to_s.strip + '%'
             oids = []
@@ -439,11 +444,11 @@ class Yabitz::Application < Sinatra::Base
                 SELECT oid
                 FROM #{Yabitz::Model::IPAddress.tablename}
                 WHERE head=? AND removed=?
-                  AND (address LIKE ? OR notes LIKE ?)
+                  AND (address LIKE ? OR scope LIKE ? OR notes LIKE ?)
                 ORDER BY version, address
                 LIMIT ?
               SQL
-              conn.query(sql, Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE, like, like, API_V1_MAX_LIMIT).each do |row|
+              conn.query(sql, Stratum::Model::BOOL_TRUE, Stratum::Model::BOOL_FALSE, like, like, like, API_V1_MAX_LIMIT).each do |row|
                 oids.push(row['oid'])
               end
             end
@@ -454,6 +459,8 @@ class Yabitz::Application < Sinatra::Base
     unless params[:q] and not params[:q].to_s.strip.empty? and not params[:segment_oid]
       ips = api_v1_filter_text(ips, params[:q], [
         Proc.new {|ip| ip.address },
+        Proc.new {|ip| ip.scope },
+        Proc.new {|ip| ip.to_s },
         Proc.new {|ip| ip.version },
         Proc.new {|ip| ip.hosts.map(&:display_name).join(' ') },
         Proc.new {|ip| ip.notes }
@@ -465,7 +472,8 @@ class Yabitz::Application < Sinatra::Base
   end
 
   get '/ybz/api/v1/ipaddresses/:address' do |address|
-    ip = Yabitz::Model::IPAddress.query(:address => address, :unique => true)
+    scope, raw_address = Yabitz::Model::IPAddress.parse_scoped_address(address, params[:scope])
+    ip = Yabitz::Model::IPAddress.query(:address => raw_address, :scope => scope, :unique => true)
     halt api_v1_not_found('ipaddress') unless ip
     api_v1_json({:data => api_v1_ipaddress(ip)})
   end

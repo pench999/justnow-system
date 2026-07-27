@@ -57,7 +57,7 @@
           %td{:style => "font-size: 80%;"}&= dns.dnsname
   %td.td_padding_ex
     %img{:src => "/images/1x1.gif"}
-  - ips = host.localips.map{|i| i.address} + host.globalips.map{|i| '(g)' + i.address} + host.virtualips.map{|i| '(v)' + i.address}
+  - ips = host.localips.map{|i| i.to_s} + host.globalips.map{|i| '(g)' + i.to_s} + host.virtualips.map{|i| '(v)' + i.to_s}
   %td.td_base_narrow
     %table
       - ips.each do |ip|

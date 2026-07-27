@@ -55,7 +55,7 @@ module Yabitz
 
       def json_meta_fields
         if self.localips_by_id.size > 0
-          {:localip => self.localips.first.address}
+          {:localip => self.localips.first.to_s}
         else
           {}
         end
@@ -138,10 +138,10 @@ module Yabitz
           return self.dnsnames[0].dnsname
         end
         if self.localips_by_id and self.localips_by_id.size > 0
-          return "local:" + self.localips[0].address
+          return "local:" + self.localips[0].to_s
         end
         if self.globalips_by_id and self.globalips_by_id.size > 0
-          return "global:" + self.globalips[0].address
+          return "global:" + self.globalips[0].to_s
         end
         if not self.rackunit_by_id.nil?
           return "rackunit:" + self.rackunit.rackunit

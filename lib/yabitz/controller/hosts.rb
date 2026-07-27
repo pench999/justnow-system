@@ -32,7 +32,8 @@ class Yabitz::Application < Sinatra::Base
   # IPアドレスからのホスト一覧
   get %r!/ybz/hosts/ipaddress/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(\.json|\.csv)?! do |address, ctype|
     authorized?
-    ip = Yabitz::Model::IPAddress.query(:address => address, :unique => true)
+    scope, raw_address = Yabitz::Model::IPAddress.parse_scoped_address(address, request.params['scope'])
+    ip = Yabitz::Model::IPAddress.query(:address => raw_address, :scope => scope, :unique => true)
     pass unless ip and ip.hosts.size > 0
 
     case ctype
@@ -45,9 +46,9 @@ class Yabitz::Application < Sinatra::Base
     else
       @hosts = ip.hosts
       @hosts.sort!
-      @page_title = "ホスト一覧 (IPアドレス: #{address})"
+      @page_title = "ホスト一覧 (IPアドレス: #{ip ? ip.to_s : address})"
       @copypastable = true
-      haml :hosts, :locals => {:cond => "IPアドレス: #{address}"}
+      haml :hosts, :locals => {:cond => "IPアドレス: #{ip ? ip.to_s : address}"}
     end
   end
 

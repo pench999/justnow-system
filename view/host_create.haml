@@ -81,7 +81,7 @@
                     %input.simple.blank_onclone{:type => "text", :name => "dnsnames0", :size => 17} 
                   %th.namefield Local IP
                   %td.inputfield.right
-                    %input.simple.blank_onclone{:type => "text", :name => "localips0", :size => 17}
+                    %input.simple.blank_onclone{:type => "text", :name => "localips0", :size => 17, :title => "例: 192.168.1.10 または tenant-a:192.168.1.10"}
                     %span.loading
                       %img{:src => '/images/load_s.gif'}
                 %tr
@@ -116,10 +116,10 @@
                 %tr
                   %th.namefield Global IP
                   %td.inputfield.left
-                    %input.simple.optional{:type => "text", :name => "globalips0", :size => 17}
+                    %input.simple.optional{:type => "text", :name => "globalips0", :size => 17, :title => "例: 203.0.113.10 または tenant-a:203.0.113.10"}
                   %th.namefield Virtual IP
                   %td.inputfield.right
-                    %input.simple.optional{:type => "text", :name => "virtualips0", :size => 17}
+                    %input.simple.optional{:type => "text", :name => "virtualips0", :size => 17, :title => "例: 192.168.1.10 または tenant-a:192.168.1.10"}
                 %tr
                   %th.namefield タグ
                   %td.inputfield.left

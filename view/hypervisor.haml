@@ -7,7 +7,7 @@
     &= hypervisor.host.display_name
     - if hypervisor.host.dnsnames_by_id.size > 1
       %img{:border => "0", :src => "/images/multi_records.png", :width => "16", :height => "16", :alt => "他", :style => "vertical-align: middle;"}
-    - ips = hypervisor.host.globalips.map{|i| '(g)' + i.address}
+    - ips = hypervisor.host.globalips.map{|i| '(g)' + i.to_s}
     - if ips
       %ul
         - if ips.size > 0

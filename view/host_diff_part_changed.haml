@@ -249,16 +249,16 @@
   %td.td_padding
     %img{:src => "/images/1x1.gif"}
   %td.td_base{:style => "text-align: right;"}
-    = from.localips.map{|i| h(i.address)}.join('<br />')
+    = from.localips.map{|i| h(i.to_s)}.join('<br />')
     %img{:src => "/images/1x1.gif"}
   %td.td_padding_narrow{:style => "padding-left: 1em; padding-right: 1em;"}
     %img{:src => "/images/1x1.gif"}
   - if from.localips_by_id == to.localips_by_id
     %td.td_base{:style => "text-align: left;"}
-      = to.localips.map{|i| h(i.address)}.join('<br />')
+      = to.localips.map{|i| h(i.to_s)}.join('<br />')
   - else
     %td.td_base.strengthed{:style => "text-align: left;"}
-      = to.localips.map{|i| from.localips_by_id.include?(i.oid) ? h(i.address) : "<strong>#{h(i.address)}</strong>"}.join('<br />')
+      = to.localips.map{|i| from.localips_by_id.include?(i.oid) ? h(i.to_s) : "<strong>#{h(i.to_s)}</strong>"}.join('<br />')
   %td.td_line_term
     %img{:src => "/images/1x1.gif"}
 - if from.globalips_by_id != to.globalips_by_id
@@ -268,12 +268,12 @@
     %td.td_padding
       %img{:src => "/images/1x1.gif"}
     %td.td_base{:style => "text-align: right;"}
-      = from.globalips.map{|g| h(g.address)}.join('<br />')
+      = from.globalips.map{|g| h(g.to_s)}.join('<br />')
       %img{:src => "/images/1x1.gif"}
     %td.td_padding_narrow{:style => "padding-left: 1em; padding-right: 1em;"}
       %img{:src => "/images/1x1.gif"}
     %td.td_base.strengthed{:style => "text-align: left;"}
-      = to.globalips.map{|g| from.globalips_by_id.include?(g.oid) ? h(g.address) : "<strong>#{h(g.address)}</strong>"}.join('<br />')
+      = to.globalips.map{|g| from.globalips_by_id.include?(g.oid) ? h(g.to_s) : "<strong>#{h(g.to_s)}</strong>"}.join('<br />')
       %img{:src => "/images/1x1.gif"}
     %td.td_line_term
       %img{:src => "/images/1x1.gif"}
@@ -284,12 +284,12 @@
     %td.td_padding
       %img{:src => "/images/1x1.gif"}
     %td.td_base{:style => "text-align: right;"}
-      = from.virtualips.map{|v| h(v.address)}.join('<br />')
+      = from.virtualips.map{|v| h(v.to_s)}.join('<br />')
       %img{:src => "/images/1x1.gif"}
     %td.td_padding_narrow{:style => "padding-left: 1em; padding-right: 1em;"}
       %img{:src => "/images/1x1.gif"}
     %td.td_base.strengthed{:style => "text-align: left;"}
-      = to.virtualips.map{|v| from.virtualips_by_id.include?(v.oid) ? h(v.address) : "<strong>#{h(v.address)}</strong>"}.join('<br />')
+      = to.virtualips.map{|v| from.virtualips_by_id.include?(v.oid) ? h(v.to_s) : "<strong>#{h(v.to_s)}</strong>"}.join('<br />')
       %img{:src => "/images/1x1.gif"}
     %td.td_line_term
       %img{:src => "/images/1x1.gif"}

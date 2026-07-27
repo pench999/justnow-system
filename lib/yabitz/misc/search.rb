@@ -25,7 +25,7 @@ module Yabitz
       when 'dnsname'
         Yabitz::Model::DNSName.regex_match(:dnsname => pattern).map(&:hosts_by_id).flatten.uniq
       when 'ipaddress'
-        Yabitz::Model::IPAddress.regex_match(:address => pattern).map(&:hosts_by_id).flatten.uniq
+        (Yabitz::Model::IPAddress.regex_match(:address => pattern) + Yabitz::Model::IPAddress.regex_match(:scope => pattern)).map(&:hosts_by_id).flatten.uniq
       when 'hwinfo'
         Yabitz::Model::HwInformation.regex_match(:name => pattern, :oidonly => true).map do |info_oid|
           Yabitz::Model::Host.query(:hwinfo => info_oid, :oidonly => true)
@@ -103,7 +103,7 @@ module Yabitz
     def self.search(kind, keyword)
       case kind
       when :ipaddress
-        Yabitz::Model::IPAddress.regex_match(:address => Regexp.compile(keyword)).map(&:hosts).flatten.compact
+        (Yabitz::Model::IPAddress.regex_match(:address => Regexp.compile(keyword)) + Yabitz::Model::IPAddress.regex_match(:scope => Regexp.compile(keyword))).map(&:hosts).flatten.compact
       when :service
         pattern = Regexp.compile(keyword, Regexp::IGNORECASE)
         Yabitz::Model::Service.regex_match(:name => pattern).flatten.compact

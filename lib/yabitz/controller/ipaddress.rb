@@ -8,7 +8,8 @@ class Yabitz::Application < Sinatra::Base
   get %r!/ybz/ipaddress/list/network/([:._0-9]+\d/\d+)(\.json|\.csv)?! do |network_str, ctype|
     authorized?
     @network = IPAddr.new(Yabitz::Model::IPAddress.dequote(network_str))
-    @ips = Yabitz::Model::IPAddress.choose(:address){|v| @network.include?(IPAddr.new(v))}
+    @scope = Yabitz::Model::IPAddress.normalize_scope(request.params['scope'])
+    @ips = Yabitz::Model::IPAddress.choose(:address, :scope){|v, scope| scope == @scope and @network.include?(IPAddr.new(v))}
     case ctype
     when '.json'
       response['Content-Type'] = 'application/json'
@@ -18,6 +19,7 @@ class Yabitz::Application < Sinatra::Base
       @ips.sort!
       build_csv([
         ['ADDRESS',  Proc.new{|ip| ip.address }],
+        ['SCOPE',    Proc.new{|ip| ip.scope }],
         ['VERSION',  Proc.new{|ip| ip.version }],
         ['HOSTS',    Proc.new{|ip| ip.hosts }],
         ['HOLDER',   Proc.new{|ip| ip.holder }],
@@ -25,19 +27,20 @@ class Yabitz::Application < Sinatra::Base
       ], @ips)
     else
       iptable = Hash[*(@ips.map{|ip| [ip.address, ip]}.flatten)]
-      @network.to_range.each{|ip| @ips.push(Yabitz::Model::DummyIPAddress.new(ip.to_s)) unless iptable[ip.to_s]}
+      @network.to_range.each{|ip| @ips.push(Yabitz::Model::DummyIPAddress.new(ip.to_s, @scope)) unless iptable[ip.to_s]}
 
-      @page_title = "ネットワーク内のIPアドレス: #{network_str}"
+      @page_title = "ネットワーク内のIPアドレス: #{Yabitz::Model::IPAddress.display_address(network_str, @scope)}"
       @ips.sort!
       haml :ipaddress_list
     end
   end
 
-  get %r!/ybz/ipaddress/(\d+[._]\d+[._]\d+[._]\d+)(\.tr\.ajax|\.ajax|\.json|\.txt)?! do |ipaddr, ctype|
+  get %r!/ybz/ipaddress/((?:s_[^/]+__)?\d+[._]\d+[._]\d+[._]\d+)(\.tr\.ajax|\.ajax|\.json|\.txt)?! do |ipaddr, ctype|
     authorized?
-    @ip = Yabitz::Model::IPAddress.query(:address => Yabitz::Model::IPAddress.dequote(ipaddr), :unique => true)
+    scope, address = Yabitz::Model::IPAddress.dequote_key(ipaddr, request.params['scope'])
+    @ip = Yabitz::Model::IPAddress.query(:address => address, :scope => scope, :unique => true)
     unless @ip
-      @ip = Yabitz::Model::DummyIPAddress.new(Yabitz::Model::IPAddress.dequote(ipaddr))
+      @ip = Yabitz::Model::DummyIPAddress.new(address, scope)
     end
 
     case ctype
@@ -75,6 +78,7 @@ class Yabitz::Application < Sinatra::Base
       @ips.sort!
       build_csv([
         ['ADDRESS',  Proc.new{|ip| ip.address }],
+        ['SCOPE',    Proc.new{|ip| ip.scope }],
         ['VERSION',  Proc.new{|ip| ip.version }],
         ['HOSTS',    Proc.new{|ip| ip.hosts }],
         ['HOLDER',   Proc.new{|ip| ip.holder }],
@@ -102,6 +106,7 @@ class Yabitz::Application < Sinatra::Base
       @ips.sort!
       build_csv([
         ['ADDRESS',  Proc.new{|ip| ip.address }],
+        ['SCOPE',    Proc.new{|ip| ip.scope }],
         ['VERSION',  Proc.new{|ip| ip.version }],
         ['HOSTS',    Proc.new{|ip| ip.hosts }],
         ['HOLDER',   Proc.new{|ip| ip.holder }],
@@ -126,6 +131,7 @@ class Yabitz::Application < Sinatra::Base
       @ips.sort!
       build_csv([
         ['ADDRESS',  Proc.new{|ip| ip.address }],
+        ['SCOPE',    Proc.new{|ip| ip.scope }],
         ['VERSION',  Proc.new{|ip| ip.version }],
         ['HOSTS',    Proc.new{|ip| ip.hosts }],
         ['HOLDER',   Proc.new{|ip| ip.holder }],
@@ -136,11 +142,12 @@ class Yabitz::Application < Sinatra::Base
     end
   end
 
-  post %r!/ybz/ipaddress/(\d+_\d+_\d+_\d+)! do |ipaddr|
+  post %r!/ybz/ipaddress/((?:s_[^/]+__)?\d+_\d+_\d+_\d+)! do |ipaddr|
     admin_protected!
 
     Stratum.transaction do |conn|
-      ip = Yabitz::Model::IPAddress.query_or_create(:address => Yabitz::Model::IPAddress.dequote(ipaddr))
+      scope, address = Yabitz::Model::IPAddress.dequote_key(ipaddr, request.params['scope'])
+      ip = Yabitz::Model::IPAddress.query_or_create(:address => address, :scope => scope)
       if request.params['target_id'] and (not request.params['target_id'].empty?) and request.params['target_id'].to_i != ip.id
         raise Stratum::ConcurrentUpdateError
       end
@@ -166,7 +173,8 @@ class Yabitz::Application < Sinatra::Base
 
   get '/ybz/ipaddress/suggest.json' do
     authorized?
-    ip = request.params['ip'] ? IPAddr.new(request.params['ip']) : nil
+    scope, raw_ip = Yabitz::Model::IPAddress.parse_scoped_address(request.params['ip'], request.params['scope'])
+    ip = raw_ip ? IPAddr.new(raw_ip) : nil
     pass unless ip # object not found -> HTTP 404
 
     exclude = request.params['ex']

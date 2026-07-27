@@ -9,7 +9,10 @@
       %div{:style => "padding-top: 3em;"}
   %td.ipaddress_address
     %a{:href => "/ybz/ipsegment/#{ipsegment.oid}"}
-      &= ipsegment.address + '/' + ipsegment.netmask
+      &= ipsegment.to_s
+  %td.td_padding
+    %img{:src => "/images/1x1.gif"}
+  %td.ipaddress_scope&= ipsegment.scope
   %td.td_padding
     %img{:src => "/images/1x1.gif"}
   %td.ipaddress_version&= ipsegment.version

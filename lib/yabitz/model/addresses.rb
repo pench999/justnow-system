@@ -7,6 +7,7 @@ require_relative '../misc/validator'
 require_relative '../misc/racktype'
 
 require 'ipaddr'
+require 'cgi'
 
 module Yabitz
   module Model
@@ -77,7 +78,8 @@ module Yabitz
     end
     
     class DummyIPAddress
-      attr_reader :address, :version
+      DEFAULT_SCOPE = 'default'
+      attr_reader :address, :version, :scope
       def oid ; nil; end
       def id ; nil; end
       def hosts ; []; end
@@ -85,13 +87,16 @@ module Yabitz
       def holder ; false ; end
       def holder? ; false ; end
       def notes ; "" ; end
+      def scope ; @scope || DEFAULT_SCOPE ; end
       def <=>(other)
         if self.version != other.version
           return self.version <=> other.version
         end
+        scope_cmp = self.scope.to_s <=> other.scope.to_s
+        return scope_cmp unless scope_cmp == 0
         IPAddr.new(self.address) <=> IPAddr.new(other.address)
       end
-      def to_s ; self.address ; end
+      def to_s ; scope == DEFAULT_SCOPE ? self.address : scope + ':' + self.address ; end
       def to_addr ; IPAddr.new(self.address) ; end
 
       def set(str)
@@ -108,11 +113,12 @@ module Yabitz
         end
       end
 
-      def initialize(addr)
+      def initialize(addr, scope=DEFAULT_SCOPE)
+        @scope = scope.to_s.empty? ? DEFAULT_SCOPE : scope.to_s
         self.set(addr)
       end
 
-      def quoted_address ; self.address.tr('.', '_') ; end
+      def quoted_address ; ::Yabitz::Model::IPAddress.quote_key(self.address, self.scope) ; end
     end
 
     class IPAddress < Stratum::Model
@@ -121,7 +127,10 @@ module Yabitz
       IP_VERSIONS = [IPv4, IPv6].freeze
       
       table :ipaddresses
+      DEFAULT_SCOPE = 'default'
+
       field :address, :string, :validator => 'check_ipaddress'
+      field :scope, :string, :length => 64, :default => DEFAULT_SCOPE
       field :version, :string, :selector => IP_VERSIONS, :default => IPv4
       field :hosts, :reflist, :model => 'Yabitz::Model::Host', :empty => :ok, :serialize => :oid
       field :holder, :bool, :default => false
@@ -131,11 +140,13 @@ module Yabitz
         if self.version != other.version
           return self.version <=> other.version
         end
+        scope_cmp = self.scope.to_s <=> other.scope.to_s
+        return scope_cmp unless scope_cmp == 0
         IPAddr.new(self.address) <=> IPAddr.new(other.address)
       end
 
       def to_s
-        self.address
+        self.class.display_address(self.address, self.scope)
       end
 
       def to_addr
@@ -143,20 +154,69 @@ module Yabitz
       end
 
       def quoted_address
-        self.address.tr('.', '_')
+        self.class.quote_key(self.address, self.scope)
       end
 
       def self.dequote(str)
         str.tr('_', '.')
       end
 
+      def self.normalize_scope(scope)
+        value = scope.to_s.strip
+        value.empty? ? DEFAULT_SCOPE : value
+      end
+
+      def self.parse_scoped_address(value, fallback_scope=DEFAULT_SCOPE)
+        raw = value.to_s.strip
+        if raw =~ /\A([A-Za-z0-9_.-]+):(.+)\Z/ and Yabitz::Validator.ipaddress($2)
+          [normalize_scope($1), $2]
+        else
+          [normalize_scope(fallback_scope), raw]
+        end
+      end
+
+      def self.display_address(address, scope=DEFAULT_SCOPE)
+        normalized_scope = normalize_scope(scope)
+        normalized_scope == DEFAULT_SCOPE ? address.to_s : normalized_scope + ':' + address.to_s
+      end
+
+      def self.quote_key(address, scope=DEFAULT_SCOPE)
+        normalized_scope = normalize_scope(scope)
+        quoted_address = address.to_s.tr('.', '_')
+        return quoted_address if normalized_scope == DEFAULT_SCOPE
+
+        's_' + CGI.escape(normalized_scope) + '__' + quoted_address
+      end
+
+      def self.dequote_key(key, fallback_scope=DEFAULT_SCOPE)
+        if key.to_s =~ /\As_(.+)__([0-9_]+)\Z/
+          [normalize_scope(CGI.unescape($1)), dequote($2)]
+        else
+          [normalize_scope(fallback_scope), dequote(key)]
+        end
+      end
+
+      def self.query_or_create(*args)
+        attrs = args.first
+        if attrs.kind_of?(Hash) and attrs[:address]
+          attrs = attrs.dup
+          scope, address = parse_scoped_address(attrs[:address], attrs[:scope])
+          attrs[:address] = address
+          attrs[:scope] = scope
+          args[0] = attrs
+        end
+        super
+      end
+
       def set(str)
         result = Yabitz::Validator.ipaddress(str)
         case result
         when "v4"
+          self.scope = self.class.normalize_scope(self.scope)
           self.address = str
           self.version = IPv4
         when "v6"
+          self.scope = self.class.normalize_scope(self.scope)
           self.address = str
           self.version = IPv6
         else
@@ -176,6 +236,7 @@ module Yabitz
 
       table :ipsegments
       field :address, :string, :validator => 'check_ipaddress'
+      field :scope, :string, :length => 64, :default => IPAddress::DEFAULT_SCOPE
       field :netmask, :string, :validator => 'check_netmask'
       field :version, :string, :selector => IPAddress::IP_VERSIONS, :default => IPAddress::IPv4
       field :area, :string, :selector => IP_SEGMENT_AREAS, :default => AREA_LOCAL
@@ -186,11 +247,13 @@ module Yabitz
         if self.version != other.version
           return self.version <=> other.version
         end
+        scope_cmp = self.scope.to_s <=> other.scope.to_s
+        return scope_cmp unless scope_cmp == 0
         IPAddr.new(self.address) <=> IPAddr.new(other.address)
       end
 
       def to_s
-        self.address + '/' + self.netmask
+        IPAddress.display_address(self.address, self.scope) + '/' + self.netmask
       end
 
       def to_addr
@@ -201,6 +264,7 @@ module Yabitz
         result = Yabitz::Validator.ipaddress(addr)
         case result
         when "v4"
+          self.scope = IPAddress.normalize_scope(self.scope)
           self.address = addr
           self.netmask = mask
           self.version = IPAddress::IPv4
@@ -208,6 +272,7 @@ module Yabitz
             raise Stratum::FieldValidationError.new("invalid ipaddress #{addr}/#{mask}", self.class, :address)
           end
         when "v6"
+          self.scope = IPAddress.normalize_scope(self.scope)
           self.address = addr
           self.netmask = mask
           self.version = IPAddress::IPv6

@@ -8,7 +8,7 @@ class Yabitz::Application < Sinatra::Base
   get %r!/ybz/hostname/lookup(\.json|\.txt)! do |ctype|
     authorized?
     remote = env['HTTP_X_FORWARDED_FOR'] || env['REMOTE_ADDR']
-    @ip = Yabitz::Model::IPAddress.query(:address => remote, :unique => true)
+    @ip = Yabitz::Model::IPAddress.query(:address => remote, :scope => Yabitz::Model::IPAddress::DEFAULT_SCOPE, :unique => true)
 
     case ctype
     when '.json'

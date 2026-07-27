@@ -1,6 +1,6 @@
 -# coding: utf-8
 
-%tr.ipaddress_item.selectable{:id => "#{ipaddress.quoted_address}", :title => h(ipaddress.address)}
+%tr.ipaddress_item.selectable{:id => "#{ipaddress.quoted_address}", :title => h(ipaddress.to_s)}
   - if ipaddress.holder
     %td.ipaddress_holder
       %img{:src => "/images/1x1.gif"}
@@ -10,7 +10,7 @@
   - else
     %td.ipaddress_normal
       %img{:src => "/images/1x1.gif"}
-  %td.ipaddress_address&= ipaddress.address
+  %td.ipaddress_address&= ipaddress.to_s
   %td.td_padding
     %img{:src => "/images/1x1.gif"}
   %td.ipaddress_memo

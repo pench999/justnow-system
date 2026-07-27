@@ -195,6 +195,7 @@ CREATE TABLE ipaddresses (
 id          INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
 oid         INT             NOT NULL,
 address     VARCHAR(39)     NOT NULL,
+scope       VARCHAR(64)     NOT NULL DEFAULT 'default',
 version     VARCHAR(16)     DEFAULT 'IPv4',
 hosts       TEXT            ,
 holder      ENUM('0','1')   NOT NULL DEFAULT '0',
@@ -204,9 +205,10 @@ operated_by INT             NOT NULL,
 head        ENUM('0','1')   NOT NULL DEFAULT '1',
 removed     ENUM('0','1')   NOT NULL DEFAULT '0',
 KEY ipaddresses_oid_idx (oid, head, removed),
-KEY ipaddresses_current_idx (head, removed, holder, version, address),
-KEY ipaddresses_hosts_idx (head, removed, hosts(16), version, address),
-KEY ipaddresses_notes_idx (head, removed, notes(16), version, address),
+KEY ipaddresses_current_idx (head, removed, scope, holder, version, address),
+KEY ipaddresses_hosts_idx (head, removed, scope, hosts(16), version, address),
+KEY ipaddresses_notes_idx (head, removed, scope, notes(16), version, address),
+KEY ipaddresses_scope_address_idx (scope, address),
 KEY ipaddresses_address_idx (address)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 EOSQL
@@ -216,6 +218,7 @@ CREATE TABLE ipsegments (
 id          INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
 oid         INT             NOT NULL,
 address     VARCHAR(39)     NOT NULL,
+scope       VARCHAR(64)     NOT NULL DEFAULT 'default',
 netmask     VARCHAR(11)     ,
 version     VARCHAR(16)     DEFAULT 'IPv4',
 area        VARCHAR(16)     DEFAULT 'local',
@@ -225,7 +228,8 @@ inserted_at TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
 operated_by INT             NOT NULL,
 head        ENUM('0','1')   NOT NULL DEFAULT '1',
 removed     ENUM('0','1')   NOT NULL DEFAULT '0',
-KEY ipsegments_area_idx (head, removed, area, version, address),
+KEY ipsegments_area_idx (head, removed, area, scope, version, address),
+KEY ipsegments_scope_address_idx (scope, address),
 KEY ipsegments_address_idx (address)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 EOSQL

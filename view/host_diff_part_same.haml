@@ -160,7 +160,7 @@
   %td.td_padding
     %img{:src => "/images/1x1.gif"}
   %td.td_base{:colspan => 3, :style => "text-align: center;"}
-    = to.localips.map{|i| h(i.address)}.join('<br />')
+    = to.localips.map{|i| h(i.to_s)}.join('<br />')
     %img{:src => "/images/1x1.gif"}
   %td.td_line_term
     %img{:src => "/images/1x1.gif"}
@@ -171,7 +171,7 @@
     %td.td_padding
       %img{:src => "/images/1x1.gif"}
     %td.td_base{:colspan => 3, :style => "text-align: center;"}
-      = to.globalips.map{|g| h(g.address)}.join('<br />')
+      = to.globalips.map{|g| h(g.to_s)}.join('<br />')
     %td.td_line_term
       %img{:src => "/images/1x1.gif"}
 -#
@@ -181,7 +181,7 @@
     %td.td_padding
       %img{:src => "/images/1x1.gif"}
     %td.td_base{:colspan => 3, :style => "text-align: center;"}
-      = to.virtualips.map{|v| h(v.address)}.join('<br />')
+      = to.virtualips.map{|v| h(v.to_s)}.join('<br />')
       %img{:src => "/images/1x1.gif"}
     %td.td_line_term
       %img{:src => "/images/1x1.gif"}

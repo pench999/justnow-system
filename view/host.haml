@@ -35,7 +35,7 @@
       %img{:border => "0", :src => "/images/multi_records.png", :width => "16", :height => "16", :alt => "他", :style => "vertical-align: middle;"}
   %td.td_padding
     %img{:src => "/images/1x1.gif"}
-  - ips = host.localips.map{|i| i.address} + host.globalips.map{|i| '(g)' + i.address} + host.virtualips.map{|i| '(v)' + i.address}
+  - ips = host.localips.map{|i| i.to_s} + host.globalips.map{|i| '(g)' + i.to_s} + host.virtualips.map{|i| '(v)' + i.to_s}
   %td.host_ipaddresses
     %table.ipaddrs{:style => "width: 100%;"}
       - if ips.size > 0
