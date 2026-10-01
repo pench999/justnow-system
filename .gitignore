@@ -10,3 +10,5 @@ tmp/*
 !tmp/.keep
 .htpasswd
 docker/nginx/.htpasswd
+/data/host_images/
+!data/.keep

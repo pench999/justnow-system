@@ -32,6 +32,7 @@ services:
     volumes:
       - ./log:/app/log
       - ./tmp:/app/tmp
+      - ./data/host_images:/app/data/host_images
       - ./docker/nginx:/app/config/nginx_auth
 
   db:

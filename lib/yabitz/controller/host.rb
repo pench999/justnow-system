@@ -1,11 +1,43 @@
 # -*- coding: utf-8 -*-
 
 require 'sinatra/base'
+require 'fileutils'
+require 'securerandom'
 
 require 'haml'
 
 class Yabitz::Application < Sinatra::Base
 
+  HOST_IMAGE_CONTENT_TYPES = {
+    'image/jpeg' => '.jpg',
+    'image/png' => '.png',
+    'image/gif' => '.gif',
+    'image/webp' => '.webp'
+  }.freeze
+  HOST_IMAGE_MAX_BYTES = 5 * 1024 * 1024
+
+  def host_image_storage_dir
+    File.expand_path('../../../../data/host_images', __dir__)
+  end
+
+  def host_image_upload_param
+    request.params['image'] || request.params[:image]
+  end
+
+  def validate_host_image_upload!(upload)
+    halt HTTP_STATUS_NOT_ACCEPTABLE, '画像ファイルが指定されていません' unless upload && upload[:tempfile]
+    tempfile = upload[:tempfile]
+    content_type = upload[:type].to_s.split(';').first
+    halt HTTP_STATUS_NOT_ACCEPTABLE, 'JPEG/PNG/GIF/WebP のみ登録できます' unless HOST_IMAGE_CONTENT_TYPES.key?(content_type)
+    tempfile.rewind
+    halt HTTP_STATUS_NOT_ACCEPTABLE, '画像は5MB以下にしてください' if tempfile.size > HOST_IMAGE_MAX_BYTES
+    tempfile.rewind
+    content_type
+  end
+
+  def stored_host_image_path(filename)
+    File.join(host_image_storage_dir, File.basename(filename.to_s))
+  end
 
   def scoped_ip_values(params, field, index)
     scope = Yabitz::Model::IPAddress.normalize_scope(params["#{field}_scope#{index}"])
@@ -347,6 +379,54 @@ class Yabitz::Application < Sinatra::Base
       @hide_selectionbox = true
       haml :opetag_diff
     end
+  end
+
+
+  get '/ybz/host/:oid/image/:image_oid' do |oid, image_oid|
+    admin_protected!
+    host = Yabitz::Model::Host.get(oid.to_i)
+    pass unless host
+    image = Yabitz::Model::HostImage.get(image_oid.to_i)
+    pass unless image && image.host.oid == host.oid
+    path = stored_host_image_path(image.filename)
+    pass unless File.file?(path)
+
+    response['Content-Type'] = image.content_type
+    send_file path, :type => image.content_type, :disposition => 'inline'
+  end
+
+  post '/ybz/host/:oid/image' do |oid|
+    admin_protected!
+    host = Yabitz::Model::Host.get(oid.to_i)
+    pass unless host
+    upload = host_image_upload_param
+    content_type = validate_host_image_upload!(upload)
+
+    FileUtils.mkdir_p(host_image_storage_dir)
+    filename = "#{host.oid}_#{Time.now.utc.strftime('%Y%m%d%H%M%S')}_#{SecureRandom.hex(8)}#{HOST_IMAGE_CONTENT_TYPES[content_type]}"
+    FileUtils.copy_file(upload[:tempfile].path, stored_host_image_path(filename))
+
+    Stratum.transaction do
+      image = Yabitz::Model::HostImage.new
+      image.host = host
+      image.filename = filename
+      image.original_filename = File.basename(upload[:filename].to_s)[0, 255]
+      image.content_type = content_type
+      image.caption = request.params['caption'].to_s.strip[0, 255]
+      image.save
+    end
+
+    request.xhr? ? "ok" : redirect("/ybz/host/#{host.oid}")
+  end
+
+  post '/ybz/host/:oid/image/:image_oid/delete' do |oid, image_oid|
+    admin_protected!
+    host = Yabitz::Model::Host.get(oid.to_i)
+    pass unless host
+    image = Yabitz::Model::HostImage.get(image_oid.to_i)
+    pass unless image && image.host.oid == host.oid
+    image.remove
+    request.xhr? ? "ok" : redirect("/ybz/host/#{host.oid}")
   end
 
   # ホスト情報変更

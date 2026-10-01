@@ -352,6 +352,8 @@ function bind_events_detailbox() {
 
   $('form.field_edit_form').submit(function(e){commit_field_change(e);});
   $('form.toggle_form').submit(function(e){commit_toggle_form(e);});
+  $('form.host_image_upload').submit(function(e){commit_host_image_upload(e);});
+  $('form.host_image_delete').submit(function(e){commit_host_image_delete(e);});
 
   if (('bind_events_detailbox_addons' in window) && bind_events_detailbox_addons.length > 0) {
     $.each(bind_events_detailbox_addons, function(){ this(); });
@@ -1022,6 +1024,27 @@ function commit_smartadd_form(event) {
       set_smartadd_form_busy(form, false);
       show_error_dialog(xhr.responseText);
     }
+  });
+  return false;
+};
+
+
+function commit_host_image_upload(event) {
+  var form = $(event.target);
+  event.preventDefault();
+  form.ajaxSubmit({
+    success: function(){reload_detailbox();},
+    error: function(xhr){show_error_dialog(xhr.responseText);}
+  });
+  return false;
+};
+
+function commit_host_image_delete(event) {
+  var form = $(event.target);
+  event.preventDefault();
+  form.ajaxSubmit({
+    success: function(){reload_detailbox();},
+    error: function(xhr){show_error_dialog(xhr.responseText);}
   });
   return false;
 };

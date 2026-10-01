@@ -166,3 +166,23 @@
             %input.credential_append{:type => "button", :value => "メモへ追記"}
           %input{:type => "submit", :name => "memoupdate", :value => "更新"}
           %input{:type => "reset", :name => "memocancel", :value => "取消"}
+
+    %div.host_images
+      %div.field 添付画像
+      - host_images = Yabitz::Model::HostImage.query(:host => @host)
+      - if host_images.empty?
+        %div.host_image_empty なし
+      - else
+        %div.host_image_list
+          - host_images.each do |image|
+            %div.host_image_item
+              %a.host_image_thumb{:href => image.image_url, :target => '_blank', :title => h(image.original_filename)}
+                %img{:src => image.image_url, :alt => h(image.original_filename)}
+              - unless image.caption.to_s.empty?
+                %div.host_image_caption&= image.caption
+              %form.host_image_delete{:action => "/ybz/host/#{@host.oid}/image/#{image.oid}/delete", :method => 'POST'}
+                %input{:type => 'submit', :value => '削除', :onclick => "return confirm('この画像を削除しますか？');"}
+      %form.host_image_upload{:action => "/ybz/host/#{@host.oid}/image", :method => 'POST', :enctype => 'multipart/form-data'}
+        %input{:type => 'file', :name => 'image', :accept => 'image/jpeg,image/png,image/gif,image/webp'}
+        %input{:type => 'text', :name => 'caption', :placeholder => '説明'}
+        %input{:type => 'submit', :value => '画像追加'}
