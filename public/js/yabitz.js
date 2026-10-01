@@ -1154,6 +1154,9 @@ function show_editable_item(event) {
       .click(function(e){$(e.target).closest('form.field_edit_form').submit(); return false;});
     group.children('.dataedit').children('input[name="memocancel"]')
       .click(rollback_editable_area);
+    group.children('.dataedit').find('input.credential_append')
+      .unbind()
+      .click(function(e){append_credential_to_memo(e); return false;});
   }
   else {
     /* normal ajax input text setup */
@@ -1187,6 +1190,24 @@ function rollback_editable_area(event) {
   group.children('div.dataedit').find('textarea[name="value"]').val(group.find('textarea.valueholder').val());
   group.children('.dataedit').hide();
   group.children('.dataview').show();
+};
+
+function append_credential_to_memo(event) {
+  var area = $(event.target).closest('.dataedit.memoarea');
+  var username = area.find('input.credential_username').val();
+  var password = area.find('input.credential_password').val();
+  if (username == '' && password == '') { return false; }
+
+  var lines = ['[credential]'];
+  if (username != '') { lines.push('user: ' + username); }
+  if (password != '') { lines.push('password: ' + password); }
+
+  var textarea = area.children('textarea[name="value"]');
+  var current = textarea.val().replace(/\s+$/, '');
+  textarea.val((current == '' ? '' : current + '\n\n') + lines.join('\n'));
+  area.find('input.credential_username,input.credential_password').val('');
+  textarea.focus();
+  return false;
 };
 
 function rollback_editable_item(event) {
