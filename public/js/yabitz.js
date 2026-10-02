@@ -366,7 +366,7 @@ function bind_events_detailbox() {
     var copying = button.hasClass('credential_copy');
     function hideSecret(){secret.text('••••••••'); button.text('表示').data('revealed', false);}
     if (!copying && button.data('revealed')) {hideSecret(); return;}
-    button.prop('disabled', true);
+    button.attr('disabled', 'disabled');
     $.ajax({url: button.attr('data-url'), type: 'POST', dataType: 'json', data: {csrf: button.attr('data-csrf'), operation: copying ? 'copy' : 'reveal'},
       success: function(data){
         if (!$.contains(document.documentElement, button[0])) return;
@@ -387,7 +387,7 @@ function bind_events_detailbox() {
         window.setTimeout(hideSecret, 30000);
       },
       error: function(xhr){show_error_dialog(xhr.responseText);},
-      complete: function(){button.prop('disabled', false);}
+      complete: function(){button.removeAttr('disabled');}
     });
   });
 
