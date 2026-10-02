@@ -395,6 +395,7 @@ removed     ENUM('0','1')   NOT NULL DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
 EOSQL
 
+    sqls.concat(File.read(File.join(__dir__, 'instant/create_host_credentials_tables.sql')).split(';').map(&:strip).reject(&:empty?))
     c = conn()
     sqls.each do |s|
       c.query(s)

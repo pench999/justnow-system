@@ -354,6 +354,42 @@ function bind_events_detailbox() {
   $('form.toggle_form').submit(function(e){commit_toggle_form(e);});
   $('form.host_image_upload').submit(function(e){commit_host_image_upload(e);});
   $('form.host_image_delete').submit(function(e){commit_host_image_delete(e);});
+  $('form.credential_save,form.credential_delete').submit(function(e){
+    e.preventDefault();
+    var form = $(this);
+    if (form.hasClass('credential_delete') && !window.confirm('この認証情報を削除しますか？')) return false;
+    form.ajaxSubmit({success: function(){form.find('input[name="password"]').val(''); reload_detailbox();}, error: function(xhr){show_error_dialog(xhr.responseText);}});
+    return false;
+  });
+  $('button.credential_reveal,button.credential_copy').click(function(){
+    var button = $(this), secret = button.siblings('.credential_secret');
+    var copying = button.hasClass('credential_copy');
+    function hideSecret(){secret.text('••••••••'); button.text('表示').data('revealed', false);}
+    if (!copying && button.data('revealed')) {hideSecret(); return;}
+    button.prop('disabled', true);
+    $.ajax({url: button.attr('data-url'), type: 'POST', dataType: 'json', data: {csrf: button.attr('data-csrf'), operation: copying ? 'copy' : 'reveal'},
+      success: function(data){
+        if (!$.contains(document.documentElement, button[0])) return;
+        if (copying) {
+          if (navigator.clipboard && window.isSecureContext) {
+            navigator.clipboard.writeText(data.password).catch(function(){show_error_dialog('コピーできませんでした。');});
+          } else {
+            var temporary = $('<textarea>').val(data.password).css({position: 'fixed', left: '-9999px'}).appendTo(document.body);
+            temporary[0].select();
+            var copied = document.execCommand('copy'); temporary.remove();
+            if (!copied) show_error_dialog('コピーできませんでした。');
+          }
+          data.password = null;
+          return;
+        }
+        secret.text(data.password); data.password = null;
+        button.text('隠す').data('revealed', true);
+        window.setTimeout(hideSecret, 30000);
+      },
+      error: function(xhr){show_error_dialog(xhr.responseText);},
+      complete: function(){button.prop('disabled', false);}
+    });
+  });
 
   if (('bind_events_detailbox_addons' in window) && bind_events_detailbox_addons.length > 0) {
     $.each(bind_events_detailbox_addons, function(){ this(); });
@@ -1177,9 +1213,6 @@ function show_editable_item(event) {
       .click(function(e){$(e.target).closest('form.field_edit_form').submit(); return false;});
     group.children('.dataedit').children('input[name="memocancel"]')
       .click(rollback_editable_area);
-    group.children('.dataedit').find('input.credential_append')
-      .unbind()
-      .click(function(e){append_credential_to_memo(e); return false;});
   }
   else {
     /* normal ajax input text setup */
@@ -1213,24 +1246,6 @@ function rollback_editable_area(event) {
   group.children('div.dataedit').find('textarea[name="value"]').val(group.find('textarea.valueholder').val());
   group.children('.dataedit').hide();
   group.children('.dataview').show();
-};
-
-function append_credential_to_memo(event) {
-  var area = $(event.target).closest('.dataedit.memoarea');
-  var username = area.find('input.credential_username').val();
-  var password = area.find('input.credential_password').val();
-  if (username == '' && password == '') { return false; }
-
-  var lines = ['[credential]'];
-  if (username != '') { lines.push('user: ' + username); }
-  if (password != '') { lines.push('password: ' + password); }
-
-  var textarea = area.children('textarea[name="value"]');
-  var current = textarea.val().replace(/\s+$/, '');
-  textarea.val((current == '' ? '' : current + '\n\n') + lines.join('\n'));
-  area.find('input.credential_username,input.credential_password').val('');
-  textarea.focus();
-  return false;
 };
 
 function rollback_editable_item(event) {

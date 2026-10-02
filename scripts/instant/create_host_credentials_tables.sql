@@ -1,0 +1,27 @@
+CREATE TABLE IF NOT EXISTS host_credentials (
+  credential_id CHAR(32) PRIMARY KEY,
+  host INT NOT NULL,
+  label VARCHAR(128) NOT NULL,
+  username VARCHAR(255) NOT NULL,
+  key_id VARCHAR(64) NOT NULL,
+  nonce VARCHAR(32) NOT NULL,
+  auth_tag VARCHAR(32) NOT NULL,
+  ciphertext TEXT NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX host_credentials_host_idx (host)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS credential_access_log (
+  id BIGINT PRIMARY KEY AUTO_INCREMENT,
+  occurred_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  user_oid INT NOT NULL,
+  username VARCHAR(64) NOT NULL,
+  fullname VARCHAR(64) NOT NULL,
+  host INT NOT NULL,
+  credential_id CHAR(32) NOT NULL,
+  action VARCHAR(16) NOT NULL,
+  sourceip VARCHAR(64) NOT NULL,
+  result VARCHAR(16) NOT NULL,
+  INDEX credential_log_host_idx (host, occurred_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

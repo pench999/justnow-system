@@ -155,17 +155,48 @@
                 &= note
         %div.dataedit.memoarea
           %textarea{:rows => 15, :cols => 28, :name => "value"}&= @host.notes
-          %div.credential_helper
-            %div.credential_helper_title 認証情報を追記
-            %label
-              ユーザー
-              %input.credential_username{:type => "text", :autocomplete => "off"}
-            %label
-              パスワード
-              %input.credential_password{:type => "password", :autocomplete => "new-password"}
-            %input.credential_append{:type => "button", :value => "メモへ追記"}
           %input{:type => "submit", :name => "memoupdate", :value => "更新"}
           %input{:type => "reset", :name => "memocancel", :value => "取消"}
+
+    %div.host_credentials
+      %div.field 認証情報
+      %a{:href => "/ybz/host/#{@host.oid}/credential-log", :target => '_blank', :rel => 'noopener'} 操作履歴
+      - if Yabitz::CredentialStore.available?
+        - Yabitz::CredentialStore.list(@host.oid).each do |credential|
+          %div.host_credential
+            %form.credential_save{:action => "/ybz/host/#{@host.oid}/credential/save", :method => 'POST'}
+              %input{:type => 'hidden', :name => 'csrf', :value => credential_csrf_token}
+              %input{:type => 'hidden', :name => 'credential_id', :value => credential['credential_id']}
+              %label
+                用途
+                %input{:name => 'label', :value => credential['label'], :maxlength => 128, :required => true}
+              %label
+                ユーザー
+                %input{:name => 'username', :value => credential['username'], :maxlength => 255, :required => true, :autocomplete => 'off'}
+              %label
+                新しいパスワード
+                %input{:type => 'password', :name => 'password', :autocomplete => 'new-password', :placeholder => '変更時のみ入力'}
+              %input{:type => 'submit', :value => '更新'}
+            %span.credential_secret ••••••••
+            %button.credential_reveal{:type => 'button', 'data-url' => "/ybz/host/#{@host.oid}/credential/#{credential['credential_id']}/reveal", 'data-csrf' => credential_csrf_token} 表示
+            %button.credential_copy{:type => 'button', 'data-url' => "/ybz/host/#{@host.oid}/credential/#{credential['credential_id']}/reveal", 'data-csrf' => credential_csrf_token} コピー
+            %form.credential_delete{:action => "/ybz/host/#{@host.oid}/credential/#{credential['credential_id']}/delete", :method => 'POST'}
+              %input{:type => 'hidden', :name => 'csrf', :value => credential_csrf_token}
+              %input{:type => 'submit', :value => '削除'}
+        %form.credential_save{:action => "/ybz/host/#{@host.oid}/credential/save", :method => 'POST'}
+          %input{:type => 'hidden', :name => 'csrf', :value => credential_csrf_token}
+          %label
+            用途
+            %input{:name => 'label', :maxlength => 128, :required => true}
+          %label
+            ユーザー
+            %input{:name => 'username', :maxlength => 255, :required => true, :autocomplete => 'off'}
+          %label
+            パスワード
+            %input{:type => 'password', :name => 'password', :required => true, :autocomplete => 'new-password'}
+          %input{:type => 'submit', :value => '認証情報追加'}
+      - else
+        %div 認証情報の暗号鍵を利用できません。
 
     %div.host_images
       %div.field 添付画像

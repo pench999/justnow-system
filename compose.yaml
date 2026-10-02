@@ -24,6 +24,7 @@ services:
       YABITZ_TRUSTED_PROXY_AUTH_HEADER: X-Remote-User
       YABITZ_TRUSTED_PROXY_AUTH_FULLNAME_HEADER: X-Remote-Name
       YABITZ_HTPASSWD_PATH: /app/config/nginx_auth/.htpasswd
+      YABITZ_CREDENTIAL_KEY_FILE: /run/secrets/credential_keys.json
     depends_on:
       db:
         condition: service_healthy
@@ -33,6 +34,7 @@ services:
       - ./log:/app/log
       - ./tmp:/app/tmp
       - ./data/host_images:/app/data/host_images
+      - /etc/justnow-system/secrets:/run/secrets:ro
       - ./docker/nginx:/app/config/nginx_auth
 
   db:

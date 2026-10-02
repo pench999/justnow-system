@@ -5,4 +5,6 @@ log
 tmp
 outputs
 work
+data/host_images
+backups
 *.zip

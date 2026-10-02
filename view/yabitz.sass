@@ -3089,3 +3089,31 @@ body.theme-modern #hostlist table.ipaddrs td, body.theme-dark #hostlist table.ip
 
 .ip-scope-edit .ip-address-input
   margin-left: 0.4em
+.host_credentials
+  margin: 12px 0
+  .host_credential
+    border-bottom: 1px solid #aaa
+    padding: 8px 0
+  .credential_save
+    display: flex
+    flex-wrap: wrap
+    align-items: flex-end
+    gap: 6px
+    margin: 8px 0
+    label
+      display: flex
+      flex-direction: column
+      min-width: 0
+    input:not([type="hidden"])
+      max-width: 100%
+      box-sizing: border-box
+    input:not([type="submit"])
+      width: 160px
+  .credential_delete
+    display: inline-block
+    margin-left: 8px
+  .credential_secret
+    display: inline-block
+    max-width: 100%
+    overflow-wrap: anywhere
+    vertical-align: middle
